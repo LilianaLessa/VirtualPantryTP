@@ -1,12 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+import ProductList from "../components/product-list.component";
 
 function ProductScreen() {
-  return (
-    <View>
-      <Text>Product Screen</Text>
-    </View>
-  );
+  return <ProductList />;
 }
 
 export default ProductScreen;
