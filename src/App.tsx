@@ -1,11 +1,18 @@
-import * as React from 'react';
-import { Text, View } from 'react-native';
+import * as React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-const App = () => (
-    <View style={{ marginTop: 50 }}>
-        <Text>Hello Expo!</Text>
+const styles = StyleSheet.create({
+  basic: {
+    marginTop: 50,
+  },
+});
+
+function App() {
+  return (
+    <View style={styles.basic}>
+      <Text>Hello Expo!</Text>
     </View>
-);
-
+  );
+}
 
 export default App;
