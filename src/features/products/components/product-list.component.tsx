@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
 import Product from "../classes/product.class";
 import ProductListItem, {
   ProductListItemKeyExtractor,
@@ -10,7 +10,6 @@ function ProductList() {
 
   return (
     <View>
-      <Text>Product List</Text>
       <FlatList
         data={productList}
         renderItem={ProductListItem}

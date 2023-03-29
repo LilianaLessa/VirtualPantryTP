@@ -12,6 +12,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#E6E6E6",
     flexDirection: "row",
+    height: 45,
+    alignSelf: "stretch",
+    borderWidth: 1,
+    borderColor: "#000000",
   },
   leftContent: {
     backgroundColor: "#E6E6E6",
@@ -21,14 +25,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  listItemIcon: {
+  leftIcon: {
     color: "rgba(0,0,0,1)",
     fontSize: 20,
     marginLeft: 10,
     margin: 0,
   },
   label: {
-    // fontFamily: "roboto-regular",
     color: "#121212",
     marginLeft: 10,
     margin: 0,
@@ -40,13 +43,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
   },
-  action1Icon: {
+  addToPantryIcon: {
     color: "rgba(0,0,0,1)",
     fontSize: 25,
     marginLeft: 10,
     margin: 0,
   },
-  handlerIcon: {
+  draggableIcon: {
     color: "rgba(128,128,128,1)",
     fontSize: 20,
     marginLeft: 10,
@@ -60,19 +63,12 @@ function ProductListItem({ item }: { item: IProduct }) {
   return (
     <View style={styles.container}>
       <View style={styles.leftContent}>
-        <MaterialCommunityIcons name="food-apple" style={styles.listItemIcon} />
+        <MaterialCommunityIcons name="food-apple" style={styles.leftIcon} />
         <Text style={styles.label}>{item.name}</Text>
       </View>
-      <View
-        style={[
-          styles.rightContent,
-          {
-            backgroundColor: "#E6E6E6",
-          },
-        ]}
-      >
-        <Entypo name="box" style={styles.action1Icon} />
-        <MaterialIcons name="drag-handle" style={styles.handlerIcon} />
+      <View style={styles.rightContent}>
+        <Entypo name="box" style={styles.addToPantryIcon} />
+        <MaterialIcons name="drag-handle" style={styles.draggableIcon} />
       </View>
     </View>
   );
