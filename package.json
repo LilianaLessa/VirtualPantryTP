@@ -15,7 +15,13 @@
     "react-native": "0.71.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@tsconfig/react-native": "^2.0.3",
+    "@types/expo": "^33.0.1",
+    "@types/react": "^18.0.31",
+    "eslint": "^8.37.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "typescript": "^5.0.2"
   },
   "private": true
 }

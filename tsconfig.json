@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "lib": ["es2019", "esnext.asynciterable"],
+        "jsx": "react-native",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "types": [
+            "jest"
+        ]
+    },
+    "extends": "@tsconfig/react-native/tsconfig.json"
+}
