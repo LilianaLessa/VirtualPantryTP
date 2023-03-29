@@ -1,17 +1,17 @@
 import React from "react";
 import { FlatList, View } from "react-native";
-import Product from "../classes/product.class";
 import ProductListItem, {
   ProductListItemKeyExtractor,
 } from "./product-list-item.component";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 function ProductList() {
-  const productList: Product[] = [new Product("test1"), new Product("test2")];
+  const { products } = useTypedSelector((state) => state.savedProducts);
 
   return (
     <View>
       <FlatList
-        data={productList}
+        data={products}
         renderItem={ProductListItem}
         keyExtractor={ProductListItemKeyExtractor}
       />
