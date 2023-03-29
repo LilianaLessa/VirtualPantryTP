@@ -18,3 +18,5 @@ web-build/
 
 # WebStorm
 .idea
+/yarn-error.log
+/src/__snapshots__/
