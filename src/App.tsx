@@ -1,5 +1,6 @@
 import * as React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import ProductScreen from "./features/products/screens/product.screen";
 
 const styles = StyleSheet.create({
   basic: {
@@ -10,7 +11,7 @@ const styles = StyleSheet.create({
 function App() {
   return (
     <View style={styles.basic}>
-      <Text>Hello Expo!</Text>
+      <ProductScreen />
     </View>
   );
 }
