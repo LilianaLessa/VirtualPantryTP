@@ -1,14 +1,14 @@
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { SavedProductsActionType } from "../action-types";
 import { SavedProductsActions } from "../actions";
-import Product from "../../features/products/classes/product.class";
+import { createMockProduct } from "../../dev-utils";
 
 interface SavedProductsState {
   products: IProduct[];
 }
 
 const initialState: SavedProductsState = {
-  products: [new Product("test1"), new Product("test2")],
+  products: [createMockProduct(), createMockProduct()],
 };
 
 const savedProductsReducer = (

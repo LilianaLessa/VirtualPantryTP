@@ -5,20 +5,19 @@ import { Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import ProductList from "../components/product-list.component";
 import ProductSearchBar from "../components/product-search-bar.component";
-import Product from "../classes/product.class";
 import { useActions } from "../../../hooks/useActions";
+import { createMockProduct } from "../../../dev-utils";
 
 function ProductScreen() {
   const { saveProduct } = useActions();
-  const createMockProduct = () => {
-    const newProduct = new Product("testaaa");
-    saveProduct(newProduct);
+  const handleAddProduct = () => {
+    saveProduct(createMockProduct());
   };
 
   return (
     <View>
       <ProductSearchBar />
-      <TouchableOpacity onPress={createMockProduct}>
+      <TouchableOpacity onPress={handleAddProduct}>
         <Button mode="elevated">
           <Ionicons name="md-add" />
           TMP add product

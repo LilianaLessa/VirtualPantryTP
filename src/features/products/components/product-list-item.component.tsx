@@ -74,5 +74,5 @@ function ProductListItem({ item }: { item: IProduct }) {
   );
 }
 
-export const ProductListItemKeyExtractor = (p: IProduct) => p.name;
+export const ProductListItemKeyExtractor = (p: IProduct) => p.getKey();
 export default ProductListItem;

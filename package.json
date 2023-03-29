@@ -26,10 +26,12 @@
     "react-native-vector-icons": "^9.2.0",
     "react-redux": "^8.0.5",
     "redux": "^4.2.1",
-    "redux-thunk": "^2.4.2"
+    "redux-thunk": "^2.4.2",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "@babel/core": "^7.21.3",
+    "@faker-js/faker": "^7.6.0",
     "@react-native-community/eslint-config": "^3.2.0",
     "@tsconfig/react-native": "^2.0.3",
     "@types/expo": "^33.0.1",
