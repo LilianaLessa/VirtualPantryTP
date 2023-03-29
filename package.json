@@ -16,11 +16,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@react-native-community/eslint-config": "^3.2.0",
     "@tsconfig/react-native": "^2.0.3",
     "@types/expo": "^33.0.1",
     "@types/react": "^18.0.31",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
     "eslint": "^8.37.0",
     "eslint-config-airbnb": "^19.0.4",
+    "prettier": "^2.8.7",
     "typescript": "^5.0.2"
   },
   "private": true
