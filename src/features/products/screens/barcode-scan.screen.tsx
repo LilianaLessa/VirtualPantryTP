@@ -45,8 +45,7 @@ function BarCodeScanScreen() {
           (product: IProduct) => {
             saveProduct(product);
           },
-          (error: any) => {
-            console.log("Error:", error);
+          () => {
             showErrorSnack(
               // eslint-disable-next-line comma-dangle
               `Couldn't find a product with the barcode '${data}'`

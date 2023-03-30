@@ -14,7 +14,7 @@ export default class OpenFoodFacts implements IProductDataProvider {
     barcode: string,
     successCallback: (product: IProduct) => void,
     // eslint-disable-next-line comma-dangle
-    errorCallback: (error: any) => void
+    errorCallback: (error?: any) => void
   ): void {
     store.dispatch({ type: ApiActivityActionType.DATA_FETCHING_STARTED });
     const openFoodFactsApi = new OpenFoodFactsApi();
@@ -26,6 +26,7 @@ export default class OpenFoodFacts implements IProductDataProvider {
         if (apiResponse !== null) {
           successCallback(new Product(uuidv4(), apiResponse.product_name));
         } else {
+          console.log("Error from openFoodFactsApi:", apiResponse);
           errorCallback(apiResponse);
         }
       })
