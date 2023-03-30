@@ -1,6 +1,6 @@
-import { StyleSheet, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const searchBarStyles = StyleSheet.create({
@@ -61,10 +61,12 @@ const ProductSearchBar: React.FC<IProductSearchBarProps> = () => (
         style={searchBarStyles.inputLeftIcon}
       />
       <TextInput placeholder="Search" style={searchBarStyles.inputStyle} />
-      <MaterialCommunityIcons
-        name="barcode-scan"
-        style={searchBarStyles.icon}
-      />
+      <TouchableOpacity>
+        <MaterialCommunityIcons
+          name="barcode-scan"
+          style={searchBarStyles.icon}
+        />
+      </TouchableOpacity>
     </View>
   </View>
 );

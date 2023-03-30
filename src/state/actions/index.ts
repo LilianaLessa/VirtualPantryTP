@@ -6,4 +6,9 @@ interface SaveProductAction {
   newProduct: IProduct;
 }
 
-export type SavedProductsActions = SaveProductAction;
+interface DeleteProductAction {
+  type: SavedProductsActionType.DELETE_PRODUCT;
+  productToDelete: IProduct;
+}
+
+export type SavedProductsActions = SaveProductAction | DeleteProductAction;

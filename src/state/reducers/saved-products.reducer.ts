@@ -20,6 +20,13 @@ const savedProductsReducer = (
   switch (action.type) {
     case SavedProductsActionType.SAVE_PRODUCT:
       return { products: [...state.products, action.newProduct] };
+    case SavedProductsActionType.DELETE_PRODUCT:
+      return {
+        products: state.products.filter(
+          // eslint-disable-next-line comma-dangle
+          (p: IProduct) => p.uuid !== action.productToDelete.uuid
+        ),
+      };
     default:
       return state;
   }

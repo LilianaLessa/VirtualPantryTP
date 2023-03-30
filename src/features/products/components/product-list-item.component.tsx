@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import {
   MaterialCommunityIcons,
   Entypo,
@@ -49,6 +49,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     margin: 0,
   },
+  tmpRemoveProductIcon: {
+    color: "rgba(0,0,0,1)",
+    fontSize: 25,
+    marginLeft: 10,
+    margin: 0,
+  },
   draggableIcon: {
     color: "rgba(128,128,128,1)",
     fontSize: 20,
@@ -59,7 +65,17 @@ const styles = StyleSheet.create({
   },
 });
 
-function ProductListItem({ item }: { item: IProduct }) {
+function ProductListItem({
+  item,
+  deleteProductCallback,
+}: {
+  item: IProduct;
+  deleteProductCallback: (productToDelete: IProduct) => void;
+}) {
+  const handleSelfDelete = () => {
+    deleteProductCallback(item);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.leftContent}>
@@ -67,7 +83,12 @@ function ProductListItem({ item }: { item: IProduct }) {
         <Text style={styles.label}>{item.name}</Text>
       </View>
       <View style={styles.rightContent}>
-        <Entypo name="box" style={styles.addToPantryIcon} />
+        <TouchableOpacity onPress={handleSelfDelete}>
+          <Entypo name="trash" style={styles.tmpRemoveProductIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Entypo name="box" style={styles.addToPantryIcon} />
+        </TouchableOpacity>
         <MaterialIcons name="drag-handle" style={styles.draggableIcon} />
       </View>
     </View>
