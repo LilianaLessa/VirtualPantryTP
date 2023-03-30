@@ -55,10 +55,13 @@ const searchBarStyles = StyleSheet.create({
 
 interface IProductSearchBarProps {
   style?: React.CSSProperties;
+  barcodeButtonCallback: () => void;
 }
 
 // eslint-disable-next-line react/function-component-definition
-const ProductSearchBar: React.FC<IProductSearchBarProps> = () => {
+const ProductSearchBar: React.FC<IProductSearchBarProps> = ({
+  barcodeButtonCallback,
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { saveProduct } = useActions();
 
@@ -103,7 +106,7 @@ const ProductSearchBar: React.FC<IProductSearchBarProps> = () => {
           onChangeText={(v) => setSearchQuery(v)}
           onSubmitEditing={searchProduct}
         />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={barcodeButtonCallback}>
           <MaterialCommunityIcons
             name="barcode-scan"
             style={searchBarStyles.icon}

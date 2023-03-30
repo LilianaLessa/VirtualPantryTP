@@ -1,23 +1,30 @@
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { StyleSheet, Text, View } from "react-native";
+
 import { Provider } from "react-redux";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { NavigationContainer } from "@react-navigation/native";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ProductScreen from "./features/products/screens/product.screen";
 import { store } from "./state";
+import BarCodeScanScreen from "./features/products/screens/barcode-scan.screen";
 
-const styles = StyleSheet.create({
-  basic: {
-    marginTop: 50,
-  },
-});
+const Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <Provider store={store}>
-      <View style={styles.basic}>
-        <ProductScreen />
-      </View>
-    </Provider>
+    <NavigationContainer>
+      <Provider store={store}>
+        <Stack.Navigator initialRouteName="Products">
+          <Stack.Screen name="Products" component={ProductScreen} />
+          <Stack.Screen
+            name="BarCodeScanScreen"
+            component={BarCodeScanScreen}
+          />
+        </Stack.Navigator>
+      </Provider>
+    </NavigationContainer>
   );
 }
 
