@@ -1,37 +1,14 @@
 import { View, Text, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
-
 import { Camera } from "expo-camera";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
 import {
   useFocusEffect,
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
-import Product from "../classes/product.class";
 import { useActions } from "../../../hooks/useActions";
-
-const searchProductByBarCode = async (barcode: string, saveProduct) => {
-  axios
-    .get(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
-    .then((response) => {
-      const { data } = response;
-      try {
-        const { code, product, status_verbose } = data;
-        const { product_name } = product;
-
-        saveProduct(new Product(uuidv4(), product_name));
-
-        console.log(code, product_name, status_verbose, "success response");
-      } catch (e) {
-        console.log(data, "exception on response");
-      }
-    })
-    .catch((error) => {
-      console.log(error, "error response");
-    });
-};
+import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
+import { IProduct } from "../interfaces/product.interface";
 
 function BarCodeScanScreen() {
   const navigation = useNavigation();
@@ -46,6 +23,8 @@ function BarCodeScanScreen() {
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignorer
       setHasPermission(status === "granted");
     })();
   }, []);
@@ -56,6 +35,27 @@ function BarCodeScanScreen() {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
+  const handleOnBarCodeScanned = ({ data }: { data: string }) => {
+    if (!scanned) {
+      setScanned(true);
+      console.log("searching for barcode:", data);
+      (() => {
+        new OpenFoodFacts().getProductByBarCode(
+          data,
+          (product: IProduct) => {
+            console.info("Found product:", product.name);
+            saveProduct(product);
+          },
+          (error: any) => {
+            console.log("Error:", error);
+            // eslint-disable-next-line comma-dangle
+          }
+        );
+      })();
+      navigation.goBack();
+    }
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -84,17 +84,7 @@ function BarCodeScanScreen() {
   return (
     <View style={styles.container}>
       {isFocused && (
-        <Camera
-          onBarCodeScanned={({ data }: { data: string }) => {
-            if (!scanned) {
-              console.log("Barcode Scanned:", data);
-              searchProductByBarCode(data, saveProduct);
-              setScanned(true);
-              navigation.goBack();
-            }
-          }}
-          style={{ flex: 1 }}
-        />
+        <Camera onBarCodeScanned={handleOnBarCodeScanned} style={{ flex: 1 }} />
       )}
     </View>
   );

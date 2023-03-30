@@ -1,12 +1,8 @@
+// eslint-disable-next-line object-curly-newline
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
-import { faker } from "@faker-js/faker";
-import { useActions } from "../../../hooks/useActions";
-import Product from "../classes/product.class";
 
 const searchBarStyles = StyleSheet.create({
   container: {
@@ -54,7 +50,6 @@ const searchBarStyles = StyleSheet.create({
 });
 
 interface IProductSearchBarProps {
-  style?: React.CSSProperties;
   barcodeButtonCallback: () => void;
 }
 
@@ -63,32 +58,9 @@ const ProductSearchBar: React.FC<IProductSearchBarProps> = ({
   barcodeButtonCallback,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { saveProduct } = useActions();
-
-  const searchProductByBarCode = async (barcode: string) => {
-    axios
-      .get(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
-      .then((response) => {
-        const { data } = response;
-        try {
-          const { code, product, status_verbose } = data;
-          const { product_name } = product;
-
-          saveProduct(new Product(uuidv4(), product_name));
-
-          console.log(code, product_name, status_verbose, "success response");
-        } catch (e) {
-          console.log(data, "exception on response");
-        }
-      })
-      .catch((error) => {
-        console.log(error, "error response");
-      });
-  };
 
   const searchProduct = () => {
     console.log(searchQuery);
-    searchProductByBarCode(searchQuery);
     setSearchQuery("");
   };
 

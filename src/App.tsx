@@ -1,6 +1,4 @@
 import * as React from "react";
-import { StyleSheet, Text, View } from "react-native";
-
 import { Provider } from "react-redux";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { NavigationContainer } from "@react-navigation/native";
