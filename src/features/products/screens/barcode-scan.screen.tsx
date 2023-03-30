@@ -14,7 +14,7 @@ function BarCodeScanScreen() {
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const { saveProduct } = useActions();
+  const { saveProduct, showErrorSnack } = useActions();
   const isFocused = useIsFocused();
   useFocusEffect(() => {
     setScanned(false);
@@ -39,16 +39,18 @@ function BarCodeScanScreen() {
   const handleOnBarCodeScanned = ({ data }: { data: string }) => {
     if (!scanned) {
       setScanned(true);
-      console.log("searching for barcode:", data);
       (() => {
         new OpenFoodFacts().getProductByBarCode(
           data,
           (product: IProduct) => {
-            console.info("Found product:", product.name);
             saveProduct(product);
           },
           (error: any) => {
             console.log("Error:", error);
+            showErrorSnack(
+              // eslint-disable-next-line comma-dangle
+              `Couldn't find a product with the barcode '${data}'`
+            );
             // eslint-disable-next-line comma-dangle
           }
         );

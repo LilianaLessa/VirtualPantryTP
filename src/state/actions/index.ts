@@ -25,3 +25,27 @@ interface DataFetchingFinished {
 }
 
 export type ApiActivityActions = DataFetchingStarted | DataFetchingFinished;
+
+interface ShowError {
+  type: "show_error";
+  errorMessage: string;
+}
+
+interface HideError {
+  type: "hide_error";
+}
+
+interface ShowInfo {
+  type: "show_info";
+  infoMessage: string;
+}
+
+interface HideInfo {
+  type: "hide_info";
+}
+
+export type MessageSnackbarActions =
+  | ShowError
+  | HideError
+  | ShowInfo
+  | HideInfo;
