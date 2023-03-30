@@ -4,15 +4,10 @@ import { Provider } from "react-redux";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {
-  ActivityIndicator,
-  Button,
-  MD2Colors,
-  Snackbar,
-} from "react-native-paper";
+import { ActivityIndicator, MD2Colors, Snackbar } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Modal from "react-native-modal";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ProductScreen from "./features/products/screens/product.screen";
 import { store } from "./state";
@@ -20,8 +15,7 @@ import BarCodeScanScreen from "./features/products/screens/barcode-scan.screen";
 import { useTypedSelector } from "./hooks/useTypedSelector";
 import { useActions } from "./hooks/useActions";
 import HomeScreen from "./features/home/screens/home.screen";
-import NotificationsScreen from "./features/notifications/screens/notifications.screen";
-import ConfigurationsScreen from "./features/configurations/screens/configurations.screen";
+import { ScreenPlaceHolder } from "./dev-utils";
 
 function LoadingModal() {
   const { fetchingData } = useTypedSelector((state) => state.apiActivity);
@@ -136,11 +130,37 @@ function App() {
             />
             <Stack.Screen
               name="NotificationsScreen"
-              component={NotificationsScreen}
+              component={ScreenPlaceHolder}
+              initialParams={{ screenName: "Notifications" }}
             />
             <Stack.Screen
               name="ConfigurationsScreen"
-              component={ConfigurationsScreen}
+              component={ScreenPlaceHolder}
+              initialParams={{ screenName: "Configurations" }}
+            />
+            <Stack.Screen
+              name="Pantries"
+              component={ScreenPlaceHolder}
+              initialParams={{ screenName: "Pantries" }}
+              options={{
+                headerRight: () => <HeaderRightActions />,
+              }}
+            />
+            <Stack.Screen
+              name="ShoppingLists"
+              component={ScreenPlaceHolder}
+              initialParams={{ screenName: "Shopping Lists" }}
+              options={{
+                headerRight: () => <HeaderRightActions />,
+              }}
+            />
+            <Stack.Screen
+              name="Groups"
+              component={ScreenPlaceHolder}
+              initialParams={{ screenName: "Groups" }}
+              options={{
+                headerRight: () => <HeaderRightActions />,
+              }}
             />
           </Stack.Navigator>
           <LoadingModal />
