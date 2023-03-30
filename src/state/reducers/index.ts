@@ -1,9 +1,10 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { combineReducers } from "redux";
 import savedProductsReducer from "./saved-products.reducer";
+import apiActivityReducer from "./api-activity.reducer";
 
 const reducers = combineReducers({
   savedProducts: savedProductsReducer,
+  apiActivity: apiActivityReducer,
 });
 
 export default reducers;

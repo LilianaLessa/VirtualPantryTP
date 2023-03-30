@@ -1,4 +1,7 @@
-import { SavedProductsActionType } from "../action-types";
+import {
+  ApiActivityActionType,
+  SavedProductsActionType,
+} from "../action-types";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 
 interface SaveProductAction {
@@ -12,3 +15,13 @@ interface DeleteProductAction {
 }
 
 export type SavedProductsActions = SaveProductAction | DeleteProductAction;
+
+interface DataFetchingStarted {
+  type: ApiActivityActionType.DATA_FETCHING_STARTED;
+}
+
+interface DataFetchingFinished {
+  type: ApiActivityActionType.DATA_FETCHING_FINISHED;
+}
+
+export type ApiActivityActions = DataFetchingStarted | DataFetchingFinished;
