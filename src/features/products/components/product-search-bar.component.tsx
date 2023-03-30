@@ -1,7 +1,12 @@
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+import { faker } from "@faker-js/faker";
+import { useActions } from "../../../hooks/useActions";
+import Product from "../classes/product.class";
 
 const searchBarStyles = StyleSheet.create({
   container: {
@@ -53,22 +58,60 @@ interface IProductSearchBarProps {
 }
 
 // eslint-disable-next-line react/function-component-definition
-const ProductSearchBar: React.FC<IProductSearchBarProps> = () => (
-  <View style={[searchBarStyles.container]}>
-    <View style={searchBarStyles.inputBox}>
-      <MaterialCommunityIcons
-        name="magnify"
-        style={searchBarStyles.inputLeftIcon}
-      />
-      <TextInput placeholder="Search" style={searchBarStyles.inputStyle} />
-      <TouchableOpacity>
+const ProductSearchBar: React.FC<IProductSearchBarProps> = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { saveProduct } = useActions();
+
+  const searchProductByBarCode = async (barcode: string) => {
+    axios
+      .get(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
+      .then((response) => {
+        const { data } = response;
+        try {
+          const { code, product, status_verbose } = data;
+          const { product_name } = product;
+
+          saveProduct(new Product(uuidv4(), product_name));
+
+          console.log(code, product_name, status_verbose, "success response");
+        } catch (e) {
+          console.log(data, "exception on response");
+        }
+      })
+      .catch((error) => {
+        console.log(error, "error response");
+      });
+  };
+
+  const searchProduct = () => {
+    console.log(searchQuery);
+    searchProductByBarCode(searchQuery);
+    setSearchQuery("");
+  };
+
+  return (
+    <View style={[searchBarStyles.container]}>
+      <View style={searchBarStyles.inputBox}>
         <MaterialCommunityIcons
-          name="barcode-scan"
-          style={searchBarStyles.icon}
+          name="magnify"
+          style={searchBarStyles.inputLeftIcon}
         />
-      </TouchableOpacity>
+        <TextInput
+          placeholder="Search"
+          style={searchBarStyles.inputStyle}
+          value={searchQuery}
+          onChangeText={(v) => setSearchQuery(v)}
+          onSubmitEditing={searchProduct}
+        />
+        <TouchableOpacity>
+          <MaterialCommunityIcons
+            name="barcode-scan"
+            style={searchBarStyles.icon}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 export default ProductSearchBar;
