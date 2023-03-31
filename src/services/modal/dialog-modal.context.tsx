@@ -25,7 +25,6 @@ export function DialogModalContextProvider({
   const [modalContent, setModalContent] = useState(defaultModalContent);
 
   const showModal = (content: JSX.Element) => {
-    console.log(content);
     setModalContent(content);
     setModalVisible(true);
   };
