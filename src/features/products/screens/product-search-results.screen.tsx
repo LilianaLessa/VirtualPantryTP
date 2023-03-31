@@ -56,7 +56,11 @@ export function ProductSearchResultScreen({ route }: { route: Props }) {
     new OpenFoodFacts().getProductByBarCode(
       barCode ?? "",
       (product: IProduct) => {
-        navigateToProductCreation(product);
+        navigateToProductCreation(
+          product.clone({
+            barCode: barCode ?? "",
+          })
+        );
       },
       () => {
         navigateToProductCreation(new Product(uuidv4(), barCode));

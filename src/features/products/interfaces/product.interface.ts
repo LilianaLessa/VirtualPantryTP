@@ -6,4 +6,6 @@ export interface IProduct {
   uuid: string;
 
   getKey: () => string;
+
+  clone: (override: Partial<IProduct>) => IProduct;
 }

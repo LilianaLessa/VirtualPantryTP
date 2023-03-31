@@ -25,6 +25,16 @@ export default class Product implements IProduct {
     this.packageWeight = packageWeight ?? 1;
   }
 
+  clone(override: Partial<IProduct>): IProduct {
+    return new Product(
+      override.uuid ?? this.uuid,
+      override.barCode ?? this.barCode,
+      override.name ?? this.name,
+      override.measureUnit ?? this.measureUnit,
+      override.packageWeight ?? this.packageWeight
+    );
+  }
+
   getKey(): string {
     return `product_${this.uuid}`;
   }
