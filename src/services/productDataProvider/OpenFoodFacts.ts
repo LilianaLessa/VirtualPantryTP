@@ -6,7 +6,7 @@ import IProductDataProvider from "./IProductDataProvider";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { store } from "../../state";
 import { ApiActivityActionType } from "../../state/action-types";
-import Product from "../../features/products/classes/product";
+import ProductClass from "../../features/products/classes/product.class";
 
 export default class OpenFoodFacts implements IProductDataProvider {
   // eslint-disable-next-line class-methods-use-this
@@ -25,7 +25,11 @@ export default class OpenFoodFacts implements IProductDataProvider {
         store.dispatch({ type: ApiActivityActionType.DATA_FETCHING_FINISHED });
         if (apiResponse !== null) {
           successCallback(
-            new Product(uuidv4(), apiResponse.code, apiResponse.product_name)
+            new ProductClass(
+              uuidv4(),
+              apiResponse.code,
+              apiResponse.product_name
+            )
           );
         } else {
           console.log("Error from openFoodFactsApi:", apiResponse);

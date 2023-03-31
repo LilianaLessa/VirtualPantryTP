@@ -8,7 +8,7 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { v4 as uuidv4 } from "uuid";
 import { IProduct } from "../interfaces/product.interface";
 import ProductList from "../components/product-list.component";
-import Product from "../classes/product";
+import ProductClass from "../classes/product.class";
 import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import {
@@ -88,13 +88,13 @@ export function ProductSearchResultScreen({ route }: { route: Props }) {
         );
       },
       () => {
-        navigateToProductCreation(new Product(uuidv4(), barCode));
+        navigateToProductCreation(new ProductClass(uuidv4(), barCode));
       }
     );
   };
 
   const handleCreateFromTerm = () => {
-    navigateToProductCreation(new Product(uuidv4(), "", term));
+    navigateToProductCreation(new ProductClass(uuidv4(), "", term));
   };
 
   if (results.length === 0) {

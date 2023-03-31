@@ -4,10 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 import { Text, View } from "react-native";
 import React from "react";
 import { IProduct } from "./features/products/interfaces/product.interface";
-import Product from "./features/products/classes/product";
+import ProductClass from "./features/products/classes/product.class";
 
 export const createMockProduct = (): IProduct =>
-  new Product(uuidv4(), "", faker.commerce.productName());
+  new ProductClass(uuidv4(), "", faker.commerce.productName());
 
 export function ScreenPlaceHolder({ route }) {
   const { screenName } = route.params;
