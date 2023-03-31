@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Provider } from "react-redux";
-
+import { v4 as uuidv4 } from "uuid";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -11,11 +11,21 @@ import { TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ProductScreen from "./features/products/screens/product.screen";
 import { store } from "./state";
-import BarCodeScanScreen from "./features/products/screens/barcode-scan.screen";
+import BarCodeScanScreen, {
+  BarCodeScanScreenParams,
+  BarCodeScanScreenRouteName,
+} from "./features/products/screens/barcode-scan.screen";
 import { useTypedSelector } from "./hooks/useTypedSelector";
 import { useActions } from "./hooks/useActions";
 import HomeScreen from "./features/home/screens/home.screen";
 import { ScreenPlaceHolder } from "./dev-utils";
+import {
+  EditProductScreen,
+  EditProductScreenParams,
+  EditProductScreenRouteName,
+} from "./features/products/screens/edit-product.screen";
+
+import Product from "./features/products/classes/product";
 
 function LoadingModal() {
   const { fetchingData } = useTypedSelector((state) => state.apiActivity);
@@ -73,8 +83,6 @@ function InfoSnack() {
   );
 }
 
-const Stack = createNativeStackNavigator();
-
 function HeaderLeftActions() {
   const navigation = useNavigation();
 
@@ -103,6 +111,19 @@ function HeaderRightActions() {
   );
 }
 
+type RootStackParamList =
+  | { Home: undefined }
+  | { Products: undefined }
+  | { NotificationsScreen: { screenName: string } }
+  | { ConfigurationsScreen: { screenName: string } }
+  | { Pantries: { screenName: string } }
+  | { ShoppingLists: { screenName: string } }
+  | { Groups: { screenName: string } }
+  | EditProductScreenParams
+  | BarCodeScanScreenParams;
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
 function App() {
   return (
     <SafeAreaProvider>
@@ -125,7 +146,7 @@ function App() {
               }}
             />
             <Stack.Screen
-              name="BarCodeScanScreen"
+              name={BarCodeScanScreenRouteName as never}
               component={BarCodeScanScreen}
             />
             <Stack.Screen
@@ -158,6 +179,13 @@ function App() {
               name="Groups"
               component={ScreenPlaceHolder}
               initialParams={{ screenName: "Groups" }}
+              options={{
+                headerRight: () => <HeaderRightActions />,
+              }}
+            />
+            <Stack.Screen
+              name={EditProductScreenRouteName as never}
+              component={EditProductScreen}
               options={{
                 headerRight: () => <HeaderRightActions />,
               }}

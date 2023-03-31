@@ -1,4 +1,3 @@
-import React from "react";
 import { FlatList, View } from "react-native";
 import ProductListItem, {
   ProductListItemKeyExtractor,
@@ -9,7 +8,6 @@ import { useActions } from "../../../hooks/useActions";
 
 function ProductList() {
   const { products } = useTypedSelector((state) => state.savedProducts);
-
   const { deleteProduct } = useActions();
 
   const deleteProductCallback = (item: IProduct) => deleteProduct(item);
@@ -19,10 +17,11 @@ function ProductList() {
       deleteProductCallback={deleteProductCallback}
     />
   );
+
   return (
     <View>
       <FlatList
-        data={products}
+        data={Array.from(products.values())}
         renderItem={renderItem}
         keyExtractor={ProductListItemKeyExtractor}
       />

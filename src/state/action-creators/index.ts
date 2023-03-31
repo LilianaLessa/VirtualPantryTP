@@ -17,7 +17,7 @@ export const saveProduct =
   (dispatch: Dispatch<SavedProductsActions | MessageSnackbarActions>) => {
     dispatch({
       type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Product '${product.name}' added.`,
+      infoMessage: `Product '${product.name}' saved.`,
     });
     dispatch({
       type: SavedProductsActionType.SAVE_PRODUCT,

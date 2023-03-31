@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import Modal from "react-native-modal";
 
 import {
@@ -8,7 +8,9 @@ import {
   Entypo,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { IProduct } from "../interfaces/product.interface";
+import { EditProductScreenRouteName } from "../screens/edit-product.screen";
 
 const styles = StyleSheet.create({
   container: {
@@ -46,6 +48,12 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   addToPantryIcon: {
+    color: "rgba(0,0,0,1)",
+    fontSize: 25,
+    marginLeft: 10,
+    margin: 0,
+  },
+  editIcon: {
     color: "rgba(0,0,0,1)",
     fontSize: 25,
     marginLeft: 10,
@@ -204,10 +212,21 @@ function ProductListItem({
   deleteProductCallback: (productToDelete: IProduct) => void;
 }) {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
-
+  const navigation = useNavigation();
   const handleModal = () => setIsModalVisible(() => !isModalVisible);
   const handleSelfDelete = () => {
     deleteProductCallback(item);
+  };
+
+  const handleEdit = () => {
+    navigation.navigate(
+      EditProductScreenRouteName as never,
+      {
+        product: item,
+        isEdit: true,
+        // eslint-disable-next-line comma-dangle
+      } as never
+    );
   };
 
   return (
@@ -217,6 +236,9 @@ function ProductListItem({
         <Text style={styles.label}>{item.name}</Text>
       </View>
       <View style={styles.rightContent}>
+        <TouchableOpacity onPress={handleEdit}>
+          <Entypo name="pencil" style={styles.editIcon} />
+        </TouchableOpacity>
         <TouchableOpacity onPress={handleModal}>
           <Entypo name="trash" style={styles.tmpRemoveProductIcon} />
         </TouchableOpacity>

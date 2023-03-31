@@ -4,11 +4,18 @@ import { SavedProductsActions } from "../actions";
 import { createMockProduct } from "../../dev-utils";
 
 interface SavedProductsState {
-  products: IProduct[];
+  products: Map<string, IProduct>;
+}
+
+const mockProducts = new Map<string, IProduct>();
+
+for (let i = 0; i < 2; i++) {
+  const product = createMockProduct();
+  mockProducts.set(product.uuid, product);
 }
 
 const initialState: SavedProductsState = {
-  products: [createMockProduct(), createMockProduct()],
+  products: mockProducts,
 };
 
 const savedProductsReducer = (
@@ -19,14 +26,11 @@ const savedProductsReducer = (
 ): SavedProductsState => {
   switch (action.type) {
     case SavedProductsActionType.SAVE_PRODUCT:
-      return { products: [...state.products, action.newProduct] };
+      state.products.set(action.newProduct.uuid, action.newProduct);
+      return { ...state, products: new Map(state.products) };
     case SavedProductsActionType.DELETE_PRODUCT:
-      return {
-        products: state.products.filter(
-          // eslint-disable-next-line comma-dangle
-          (p: IProduct) => p.uuid !== action.productToDelete.uuid
-        ),
-      };
+      state.products.delete(action.productToDelete.uuid);
+      return { ...state, products: new Map(state.products) };
     default:
       return state;
   }

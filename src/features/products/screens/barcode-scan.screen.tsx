@@ -2,19 +2,28 @@ import { View, Text, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Camera } from "expo-camera";
 import {
+  RouteProp,
   useFocusEffect,
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
-import { useActions } from "../../../hooks/useActions";
-import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
-import { IProduct } from "../interfaces/product.interface";
 
-function BarCodeScanScreen() {
+export const BarCodeScanScreenRouteName = "BarCodeScanScreen";
+export type BarCodeScanScreenParams = {
+  BarCodeScanScreen: {
+    onBarCodeScanned?: (barCode: string) => void;
+    isEdit?: boolean;
+  };
+};
+type Props = RouteProp<BarCodeScanScreenParams, "BarCodeScanScreen">;
+
+function BarCodeScanScreen({ route }: { route: Props }) {
+  const { onBarCodeScanned } = route.params ?? {};
+
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const { saveProduct, showErrorSnack } = useActions();
+
   const isFocused = useIsFocused();
   useFocusEffect(() => {
     setScanned(false);
@@ -39,21 +48,9 @@ function BarCodeScanScreen() {
   const handleOnBarCodeScanned = ({ data }: { data: string }) => {
     if (!scanned) {
       setScanned(true);
-      (() => {
-        new OpenFoodFacts().getProductByBarCode(
-          data,
-          (product: IProduct) => {
-            saveProduct(product);
-          },
-          () => {
-            showErrorSnack(
-              // eslint-disable-next-line comma-dangle
-              `Couldn't find a product with the barcode '${data}'`
-            );
-            // eslint-disable-next-line comma-dangle
-          }
-        );
-      })();
+      if (typeof onBarCodeScanned !== "undefined") {
+        onBarCodeScanned(data);
+      }
       navigation.goBack();
     }
   };
