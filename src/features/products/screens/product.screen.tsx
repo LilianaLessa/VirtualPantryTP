@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import ProductList from "../components/product-list.component";
 import ProductSearchBar from "../components/product-search-bar.component";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import { EditProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
 
 function ProductScreen() {
   const navigation = useNavigation();
@@ -17,16 +18,16 @@ function ProductScreen() {
   }, [savedProducts]);
 
   const handleAddProduct = () => {
-    navigation.navigate("EditProduct" as never);
+    navigation.navigate(EditProductScreenRouteName as never);
   };
 
   return (
     <View>
-      <ProductSearchBar products={products} />
+      <ProductSearchBar />
       <TouchableOpacity onPress={handleAddProduct}>
         <Button mode="contained">
           <Ionicons name="md-add" />
-          TMP add product
+          Add product
         </Button>
       </TouchableOpacity>
       <ProductList products={products} />

@@ -13,7 +13,7 @@ export const BarCodeScannerContext = createContext<BarCodeScannerContextType>({
 export function BarCodeScannerContextProvider({
   children,
 }: {
-  children: React.ReactNode[];
+  children: React.ReactNode[] | React.ReactNode;
 }) {
   const defaultOnBarCodeScanned = (barCode: string) => {};
   let onBarCodeScannedCallback = defaultOnBarCodeScanned;

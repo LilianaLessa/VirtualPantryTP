@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Vibration } from "react-native";
+import { View, Text, Vibration } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Camera } from "expo-camera";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
@@ -38,32 +38,8 @@ function BarCodeScanScreen() {
     }
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    camera: {
-      flex: 1,
-    },
-    buttonContainer: {
-      flex: 1,
-      backgroundColor: "transparent",
-      flexDirection: "row",
-      margin: 20,
-    },
-    button: {
-      flex: 0.1,
-      alignSelf: "flex-end",
-      alignItems: "center",
-    },
-    text: {
-      fontSize: 18,
-      color: "white",
-    },
-  });
-
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       {isFocused && (
         <Camera onBarCodeScanned={handleOnBarCodeScanned} style={{ flex: 1 }} />
       )}

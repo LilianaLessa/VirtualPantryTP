@@ -19,7 +19,7 @@ export const DialogModalContext = createContext<DialogModalContextType>({
 export function DialogModalContextProvider({
   children,
 }: {
-  children: React.ReactNode[];
+  children: React.ReactNode[] | React.ReactNode;
 }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState(defaultModalContent);

@@ -1,5 +1,5 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Button } from "react-native-paper";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -10,11 +10,11 @@ import { IProduct } from "../interfaces/product.interface";
 import ProductList from "../components/product-list.component";
 import ProductClass from "../classes/product.class";
 import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import {
   EditProductScreenRouteName,
   ProductScreenRouteName,
 } from "../../../infrastructure/navigation/route-names";
+import { ProductSearchContext } from "../../../services/productSearch/product-search.context";
 
 export type ProductSearchResultsScreenParams = {
   ProductSearchResult: {
@@ -24,27 +24,9 @@ export type ProductSearchResultsScreenParams = {
 };
 type Props = RouteProp<ProductSearchResultsScreenParams, "ProductSearchResult">;
 
-const doSearch = (
-  products: IProduct[],
-  term?: string,
-  barCode?: string
-): IProduct[] => {
-  if (typeof term === "string") {
-    return products.filter((product: IProduct) =>
-      product.name.toLowerCase().includes(term.toLowerCase())
-    );
-  }
-
-  if (typeof barCode === "string") {
-    return products.filter((product: IProduct) => product.barCode === barCode);
-  }
-
-  return [];
-};
-
 export function ProductSearchResultScreen({ route }: { route: Props }) {
   const navigation = useNavigation();
-  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const { searchInSavedProducts, products } = useContext(ProductSearchContext);
   const [results, setResults] = useState<IProduct[]>([]);
   const { term, barCode } = route.params ?? {
     term: "",
@@ -52,8 +34,8 @@ export function ProductSearchResultScreen({ route }: { route: Props }) {
   };
 
   useEffect(() => {
-    setResults(doSearch(Array.from(savedProducts.values()), term, barCode));
-  }, [savedProducts]);
+    setResults(searchInSavedProducts(term, barCode));
+  }, [products]);
 
   useEffect(() => {
     navigation.setOptions({

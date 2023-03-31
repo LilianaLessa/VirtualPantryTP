@@ -10,6 +10,7 @@ import InfoSnackbar from "../../components/info-snackbar.component";
 import { BarCodeScannerContextProvider } from "../../services/barCodeScanner/barCodeScanner.context";
 import { DialogModalContextProvider } from "../../services/modal/dialog-modal.context";
 import DialogModal from "../../components/dialogs/dialog-modal.component";
+import { ProductSearchContextProvider } from "../../services/productSearch/product-search.context";
 
 function Navigation() {
   return (
@@ -18,11 +19,13 @@ function Navigation() {
         <Provider store={store}>
           <BarCodeScannerContextProvider>
             <DialogModalContextProvider>
-              <AppNavigator />
-              <DialogModal />
-              <LoadingModal />
-              <ErrorSnackbar />
-              <InfoSnackbar />
+              <ProductSearchContextProvider>
+                <AppNavigator />
+                <DialogModal />
+                <LoadingModal />
+                <ErrorSnackbar />
+                <InfoSnackbar />
+              </ProductSearchContextProvider>
             </DialogModalContextProvider>
           </BarCodeScannerContextProvider>
         </Provider>
