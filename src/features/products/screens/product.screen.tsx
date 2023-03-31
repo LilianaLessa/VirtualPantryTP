@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 
@@ -12,13 +12,17 @@ export const ProductScreenRouteName = "Products";
 
 function ProductScreen() {
   const navigation = useNavigation();
+  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const [products, setProducts] = useState(Array.from(savedProducts.values()));
+
+  useEffect(() => {
+    setProducts(Array.from(savedProducts.values()));
+  }, [savedProducts]);
 
   const handleAddProduct = () => {
     navigation.navigate("EditProduct" as never);
   };
 
-  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
-  const products = Array.from(savedProducts.values());
   return (
     <View>
       <ProductSearchBar products={products} />

@@ -15,13 +15,17 @@ export type EditProductScreenParams = {
   EditProduct: {
     product?: IProduct;
     isEdit?: boolean;
+    routeToNavigateOnSave?: string | null;
   };
 };
 type Props = RouteProp<EditProductScreenParams, "EditProduct">;
 
 export function EditProductScreen({ route }: { route: Props }) {
   let { product } = route.params ?? {};
-  const { isEdit } = route.params ?? { isEdit: false };
+  const { isEdit, routeToNavigateOnSave } = route.params ?? {
+    isEdit: false,
+    routeToNavigateOnSave: null,
+  };
   const navigation = useNavigation();
   const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
 
@@ -47,11 +51,16 @@ export function EditProductScreen({ route }: { route: Props }) {
     product.barCode = barCode;
 
     saveProduct(product);
-    navigation.goBack();
+    if (typeof routeToNavigateOnSave === "string") {
+      navigation.navigate(routeToNavigateOnSave as never);
+    } else {
+      navigation.goBack();
+    }
   };
 
   const onBarCodeScanned = (barCode: string) => {
     setBarcode(barCode);
+    // the previous route should be personalized, as
     navigation.goBack();
   };
 

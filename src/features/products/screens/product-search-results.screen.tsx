@@ -47,6 +47,7 @@ export function ProductSearchResultScreen({ route }: { route: Props }) {
       EditProductScreenRouteName as never,
       {
         product,
+        routeToNavigateOnSave: ProductScreenRouteName,
         // eslint-disable-next-line comma-dangle
       } as never
     );

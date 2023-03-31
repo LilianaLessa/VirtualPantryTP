@@ -1,14 +1,11 @@
 // eslint-disable-next-line object-curly-newline
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useContext, useState } from "react";
-
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { ProductSearchResultScreenRouteName } from "../screens/product-search-results.screen";
 import { IProduct } from "../interfaces/product.interface";
-import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
 import { BarCodeScanScreenRouteName } from "../screens/barcode-scan.screen";
-import { useActions } from "../../../hooks/useActions";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
 const searchBarStyles = StyleSheet.create({
@@ -60,7 +57,7 @@ const searchBarStyles = StyleSheet.create({
 const ProductSearchBar = ({ products }: { products: IProduct[] }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigation = useNavigation();
-  const { showErrorSnack } = useActions();
+
   const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
 
   const searchProductByBarCode = (barCode: string) => {
