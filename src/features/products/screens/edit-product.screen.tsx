@@ -1,5 +1,5 @@
-import { TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import { View } from "react-native";
+import React, { useEffect, useState } from "react";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 import { Button, HelperText, TextInput } from "react-native-paper";
@@ -22,12 +22,13 @@ export function EditProductScreen({ route }: { route: Props }) {
   let { product } = route.params ?? {};
   const { isEdit } = route.params ?? { isEdit: false };
   const navigation = useNavigation();
-  console.log("edit", isEdit, product);
-  const screenTitle = isEdit ? "Edit product" : "Create Product";
-  navigation.setOptions({
-    title: screenTitle,
-  });
 
+  useEffect(() => {
+    const screenTitle = isEdit ? "Edit product" : "Create Product";
+    navigation.setOptions({
+      title: screenTitle,
+    });
+  }, [isEdit, navigation]);
   const [name, setName] = useState(product?.name ?? "");
   const [measureUnit, setMeasureUnit] = useState(product?.measureUnit ?? "");
   const [barCode, setBarcode] = useState(product?.barCode ?? "");
