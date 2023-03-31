@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Vibration } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Camera } from "expo-camera";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
@@ -33,7 +33,7 @@ function BarCodeScanScreen() {
   const handleOnBarCodeScanned = ({ data }: { data: string }) => {
     if (!scanned) {
       setScanned(true);
-
+      Vibration.vibrate(75);
       onBarCodeScanned(data);
     }
   };
