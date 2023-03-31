@@ -1,13 +1,12 @@
+import React from "react";
 import { FlatList, View } from "react-native";
 import ProductListItem, {
   ProductListItemKeyExtractor,
 } from "./product-list-item.component";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { IProduct } from "../interfaces/product.interface";
 import { useActions } from "../../../hooks/useActions";
 
-function ProductList() {
-  const { products } = useTypedSelector((state) => state.savedProducts);
+function ProductList({ products }: { products: IProduct[] }) {
   const { deleteProduct } = useActions();
 
   const deleteProductCallback = (item: IProduct) => deleteProduct(item);
@@ -21,7 +20,7 @@ function ProductList() {
   return (
     <View>
       <FlatList
-        data={Array.from(products.values())}
+        data={products}
         renderItem={renderItem}
         keyExtractor={ProductListItemKeyExtractor}
       />

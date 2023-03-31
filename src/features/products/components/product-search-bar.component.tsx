@@ -1,8 +1,15 @@
 // eslint-disable-next-line object-curly-newline
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { ProductSearchResultScreenRouteName } from "../screens/product-search-results.screen";
+import { IProduct } from "../interfaces/product.interface";
+import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
+import { BarCodeScanScreenRouteName } from "../screens/barcode-scan.screen";
+import { useActions } from "../../../hooks/useActions";
+import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
 const searchBarStyles = StyleSheet.create({
   container: {
@@ -49,19 +56,51 @@ const searchBarStyles = StyleSheet.create({
   },
 });
 
-interface IProductSearchBarProps {
-  barcodeButtonCallback: () => void;
-}
-
 // eslint-disable-next-line react/function-component-definition
-const ProductSearchBar: React.FC<IProductSearchBarProps> = ({
-  barcodeButtonCallback,
-}) => {
+const ProductSearchBar = ({ products }: { products: IProduct[] }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigation = useNavigation();
+  const { showErrorSnack } = useActions();
+  const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
+
+  const searchProductByBarCode = (barCode: string) => {
+    const results = products.filter(
+      (product: IProduct) => product.barCode === barCode
+    );
+    navigation.navigate(
+      ProductSearchResultScreenRouteName as never,
+      {
+        results,
+        barCode,
+      } as never
+    );
+  };
+
+  const onBarCodeScanned = (barCode: string) => {
+    searchProductByBarCode(barCode);
+  };
+  const navigateToBarcodeScanScreen = () => {
+    setOnBarCodeScannedCallback(onBarCodeScanned);
+    navigation.navigate(BarCodeScanScreenRouteName as never);
+  };
+
+  const searchProductByTerm = (term: string) => {
+    const results = products.filter((product: IProduct) =>
+      product.name.toLowerCase().includes(term.toLowerCase())
+    );
+    navigation.navigate(
+      ProductSearchResultScreenRouteName as never,
+      {
+        results,
+        term,
+      } as never
+    );
+  };
 
   const searchProduct = () => {
-    console.log(searchQuery);
+    const term = searchQuery;
     setSearchQuery("");
+    searchProductByTerm(term);
   };
 
   return (
@@ -78,7 +117,7 @@ const ProductSearchBar: React.FC<IProductSearchBarProps> = ({
           onChangeText={(v) => setSearchQuery(v)}
           onSubmitEditing={searchProduct}
         />
-        <TouchableOpacity onPress={barcodeButtonCallback}>
+        <TouchableOpacity onPress={navigateToBarcodeScanScreen}>
           <MaterialCommunityIcons
             name="barcode-scan"
             style={searchBarStyles.icon}
@@ -88,5 +127,4 @@ const ProductSearchBar: React.FC<IProductSearchBarProps> = ({
     </View>
   );
 };
-
 export default ProductSearchBar;

@@ -52,6 +52,7 @@ export function EditProductScreen({ route }: { route: Props }) {
 
   const onBarCodeScanned = (barCode: string) => {
     setBarcode(barCode);
+    navigation.goBack();
   };
 
   const barcodeButtonCallback = () => {

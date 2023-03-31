@@ -9,7 +9,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Modal from "react-native-modal";
 import { TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import ProductScreen from "./features/products/screens/product.screen";
+import ProductScreen, {
+  ProductScreenRouteName,
+} from "./features/products/screens/product.screen";
 import { store } from "./state";
 import BarCodeScanScreen, {
   BarCodeScanScreenRouteName,
@@ -25,6 +27,11 @@ import {
 } from "./features/products/screens/edit-product.screen";
 
 import { BarCodeScannerContextProvider } from "./services/barCodeScanner/barCodeScanner.context";
+import {
+  ProductSearchResultScreen,
+  ProductSearchResultScreenRouteName,
+  ProductSearchResultsScreenParams,
+} from "./features/products/screens/product-search-results.screen";
 
 function LoadingModal() {
   const { fetchingData } = useTypedSelector((state) => state.apiActivity);
@@ -119,6 +126,7 @@ type RootStackParamList =
   | { Pantries: { screenName: string } }
   | { ShoppingLists: { screenName: string } }
   | { Groups: { screenName: string } }
+  | ProductSearchResultsScreenParams
   | EditProductScreenParams;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -139,7 +147,7 @@ function App() {
                 }}
               />
               <Stack.Screen
-                name="Products"
+                name={ProductScreenRouteName as never}
                 component={ProductScreen}
                 options={{
                   headerRight: () => <HeaderRightActions />,
@@ -186,6 +194,13 @@ function App() {
               <Stack.Screen
                 name={EditProductScreenRouteName as never}
                 component={EditProductScreen}
+                options={{
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+              <Stack.Screen
+                name={ProductSearchResultScreenRouteName as never}
+                component={ProductSearchResultScreen}
                 options={{
                   headerRight: () => <HeaderRightActions />,
                 }}

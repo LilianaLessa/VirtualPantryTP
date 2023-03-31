@@ -1,17 +1,12 @@
 import { View, Text, StyleSheet } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Camera } from "expo-camera";
-import {
-  useFocusEffect,
-  useIsFocused,
-  useNavigation,
-} from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
 export const BarCodeScanScreenRouteName = "BarCodeScanScreen";
 
 function BarCodeScanScreen() {
-  const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const { onBarCodeScanned } = useContext(BarCodeScannerContext);
@@ -40,10 +35,8 @@ function BarCodeScanScreen() {
   const handleOnBarCodeScanned = ({ data }: { data: string }) => {
     if (!scanned) {
       setScanned(true);
-      if (typeof onBarCodeScanned !== "undefined") {
-        onBarCodeScanned(data);
-      }
-      navigation.goBack();
+
+      onBarCodeScanned(data);
     }
   };
 
