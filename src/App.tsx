@@ -12,7 +12,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ProductScreen from "./features/products/screens/product.screen";
 import { store } from "./state";
 import BarCodeScanScreen, {
-  BarCodeScanScreenParams,
   BarCodeScanScreenRouteName,
 } from "./features/products/screens/barcode-scan.screen";
 import { useTypedSelector } from "./hooks/useTypedSelector";
@@ -25,7 +24,7 @@ import {
   EditProductScreenRouteName,
 } from "./features/products/screens/edit-product.screen";
 
-import Product from "./features/products/classes/product";
+import { BarCodeScannerContextProvider } from "./services/barCodeScanner/barCodeScanner.context";
 
 function LoadingModal() {
   const { fetchingData } = useTypedSelector((state) => state.apiActivity);
@@ -114,13 +113,13 @@ function HeaderRightActions() {
 type RootStackParamList =
   | { Home: undefined }
   | { Products: undefined }
+  | { BarCodeScanScreen: undefined }
   | { NotificationsScreen: { screenName: string } }
   | { ConfigurationsScreen: { screenName: string } }
   | { Pantries: { screenName: string } }
   | { ShoppingLists: { screenName: string } }
   | { Groups: { screenName: string } }
-  | EditProductScreenParams
-  | BarCodeScanScreenParams;
+  | EditProductScreenParams;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -129,71 +128,73 @@ function App() {
     <SafeAreaProvider>
       <NavigationContainer>
         <Provider store={store}>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{
-                headerLeft: () => <HeaderLeftActions />,
-                headerRight: () => <HeaderRightActions />,
-              }}
-            />
-            <Stack.Screen
-              name="Products"
-              component={ProductScreen}
-              options={{
-                headerRight: () => <HeaderRightActions />,
-              }}
-            />
-            <Stack.Screen
-              name={BarCodeScanScreenRouteName as never}
-              component={BarCodeScanScreen}
-            />
-            <Stack.Screen
-              name="NotificationsScreen"
-              component={ScreenPlaceHolder}
-              initialParams={{ screenName: "Notifications" }}
-            />
-            <Stack.Screen
-              name="ConfigurationsScreen"
-              component={ScreenPlaceHolder}
-              initialParams={{ screenName: "Configurations" }}
-            />
-            <Stack.Screen
-              name="Pantries"
-              component={ScreenPlaceHolder}
-              initialParams={{ screenName: "Pantries" }}
-              options={{
-                headerRight: () => <HeaderRightActions />,
-              }}
-            />
-            <Stack.Screen
-              name="ShoppingLists"
-              component={ScreenPlaceHolder}
-              initialParams={{ screenName: "Shopping Lists" }}
-              options={{
-                headerRight: () => <HeaderRightActions />,
-              }}
-            />
-            <Stack.Screen
-              name="Groups"
-              component={ScreenPlaceHolder}
-              initialParams={{ screenName: "Groups" }}
-              options={{
-                headerRight: () => <HeaderRightActions />,
-              }}
-            />
-            <Stack.Screen
-              name={EditProductScreenRouteName as never}
-              component={EditProductScreen}
-              options={{
-                headerRight: () => <HeaderRightActions />,
-              }}
-            />
-          </Stack.Navigator>
-          <LoadingModal />
-          <ErrorSnack />
-          <InfoSnack />
+          <BarCodeScannerContextProvider>
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                  headerLeft: () => <HeaderLeftActions />,
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+              <Stack.Screen
+                name="Products"
+                component={ProductScreen}
+                options={{
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+              <Stack.Screen
+                name={BarCodeScanScreenRouteName as never}
+                component={BarCodeScanScreen}
+              />
+              <Stack.Screen
+                name="NotificationsScreen"
+                component={ScreenPlaceHolder}
+                initialParams={{ screenName: "Notifications" }}
+              />
+              <Stack.Screen
+                name="ConfigurationsScreen"
+                component={ScreenPlaceHolder}
+                initialParams={{ screenName: "Configurations" }}
+              />
+              <Stack.Screen
+                name="Pantries"
+                component={ScreenPlaceHolder}
+                initialParams={{ screenName: "Pantries" }}
+                options={{
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+              <Stack.Screen
+                name="ShoppingLists"
+                component={ScreenPlaceHolder}
+                initialParams={{ screenName: "Shopping Lists" }}
+                options={{
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+              <Stack.Screen
+                name="Groups"
+                component={ScreenPlaceHolder}
+                initialParams={{ screenName: "Groups" }}
+                options={{
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+              <Stack.Screen
+                name={EditProductScreenRouteName as never}
+                component={EditProductScreen}
+                options={{
+                  headerRight: () => <HeaderRightActions />,
+                }}
+              />
+            </Stack.Navigator>
+            <LoadingModal />
+            <ErrorSnack />
+            <InfoSnack />
+          </BarCodeScannerContextProvider>
         </Provider>
       </NavigationContainer>
     </SafeAreaProvider>

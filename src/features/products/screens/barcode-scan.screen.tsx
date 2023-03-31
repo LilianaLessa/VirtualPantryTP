@@ -1,28 +1,20 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Camera } from "expo-camera";
 import {
-  RouteProp,
   useFocusEffect,
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
+import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
 export const BarCodeScanScreenRouteName = "BarCodeScanScreen";
-export type BarCodeScanScreenParams = {
-  BarCodeScanScreen: {
-    onBarCodeScanned?: (barCode: string) => void;
-    isEdit?: boolean;
-  };
-};
-type Props = RouteProp<BarCodeScanScreenParams, "BarCodeScanScreen">;
 
-function BarCodeScanScreen({ route }: { route: Props }) {
-  const { onBarCodeScanned } = route.params ?? {};
-
+function BarCodeScanScreen() {
   const navigation = useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+  const { onBarCodeScanned } = useContext(BarCodeScannerContext);
 
   const isFocused = useIsFocused();
   useFocusEffect(() => {

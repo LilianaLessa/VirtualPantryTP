@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 
@@ -11,14 +11,16 @@ import { IProduct } from "../interfaces/product.interface";
 import { EditProductScreenRouteName } from "./edit-product.screen";
 import { useActions } from "../../../hooks/useActions";
 import { BarCodeScanScreenRouteName } from "./barcode-scan.screen";
+import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
 function ProductScreen() {
   const navigation = useNavigation();
+  const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
 
   const handleAddProduct = () => {
     navigation.navigate("EditProduct" as never);
   };
-  const { saveProduct, showErrorSnack } = useActions();
+  const { showErrorSnack } = useActions();
   const onBarCodeScanned = (barCode: string) => {
     new OpenFoodFacts().getProductByBarCode(
       barCode,
@@ -30,7 +32,6 @@ function ProductScreen() {
             // eslint-disable-next-line comma-dangle
           } as never
         );
-        saveProduct(product);
       },
       () => {
         showErrorSnack(
@@ -42,12 +43,8 @@ function ProductScreen() {
     );
   };
   const navigateToBarcodeScanScreen = () => {
-    navigation.navigate(
-      BarCodeScanScreenRouteName as never,
-      {
-        onBarCodeScanned,
-      } as never
-    );
+    setOnBarCodeScannedCallback(onBarCodeScanned);
+    navigation.navigate(BarCodeScanScreenRouteName as never);
   };
 
   return (

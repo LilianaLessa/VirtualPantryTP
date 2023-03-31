@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 import { Button, HelperText, TextInput } from "react-native-paper";
@@ -8,6 +8,7 @@ import { IProduct } from "../interfaces/product.interface";
 import { useActions } from "../../../hooks/useActions";
 import Product from "../classes/product";
 import { BarCodeScanScreenRouteName } from "./barcode-scan.screen";
+import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
 export const EditProductScreenRouteName = "EditProduct";
 export type EditProductScreenParams = {
@@ -22,6 +23,7 @@ export function EditProductScreen({ route }: { route: Props }) {
   let { product } = route.params ?? {};
   const { isEdit } = route.params ?? { isEdit: false };
   const navigation = useNavigation();
+  const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
 
   useEffect(() => {
     const screenTitle = isEdit ? "Edit product" : "Create Product";
@@ -53,12 +55,8 @@ export function EditProductScreen({ route }: { route: Props }) {
   };
 
   const barcodeButtonCallback = () => {
-    navigation.navigate(
-      BarCodeScanScreenRouteName as never,
-      {
-        onBarCodeScanned,
-      } as never
-    );
+    setOnBarCodeScannedCallback(onBarCodeScanned);
+    navigation.navigate(BarCodeScanScreenRouteName as never);
   };
 
   return (
