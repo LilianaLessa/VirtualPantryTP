@@ -8,6 +8,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Modal from "react-native-modal";
 import { TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { HeaderBackButton } from "@react-navigation/elements";
 import { store } from "./state";
 import { useTypedSelector } from "./hooks/useTypedSelector";
 import { useActions } from "./hooks/useActions";
@@ -92,12 +93,19 @@ function HeaderLeftActions() {
   const navigation = useNavigation();
 
   return (
-    <View>
+    <View style={{ flexDirection: "row" }}>
       <TouchableOpacity
         onPress={() => navigation.navigate("ConfigurationsScreen" as never)}
       >
         <MaterialCommunityIcons name="menu" size={24} color="black" />
       </TouchableOpacity>
+      {navigation.canGoBack() && (
+        <HeaderBackButton
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -149,6 +157,7 @@ function App() {
                 name={ProductScreenRouteName as never}
                 component={ProductScreen}
                 options={{
+                  headerLeft: () => <HeaderLeftActions />,
                   headerRight: () => <HeaderRightActions />,
                 }}
               />
@@ -160,6 +169,9 @@ function App() {
                 name="NotificationsScreen"
                 component={ScreenPlaceHolder}
                 initialParams={{ screenName: "Notifications" }}
+                options={{
+                  headerLeft: () => <HeaderLeftActions />,
+                }}
               />
               <Stack.Screen
                 name="ConfigurationsScreen"
@@ -171,6 +183,7 @@ function App() {
                 component={ScreenPlaceHolder}
                 initialParams={{ screenName: "Pantries" }}
                 options={{
+                  headerLeft: () => <HeaderLeftActions />,
                   headerRight: () => <HeaderRightActions />,
                 }}
               />
@@ -179,6 +192,7 @@ function App() {
                 component={ScreenPlaceHolder}
                 initialParams={{ screenName: "Shopping Lists" }}
                 options={{
+                  headerLeft: () => <HeaderLeftActions />,
                   headerRight: () => <HeaderRightActions />,
                 }}
               />
@@ -187,6 +201,7 @@ function App() {
                 component={ScreenPlaceHolder}
                 initialParams={{ screenName: "Groups" }}
                 options={{
+                  headerLeft: () => <HeaderLeftActions />,
                   headerRight: () => <HeaderRightActions />,
                 }}
               />
@@ -194,6 +209,7 @@ function App() {
                 name={EditProductScreenRouteName as never}
                 component={EditProductScreen}
                 options={{
+                  headerLeft: () => <HeaderLeftActions />,
                   headerRight: () => <HeaderRightActions />,
                 }}
               />
@@ -201,6 +217,7 @@ function App() {
                 name={ProductSearchResultScreenRouteName as never}
                 component={ProductSearchResultScreen}
                 options={{
+                  headerLeft: () => <HeaderLeftActions />,
                   headerRight: () => <HeaderRightActions />,
                 }}
               />
