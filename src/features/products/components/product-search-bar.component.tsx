@@ -61,13 +61,9 @@ const ProductSearchBar = ({ products }: { products: IProduct[] }) => {
   const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
 
   const searchProductByBarCode = (barCode: string) => {
-    const results = products.filter(
-      (product: IProduct) => product.barCode === barCode
-    );
     navigation.navigate(
       ProductSearchResultScreenRouteName as never,
       {
-        results,
         barCode,
       } as never
     );
@@ -82,13 +78,9 @@ const ProductSearchBar = ({ products }: { products: IProduct[] }) => {
   };
 
   const searchProductByTerm = (term: string) => {
-    const results = products.filter((product: IProduct) =>
-      product.name.toLowerCase().includes(term.toLowerCase())
-    );
     navigation.navigate(
       ProductSearchResultScreenRouteName as never,
       {
-        results,
         term,
       } as never
     );

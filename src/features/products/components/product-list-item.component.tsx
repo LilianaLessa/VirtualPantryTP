@@ -213,8 +213,9 @@ function ProductListItem({
 }) {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation = useNavigation();
-  const handleModal = () => setIsModalVisible(() => !isModalVisible);
+  const toggleModal = () => setIsModalVisible(() => !isModalVisible);
   const handleSelfDelete = () => {
+    setIsModalVisible(false);
     deleteProductCallback(item);
   };
 
@@ -239,7 +240,7 @@ function ProductListItem({
         <TouchableOpacity onPress={handleEdit}>
           <Entypo name="pencil" style={styles.editIcon} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleModal}>
+        <TouchableOpacity onPress={toggleModal}>
           <Entypo name="trash" style={styles.tmpRemoveProductIcon} />
         </TouchableOpacity>
         <TouchableOpacity>
@@ -254,7 +255,7 @@ function ProductListItem({
             cancel="Cancelar"
             dialogContent={`Deseja remover o produto '${item.name}'?`}
             dialogTitle="Remover Produto"
-            cancelHandler={handleModal}
+            cancelHandler={toggleModal}
             confirmHandler={handleSelfDelete}
           />
         </View>

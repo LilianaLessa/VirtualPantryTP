@@ -1,5 +1,5 @@
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Button } from "react-native-paper";
 import { HeaderBackButton } from "@react-navigation/elements";
@@ -10,19 +10,47 @@ import { ProductScreenRouteName } from "./product.screen";
 import Product from "../classes/product";
 import { EditProductScreenRouteName } from "./edit-product.screen";
 import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 export const ProductSearchResultScreenRouteName = "ProductSearchResult";
 export type ProductSearchResultsScreenParams = {
   ProductSearchResult: {
-    results: IProduct[];
     term?: string;
     barCode?: string;
   };
 };
 type Props = RouteProp<ProductSearchResultsScreenParams, "ProductSearchResult">;
 
+const doSearch = (
+  products: IProduct[],
+  term?: string,
+  barCode?: string
+): IProduct[] => {
+  if (typeof term === "string") {
+    return products.filter((product: IProduct) =>
+      product.name.toLowerCase().includes(term.toLowerCase())
+    );
+  }
+
+  if (typeof barCode === "string") {
+    return products.filter((product: IProduct) => product.barCode === barCode);
+  }
+
+  return [];
+};
+
 export function ProductSearchResultScreen({ route }: { route: Props }) {
   const navigation = useNavigation();
+  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const [results, setResults] = useState<IProduct[]>([]);
+  const { term, barCode } = route.params ?? {
+    term: "",
+    barCode: "",
+  };
+
+  useEffect(() => {
+    setResults(doSearch(Array.from(savedProducts.values()), term, barCode));
+  }, [savedProducts]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -35,12 +63,6 @@ export function ProductSearchResultScreen({ route }: { route: Props }) {
       ),
     });
   }, [navigation]);
-
-  const { results, term, barCode } = route.params ?? {
-    results: [],
-    term: "",
-    barCode: "",
-  };
 
   const navigateToProductCreation = (product: IProduct) => {
     navigation.navigate(
