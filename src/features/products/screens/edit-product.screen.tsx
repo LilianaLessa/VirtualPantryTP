@@ -1,16 +1,16 @@
 import { View } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteProp, useNavigation } from "@react-navigation/native";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { v4 as uuidv4 } from "uuid";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { IProduct } from "../interfaces/product.interface";
 import { useActions } from "../../../hooks/useActions";
 import Product from "../classes/product";
-import { BarCodeScanScreenRouteName } from "./barcode-scan.screen";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
+import { BarCodeScanScreenRouteName } from "../../../infrastructure/navigation/route-names";
 
-export const EditProductScreenRouteName = "EditProduct";
 export type EditProductScreenParams = {
   EditProduct: {
     product?: IProduct;
@@ -58,8 +58,8 @@ export function EditProductScreen({ route }: { route: Props }) {
     }
   };
 
-  const onBarCodeScanned = (barCode: string) => {
-    setBarcode(barCode);
+  const onBarCodeScanned = (scannedBarCode: string) => {
+    setBarcode(scannedBarCode);
     // the previous route should be personalized, as
     navigation.goBack();
   };

@@ -3,10 +3,12 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useContext, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { ProductSearchResultScreenRouteName } from "../screens/product-search-results.screen";
 import { IProduct } from "../interfaces/product.interface";
-import { BarCodeScanScreenRouteName } from "../screens/barcode-scan.screen";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
+import {
+  BarCodeScanScreenRouteName,
+  ProductSearchResultScreenRouteName,
+} from "../../../infrastructure/navigation/route-names";
 
 const searchBarStyles = StyleSheet.create({
   container: {

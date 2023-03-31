@@ -10,7 +10,7 @@ import {
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { IProduct } from "../interfaces/product.interface";
-import { EditProductScreenRouteName } from "../screens/edit-product.screen";
+import { EditProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
 
 const styles = StyleSheet.create({
   container: {

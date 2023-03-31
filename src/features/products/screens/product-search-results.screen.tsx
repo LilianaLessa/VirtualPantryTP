@@ -2,17 +2,20 @@ import { RouteProp, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Button } from "react-native-paper";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { HeaderBackButton } from "@react-navigation/elements";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { v4 as uuidv4 } from "uuid";
 import { IProduct } from "../interfaces/product.interface";
 import ProductList from "../components/product-list.component";
-import { ProductScreenRouteName } from "./product.screen";
 import Product from "../classes/product";
-import { EditProductScreenRouteName } from "./edit-product.screen";
 import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import {
+  EditProductScreenRouteName,
+  ProductScreenRouteName,
+} from "../../../infrastructure/navigation/route-names";
 
-export const ProductSearchResultScreenRouteName = "ProductSearchResult";
 export type ProductSearchResultsScreenParams = {
   ProductSearchResult: {
     term?: string;

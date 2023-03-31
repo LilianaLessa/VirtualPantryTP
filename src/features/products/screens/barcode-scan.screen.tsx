@@ -4,8 +4,6 @@ import { Camera } from "expo-camera";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 
-export const BarCodeScanScreenRouteName = "BarCodeScanScreen";
-
 function BarCodeScanScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);

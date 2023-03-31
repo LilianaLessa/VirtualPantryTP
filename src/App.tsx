@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Provider } from "react-redux";
-import { v4 as uuidv4 } from "uuid";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -9,13 +8,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Modal from "react-native-modal";
 import { TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import ProductScreen, {
-  ProductScreenRouteName,
-} from "./features/products/screens/product.screen";
 import { store } from "./state";
-import BarCodeScanScreen, {
-  BarCodeScanScreenRouteName,
-} from "./features/products/screens/barcode-scan.screen";
 import { useTypedSelector } from "./hooks/useTypedSelector";
 import { useActions } from "./hooks/useActions";
 import HomeScreen from "./features/home/screens/home.screen";
@@ -23,15 +16,21 @@ import { ScreenPlaceHolder } from "./dev-utils";
 import {
   EditProductScreen,
   EditProductScreenParams,
-  EditProductScreenRouteName,
 } from "./features/products/screens/edit-product.screen";
 
 import { BarCodeScannerContextProvider } from "./services/barCodeScanner/barCodeScanner.context";
 import {
   ProductSearchResultScreen,
-  ProductSearchResultScreenRouteName,
   ProductSearchResultsScreenParams,
 } from "./features/products/screens/product-search-results.screen";
+import {
+  BarCodeScanScreenRouteName,
+  EditProductScreenRouteName,
+  ProductScreenRouteName,
+  ProductSearchResultScreenRouteName,
+} from "./infrastructure/navigation/route-names";
+import ProductScreen from "./features/products/screens/product.screen";
+import BarCodeScanScreen from "./features/products/screens/barcode-scan.screen";
 
 function LoadingModal() {
   const { fetchingData } = useTypedSelector((state) => state.apiActivity);
@@ -95,7 +94,7 @@ function HeaderLeftActions() {
   return (
     <View>
       <TouchableOpacity
-        onPress={() => navigation.navigate("ConfigurationsScreen")}
+        onPress={() => navigation.navigate("ConfigurationsScreen" as never)}
       >
         <MaterialCommunityIcons name="menu" size={24} color="black" />
       </TouchableOpacity>
@@ -109,7 +108,7 @@ function HeaderRightActions() {
   return (
     <View>
       <TouchableOpacity
-        onPress={() => navigation.navigate("NotificationsScreen")}
+        onPress={() => navigation.navigate("NotificationsScreen" as never)}
       >
         <MaterialCommunityIcons name="bell" size={24} color="black" />
       </TouchableOpacity>

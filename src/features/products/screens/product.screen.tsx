@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
-
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import ProductList from "../components/product-list.component";
 import ProductSearchBar from "../components/product-search-bar.component";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-
-export const ProductScreenRouteName = "Products";
 
 function ProductScreen() {
   const navigation = useNavigation();
