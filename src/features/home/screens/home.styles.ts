@@ -26,7 +26,7 @@ export const HomeScreenButton = styled(TouchableOpacity)`
   height: 145px;
   margin: 5%;
   text-align: center;
-  background-color: rgba(0, 41, 132, 1);
+  background-color: ${(props) => props.theme.colors.button.primary};
   border-radius: 10px;
 `;
 
