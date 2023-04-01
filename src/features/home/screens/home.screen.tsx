@@ -10,6 +10,8 @@ import {
 import {
   HomeScreenButton,
   HomeScreenButtonIcon,
+  HomeScreenButtonLabel,
+  HomeScreenButtonsContainer,
   HomeScreenContentContainer,
 } from "./home.styles";
 
@@ -18,30 +20,36 @@ function HomeScreen() {
 
   return (
     <HomeScreenContentContainer>
-      <HomeScreenButton
-        onPress={() => navigation.navigate(ProductScreenRouteName as never)}
-      >
-        <HomeScreenButtonIcon name="food-apple" />
-        Products
-      </HomeScreenButton>
-      <HomeScreenButton
-        onPress={() => navigation.navigate(PantriesScreenRouteName as never)}
-      >
-        <HomeScreenButtonIcon name="dropbox" />
-        Pantries
-      </HomeScreenButton>
-      <HomeScreenButton
-        onPress={() => navigation.navigate(ShoppingListsRouteName as never)}
-      >
-        <HomeScreenButtonIcon name="format-list-bulleted" />
-        Shopping Lists
-      </HomeScreenButton>
-      <HomeScreenButton
-        onPress={() => navigation.navigate(GroupsRouteName as never)}
-      >
-        <HomeScreenButtonIcon name="account-group" />
-        Groups
-      </HomeScreenButton>
+      <HomeScreenButtonsContainer />
+      <HomeScreenButtonsContainer>
+        <HomeScreenButton
+          onPress={() => navigation.navigate(ProductScreenRouteName as never)}
+        >
+          <HomeScreenButtonIcon name="food-apple" />
+          <HomeScreenButtonLabel>Products</HomeScreenButtonLabel>
+        </HomeScreenButton>
+        <HomeScreenButton
+          onPress={() => navigation.navigate(PantriesScreenRouteName as never)}
+        >
+          <HomeScreenButtonIcon name="dropbox" />
+          <HomeScreenButtonLabel>Pantries</HomeScreenButtonLabel>
+        </HomeScreenButton>
+      </HomeScreenButtonsContainer>
+      <HomeScreenButtonsContainer>
+        <HomeScreenButton
+          onPress={() => navigation.navigate(ShoppingListsRouteName as never)}
+        >
+          <HomeScreenButtonIcon name="format-list-bulleted" />
+          <HomeScreenButtonLabel>Shopping Lists</HomeScreenButtonLabel>
+        </HomeScreenButton>
+        <HomeScreenButton
+          onPress={() => navigation.navigate(GroupsRouteName as never)}
+        >
+          <HomeScreenButtonIcon name="account-group" />
+          <HomeScreenButtonLabel>Groups</HomeScreenButtonLabel>
+        </HomeScreenButton>
+      </HomeScreenButtonsContainer>
+      <HomeScreenButtonsContainer />
     </HomeScreenContentContainer>
   );
 }
