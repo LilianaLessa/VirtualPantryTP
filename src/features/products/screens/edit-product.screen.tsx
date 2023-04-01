@@ -30,7 +30,7 @@ export function EditProductScreen({ route }: { route: Props }) {
   const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
 
   useEffect(() => {
-    const screenTitle = isEdit ? "Edit product" : "Create Product";
+    const screenTitle = isEdit ? "Edit Product" : "Create Product";
     navigation.setOptions({
       title: screenTitle,
     });

@@ -1,10 +1,12 @@
 export const ProductScreenRouteName = "Products";
 export const ProductSearchResultScreenRouteName = "ProductSearchResult";
 export const EditProductScreenRouteName = "EditProduct";
+export const PantriesScreenRouteName = "Pantries";
+export const EditPantryScreenRouteName = "EditPantry";
 export const BarCodeScanScreenRouteName = "BarCodeScanScreen";
 export const HomeScreenRouteName = "Home";
 export const NotificationsScreenRouteName = "NotificationsScreen";
 export const ConfigurationsScreenRouteName = "ConfigurationsScreen";
-export const PantriesScreenRouteName = "Pantries";
+
 export const ShoppingListsRouteName = "ShoppingLists";
 export const GroupsRouteName = "Groups";

@@ -2,16 +2,21 @@ import { Dispatch } from "redux";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
   MessageSnackbarActionType,
+  PantriesActionType,
   SavedProductsActionType,
 } from "../action-types";
-import { MessageSnackbarActions, SavedProductsActions } from "../actions";
+import {
+  MessageSnackbarActions,
+  PantriesActions,
+  SavedProductsActions,
+} from "../actions";
+import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
  *     this way, the client wouldn't need to take care of setting the correct action.
  */
 
-// eslint-disable-next-line operator-linebreak
 export const saveProduct =
   (product: IProduct) =>
   (dispatch: Dispatch<SavedProductsActions | MessageSnackbarActions>) => {
@@ -36,6 +41,34 @@ export const deleteProduct =
     dispatch({
       type: SavedProductsActionType.DELETE_PRODUCT,
       productToDelete: product,
+    });
+  };
+
+// eslint-disable-next-line operator-linebreak
+export const savePantry =
+  (pantry: IPantry) =>
+  (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
+    dispatch({
+      type: MessageSnackbarActionType.SHOW_INFO,
+      infoMessage: `Pantry '${pantry.name}' saved.`,
+    });
+    dispatch({
+      type: PantriesActionType.SAVE_PANTRY,
+      newPantry: pantry,
+    });
+  };
+
+// eslint-disable-next-line operator-linebreak
+export const deletePantry =
+  (pantry: IPantry) =>
+  (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
+    dispatch({
+      type: MessageSnackbarActionType.SHOW_INFO,
+      infoMessage: `Pantry '${pantry.name}' removed.`,
+    });
+    dispatch({
+      type: PantriesActionType.DELETE_PANTRY,
+      pantryToDelete: pantry,
     });
   };
 

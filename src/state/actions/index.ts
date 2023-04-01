@@ -1,8 +1,10 @@
 import {
   ApiActivityActionType,
+  PantriesActionType,
   SavedProductsActionType,
 } from "../action-types";
 import { IProduct } from "../../features/products/interfaces/product.interface";
+import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -15,6 +17,18 @@ interface DeleteProductAction {
 }
 
 export type SavedProductsActions = SaveProductAction | DeleteProductAction;
+
+interface SavePantryAction {
+  type: PantriesActionType.SAVE_PANTRY;
+  newPantry: IPantry;
+}
+
+interface DeletePantryAction {
+  type: PantriesActionType.DELETE_PANTRY;
+  pantryToDelete: IPantry;
+}
+
+export type PantriesActions = SavePantryAction | DeletePantryAction;
 
 interface DataFetchingStarted {
   type: ApiActivityActionType.DATA_FETCHING_STARTED;

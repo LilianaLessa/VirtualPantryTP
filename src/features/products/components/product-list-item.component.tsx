@@ -35,10 +35,10 @@ function ProductListItem({
   const showConfirmDeletionModal = () => {
     showModal(
       <ConfirmDialog
-        confirm="Remover"
-        cancel="Cancelar"
-        dialogContent={`Deseja remover o produto '${item.name}'?`}
-        dialogTitle="Remover Produto"
+        confirm="Remove"
+        cancel="Cancel"
+        dialogContent={`Do you want to delete the product '${item.name}'?`}
+        dialogTitle="Remove Product"
         cancelHandler={hideModal}
         confirmHandler={handleSelfDelete}
       />

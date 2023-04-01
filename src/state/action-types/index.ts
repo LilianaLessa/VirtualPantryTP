@@ -4,6 +4,11 @@ export enum SavedProductsActionType {
   DELETE_PRODUCT = "delete_product",
 }
 
+export enum PantriesActionType {
+  SAVE_PANTRY = "save_pantry",
+  DELETE_PANTRY = "delete_pantry",
+}
+
 // eslint-disable-next-line no-shadow
 export enum ApiActivityActionType {
   DATA_FETCHING_STARTED = "data_fetching_started",

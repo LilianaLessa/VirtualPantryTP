@@ -12,6 +12,7 @@ import HomeScreen from "../../features/home/screens/home.screen";
 import {
   BarCodeScanScreenRouteName,
   ConfigurationsScreenRouteName,
+  EditPantryScreenRouteName,
   EditProductScreenRouteName,
   GroupsRouteName,
   HomeScreenRouteName,
@@ -26,7 +27,11 @@ import BarCodeScanScreen from "../../features/products/screens/barcode-scan.scre
 import { ScreenPlaceHolder } from "../../dev-utils";
 import HeaderLeftActions from "./components/header-left-actions.component";
 import HeaderRightActions from "./components/header-right-actions.component";
-import PantryScreen from "../../features/pantry/screens/pantry.screen";
+import PantryScreen from "../../features/pantries/screens/pantry.screen";
+import {
+  EditPantryScreen,
+  EditPantryScreenParams,
+} from "../../features/pantries/screens/edit-pantry.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -38,13 +43,14 @@ type RootStackParamList =
   | { ShoppingLists: { screenName: string } }
   | { Groups: { screenName: string } }
   | ProductSearchResultsScreenParams
-  | EditProductScreenParams;
+  | EditProductScreenParams
+  | EditPantryScreenParams;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName={PantriesScreenRouteName as never}>
+    <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
       <Stack.Screen
         name={HomeScreenRouteName as never}
         component={HomeScreen}
@@ -56,6 +62,30 @@ function AppNavigator() {
       <Stack.Screen
         name={ProductScreenRouteName as never}
         component={ProductScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={EditProductScreenRouteName as never}
+        component={EditProductScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={PantriesScreenRouteName as never}
+        component={PantryScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={EditPantryScreenRouteName as never}
+        component={EditPantryScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
@@ -79,14 +109,6 @@ function AppNavigator() {
         initialParams={{ screenName: "Configurations" } as never}
       />
       <Stack.Screen
-        name={PantriesScreenRouteName as never}
-        component={PantryScreen}
-        options={{
-          headerLeft: HeaderLeftActions,
-          headerRight: HeaderRightActions,
-        }}
-      />
-      <Stack.Screen
         name={ShoppingListsRouteName as never}
         component={ScreenPlaceHolder}
         initialParams={{ screenName: "Shopping Lists" } as never}
@@ -99,14 +121,6 @@ function AppNavigator() {
         name={GroupsRouteName as never}
         component={ScreenPlaceHolder}
         initialParams={{ screenName: "Groups" } as never}
-        options={{
-          headerLeft: HeaderLeftActions,
-          headerRight: HeaderRightActions,
-        }}
-      />
-      <Stack.Screen
-        name={EditProductScreenRouteName as never}
-        component={EditProductScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,

@@ -5,8 +5,8 @@ import { Text, View } from "react-native";
 import React from "react";
 import { IProduct } from "./features/products/interfaces/product.interface";
 import Product from "./features/products/classes/product.class";
-import Pantry from "./features/pantry/classes/pantry.class";
-import { IPantry } from "./features/pantry/interfaces/pantry.interface";
+import Pantry from "./features/pantries/classes/pantry.class";
+import { IPantry } from "./features/pantries/interfaces/pantry.interface";
 
 export const createMockProduct = (): IProduct =>
   new Product(uuidv4(), "", faker.commerce.productName());
