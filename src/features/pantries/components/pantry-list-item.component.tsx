@@ -17,7 +17,10 @@ import {
 } from "../../products/components/product-list-item.styles";
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
-import { EditPantryScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import {
+  EditPantryScreenRouteName,
+  PantryContentScreenRouteName,
+} from "../../../infrastructure/navigation/route-names";
 
 export const PantryLeftIcon = styled(MaterialCommunityIcons).attrs({
   name: "dropbox",
@@ -44,6 +47,15 @@ function PantryListItem({
         pantry: item,
         isEdit: true,
         // eslint-disable-next-line comma-dangle
+      } as never
+    );
+  };
+
+  const handleShowContent = () => {
+    navigation.navigate(
+      PantryContentScreenRouteName as never,
+      {
+        pantry: item,
       } as never
     );
   };
@@ -78,7 +90,7 @@ function PantryListItem({
         <TouchableOpacity onPress={showConfirmDeletionModal}>
           <DeleteIcon />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleShowContent}>
           <AddToPantryIcon />
         </TouchableOpacity>
         <DragHandler />

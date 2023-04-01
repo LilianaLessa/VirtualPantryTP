@@ -2,7 +2,10 @@ import React, { useContext } from "react";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { IProduct } from "../interfaces/product.interface";
-import { EditProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import {
+  EditProductScreenRouteName,
+  StoreProductScreenRouteName,
+} from "../../../infrastructure/navigation/route-names";
 import {
   AddToPantryIcon,
   DeleteIcon,
@@ -56,6 +59,15 @@ function ProductListItem({
     );
   };
 
+  const handleStoreProduct = () => {
+    navigation.navigate(
+      StoreProductScreenRouteName as never,
+      {
+        pantry: item,
+      } as never
+    );
+  };
+
   return (
     <ProductListItemContainer>
       <LeftContent>
@@ -69,7 +81,7 @@ function ProductListItem({
         <TouchableOpacity onPress={showConfirmDeletionModal}>
           <DeleteIcon />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleStoreProduct}>
           <AddToPantryIcon />
         </TouchableOpacity>
         <DragHandler />

@@ -18,9 +18,11 @@ import {
   HomeScreenRouteName,
   NotificationsScreenRouteName,
   PantriesScreenRouteName,
+  PantryContentScreenRouteName,
   ProductScreenRouteName,
   ProductSearchResultScreenRouteName,
   ShoppingListsRouteName,
+  StoreProductScreenRouteName,
 } from "./route-names";
 import ProductScreen from "../../features/products/screens/product.screen";
 import BarCodeScanScreen from "../../features/products/screens/barcode-scan.screen";
@@ -32,14 +34,14 @@ import {
   EditPantryScreen,
   EditPantryScreenParams,
 } from "../../features/pantries/screens/edit-pantry.screen";
+import StoreProductScreen from "../../features/products/screens/store-product.screen";
+import PantryContentScreen from "../../features/pantries/screens/pantry-content.screen";
 
 type RootStackParamList =
   | { Home: undefined }
   | { Products: undefined }
-  | { BarCodeScanScreen: undefined }
   | { NotificationsScreen: { screenName: string } }
   | { ConfigurationsScreen: { screenName: string } }
-  | { Pantries: { screenName: string } }
   | { ShoppingLists: { screenName: string } }
   | { Groups: { screenName: string } }
   | ProductSearchResultsScreenParams
@@ -76,6 +78,14 @@ function AppNavigator() {
         }}
       />
       <Stack.Screen
+        name={StoreProductScreenRouteName as never}
+        component={StoreProductScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
         name={PantriesScreenRouteName as never}
         component={PantryScreen}
         options={{
@@ -86,6 +96,14 @@ function AppNavigator() {
       <Stack.Screen
         name={EditPantryScreenRouteName as never}
         component={EditPantryScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={PantryContentScreenRouteName as never}
+        component={PantryContentScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
