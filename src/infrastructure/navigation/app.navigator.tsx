@@ -26,6 +26,7 @@ import BarCodeScanScreen from "../../features/products/screens/barcode-scan.scre
 import { ScreenPlaceHolder } from "../../dev-utils";
 import HeaderLeftActions from "./components/header-left-actions.component";
 import HeaderRightActions from "./components/header-right-actions.component";
+import PantryScreen from "../../features/pantry/screens/pantry.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -43,7 +44,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
+    <Stack.Navigator initialRouteName={PantriesScreenRouteName as never}>
       <Stack.Screen
         name={HomeScreenRouteName as never}
         component={HomeScreen}
@@ -79,8 +80,7 @@ function AppNavigator() {
       />
       <Stack.Screen
         name={PantriesScreenRouteName as never}
-        component={ScreenPlaceHolder}
-        initialParams={{ screenName: "Pantries" } as never}
+        component={PantryScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,

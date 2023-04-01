@@ -1,6 +1,6 @@
 import { IProduct } from "../interfaces/product.interface";
 
-export default class ProductClass implements IProduct {
+export default class Product implements IProduct {
   public name: string;
 
   public measureUnit: string;
@@ -27,7 +27,7 @@ export default class ProductClass implements IProduct {
   }
 
   clone(override: Partial<IProduct>): IProduct {
-    return new ProductClass(
+    return new Product(
       override.uuid ?? this.uuid,
       override.barCode ?? this.barCode,
       override.name ?? this.name,

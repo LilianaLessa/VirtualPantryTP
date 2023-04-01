@@ -7,7 +7,7 @@ import { Button, HelperText, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { IProduct } from "../interfaces/product.interface";
 import { useActions } from "../../../hooks/useActions";
-import ProductClass from "../classes/product.class";
+import Product from "../classes/product.class";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 import { BarCodeScanScreenRouteName } from "../../../infrastructure/navigation/route-names";
 
@@ -44,7 +44,7 @@ export function EditProductScreen({ route }: { route: Props }) {
   const { saveProduct } = useActions();
 
   const handleProductSave = () => {
-    product = product ?? new ProductClass(uuidv4());
+    product = product ?? new Product(uuidv4());
     product.name = name;
     product.measureUnit = measureUnit;
     product.packageWeight = packageWeight;

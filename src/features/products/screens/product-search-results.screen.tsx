@@ -2,13 +2,13 @@ import { RouteProp, useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Button } from "react-native-paper";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { HeaderBackButton } from "@react-navigation/elements";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { v4 as uuidv4 } from "uuid";
 import { IProduct } from "../interfaces/product.interface";
 import ProductList from "../components/product-list.component";
-import ProductClass from "../classes/product.class";
+import Product from "../classes/product.class";
 import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
 import {
   EditProductScreenRouteName,
@@ -70,13 +70,13 @@ export function ProductSearchResultScreen({ route }: { route: Props }) {
         );
       },
       () => {
-        navigateToProductCreation(new ProductClass(uuidv4(), barCode));
+        navigateToProductCreation(new Product(uuidv4(), barCode));
       }
     );
   };
 
   const handleCreateFromTerm = () => {
-    navigateToProductCreation(new ProductClass(uuidv4(), "", term));
+    navigateToProductCreation(new Product(uuidv4(), "", term));
   };
 
   if (results.length === 0) {
