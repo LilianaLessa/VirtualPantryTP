@@ -34,7 +34,9 @@ import {
   EditPantryScreen,
   EditPantryScreenParams,
 } from "../../features/pantries/screens/edit-pantry.screen";
-import StoreProductScreen from "../../features/products/screens/store-product.screen";
+import StoreProductScreen, {
+  StoreProductScreenParams,
+} from "../../features/products/screens/store-product.screen";
 import PantryContentScreen from "../../features/pantries/screens/pantry-content.screen";
 
 type RootStackParamList =
@@ -46,13 +48,14 @@ type RootStackParamList =
   | { Groups: { screenName: string } }
   | ProductSearchResultsScreenParams
   | EditProductScreenParams
-  | EditPantryScreenParams;
+  | EditPantryScreenParams
+  | StoreProductScreenParams;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
+    <Stack.Navigator initialRouteName={StoreProductScreen as never}>
       <Stack.Screen
         name={HomeScreenRouteName as never}
         component={HomeScreen}

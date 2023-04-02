@@ -63,7 +63,7 @@ function ProductListItem({
     navigation.navigate(
       StoreProductScreenRouteName as never,
       {
-        pantry: item,
+        product: item,
       } as never
     );
   };
