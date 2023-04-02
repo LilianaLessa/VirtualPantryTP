@@ -15,4 +15,6 @@ export interface IStoredProduct {
   storedAt: Date;
 
   boughtPrice?: number;
+
+  getKey: () => string;
 }

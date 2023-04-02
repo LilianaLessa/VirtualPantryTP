@@ -2,9 +2,11 @@ import {
   ApiActivityActionType,
   PantriesActionType,
   SavedProductsActionType,
+  StoredProductActionType,
 } from "../action-types";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
+import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -17,6 +19,20 @@ interface DeleteProductAction {
 }
 
 export type SavedProductsActions = SaveProductAction | DeleteProductAction;
+
+interface StoreProductAction {
+  type: StoredProductActionType.STORE_PRODUCT;
+  productToStore: IStoredProduct;
+}
+
+interface DeleteStoredProductAction {
+  type: StoredProductActionType.DELETE_STORED_PRODUCT;
+  storedProductToDelete: IStoredProduct;
+}
+
+export type StoredProductActions =
+  | StoreProductAction
+  | DeleteStoredProductAction;
 
 interface SavePantryAction {
   type: PantriesActionType.SAVE_PANTRY;

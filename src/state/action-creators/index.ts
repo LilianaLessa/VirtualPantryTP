@@ -4,13 +4,16 @@ import {
   MessageSnackbarActionType,
   PantriesActionType,
   SavedProductsActionType,
+  StoredProductActionType,
 } from "../action-types";
 import {
   MessageSnackbarActions,
   PantriesActions,
   SavedProductsActions,
+  StoredProductActions,
 } from "../actions";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
+import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -47,11 +50,11 @@ export const deleteProduct =
 
 // eslint-disable-next-line operator-linebreak
 export const savePantry =
-  (pantry: IPantry, saveMessaged?: string) =>
+  (pantry: IPantry) =>
   (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
     dispatch({
       type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: saveMessaged ?? `Pantry '${pantry.name}' saved.`,
+      infoMessage: `Pantry '${pantry.name}' saved.`,
     });
     dispatch({
       type: PantriesActionType.SAVE_PANTRY,
@@ -104,5 +107,31 @@ export const hideInfoSnack =
   () => (dispatch: Dispatch<MessageSnackbarActions>) => {
     dispatch({
       type: MessageSnackbarActionType.HIDE_INFO,
+    });
+  };
+
+export const storeProduct =
+  (productToStore: IStoredProduct) =>
+  (dispatch: Dispatch<StoredProductActions | MessageSnackbarActions>) => {
+    dispatch({
+      type: MessageSnackbarActionType.SHOW_INFO,
+      infoMessage: `Product '${productToStore.product.name}' was stored on '${productToStore.pantry.name}.'`,
+    });
+    dispatch({
+      type: StoredProductActionType.STORE_PRODUCT,
+      productToStore,
+    });
+  };
+
+export const deleteStoredProduct =
+  (storedProductToDelete: IStoredProduct) =>
+  (dispatch: Dispatch<StoredProductActions | MessageSnackbarActions>) => {
+    dispatch({
+      type: MessageSnackbarActionType.SHOW_INFO,
+      infoMessage: `Product '${storedProductToDelete.product.name}' was removed from '${storedProductToDelete.pantry.name}.'`,
+    });
+    dispatch({
+      type: StoredProductActionType.DELETE_STORED_PRODUCT,
+      storedProductToDelete,
     });
   };

@@ -29,7 +29,8 @@ import { IProduct } from "../interfaces/product.interface";
 import { IPantry } from "../../pantries/interfaces/pantry.interface";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { BarCodeScanIcon } from "../components/product-search-bar.styles";
-import StoredProduct from "../classes/stored-product.class";
+import StoredProduct from "../classes/stored.product";
+import { IStoredProduct } from "../interfaces/stored-product.interface";
 import { useActions } from "../../../hooks/useActions";
 
 export type StoreProductScreenParams = {
@@ -60,11 +61,19 @@ const SelectProductContainer = styled(View)`
 
 export default function StoreProductScreen({ route }: { route: Props }) {
   registerTranslation("enGB", enGB);
-  const navigation = useNavigation();
   const { product, pantry } = route.params ?? {};
+
   const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const { storedProductsByCompositeKey } = useTypedSelector(
+    (state) => state.storedProductsByCompositeKey
+  );
   const { pantries } = useTypedSelector((state) => state.pantries);
-  const { savePantry } = useActions();
+
+  const [storedProduct, setStoredProduct] = useState(
+    storedProductsByCompositeKey.get(
+      `${pantry?.uuid ?? ""},${product?.uuid ?? ""}`
+    )
+  );
 
   const [products, setProducts] = useState(
     getEntityArrayToSelect(Array.from(savedProducts.values()))
@@ -73,17 +82,32 @@ export default function StoreProductScreen({ route }: { route: Props }) {
     getEntityArrayToSelect(Array.from(pantries.values()))
   );
   const [selectedProduct, setSelectedProduct] = useState<IProduct | undefined>(
-    product
+    storedProduct?.product ?? product
   );
   const [selectedPantry, setSelectedPantry] = useState<IPantry | undefined>(
-    pantry
+    storedProduct?.pantry ?? pantry
   );
 
-  // todo fetch product on pantry from redux?
-  const [quantity, setQuantity] = useState(1);
-  const [bestBefore, setBestBefore] = useState(new Date());
-  const [storedAt, setStoredAt] = useState(new Date());
-  const [boughtPrice, setBoughtPrice] = useState(0);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    setStoredProduct(
+      storedProductsByCompositeKey.get(
+        `${selectedProduct?.uuid ?? ""},${selectedPantry?.uuid ?? ""}`
+      )
+    );
+  }, [storedProductsByCompositeKey, selectedProduct, selectedPantry]);
+
+  const [quantity, setQuantity] = useState(storedProduct?.quantity ?? 1);
+  const [bestBefore, setBestBefore] = useState(
+    storedProduct?.bestBefore ?? new Date()
+  );
+  const [storedAt, setStoredAt] = useState(
+    storedProduct?.storedAt ?? new Date()
+  );
+  const [boughtPrice, setBoughtPrice] = useState(
+    storedProduct?.boughtPrice ?? 0
+  );
 
   useEffect(() => {
     const savedProductsArray = Array.from(savedProducts.values());
@@ -116,8 +140,10 @@ export default function StoreProductScreen({ route }: { route: Props }) {
     MaterialCommunityIcons: materialCommunityIconsFont,
   });
 
+  const { storeProduct } = useActions();
+
   if (!materialCommunityIconsFontLoaded) {
-    // console.log("font not loaded"); //put an activity indicator here?
+    // console.log("font not loaded"); //todo put an activity indicator here?
     return null;
   }
 
@@ -145,24 +171,23 @@ export default function StoreProductScreen({ route }: { route: Props }) {
 
   const handleProductOnPantrySave = () => {
     // todo save button should be disabled if selectedProduct or selectedPantry are null
-    // todo input fields should be disabled if selectedProduct is null
     if (selectedProduct && selectedPantry) {
-      // todo pick new or edit an existing one.
-      const productToStore = new StoredProduct(
-        uuidv4(),
-        selectedProduct,
-        selectedPantry,
-        quantity,
-        bestBefore,
-        storedAt,
-        boughtPrice
-      );
+      let productToStore: IStoredProduct;
+      if (storedProduct) {
+        productToStore = storedProduct;
+      } else {
+        productToStore = new StoredProduct(
+          uuidv4(),
+          selectedProduct,
+          selectedPantry
+        );
+      }
+      productToStore.quantity = quantity;
+      productToStore.bestBefore = bestBefore;
+      productToStore.storedAt = storedAt;
+      productToStore.boughtPrice = boughtPrice;
 
-      selectedPantry.storeProduct(productToStore);
-      savePantry(
-        selectedPantry,
-        `Product '${selectedProduct.name}' added to pantry '${selectedPantry.name}'`
-      );
+      storeProduct(productToStore);
 
       navigation.goBack();
     }
@@ -197,7 +222,7 @@ export default function StoreProductScreen({ route }: { route: Props }) {
         disabled={!selectedProduct}
         mode="outlined"
         label="Quantity"
-        placeholder="Ex.: Kilo"
+        placeholder="Ex.: 3"
         value={quantity.toString()}
         onChangeText={(text) => setQuantity(text as unknown as number)}
         keyboardType="numeric"
@@ -205,17 +230,6 @@ export default function StoreProductScreen({ route }: { route: Props }) {
       />
       <HelperText visible type="info" padding="none">
         Set the product quantity to store
-      </HelperText>
-      <DatePickerInput
-        disabled={!selectedProduct}
-        locale="enGB"
-        label="Best before"
-        value={bestBefore}
-        onChange={(d) => setBestBefore(d ?? new Date())}
-        inputMode="start"
-      />
-      <HelperText visible type="info" padding="none">
-        The date until which the product should be consumed.
       </HelperText>
       <DatePickerInput
         disabled={!selectedProduct}
@@ -228,11 +242,22 @@ export default function StoreProductScreen({ route }: { route: Props }) {
       <HelperText visible type="info" padding="none">
         The date when the product was stored in the pantry.
       </HelperText>
+      <DatePickerInput
+        disabled={!selectedProduct}
+        locale="enGB"
+        label="Best before"
+        value={bestBefore}
+        onChange={(d) => setBestBefore(d ?? new Date())}
+        inputMode="start"
+      />
+      <HelperText visible type="info" padding="none">
+        The date until which the product should be consumed.
+      </HelperText>
       <TextInput
         disabled={!selectedProduct}
         mode="outlined"
         label="Bought Price"
-        placeholder="Ex.: Kilo"
+        placeholder="Ex.: 10"
         value={boughtPrice.toString()}
         onChangeText={(text) => setBoughtPrice(text as unknown as number)}
         keyboardType="numeric"

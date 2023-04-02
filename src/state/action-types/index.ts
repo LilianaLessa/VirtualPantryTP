@@ -4,6 +4,13 @@ export enum SavedProductsActionType {
   DELETE_PRODUCT = "delete_product",
 }
 
+// eslint-disable-next-line no-shadow
+export enum StoredProductActionType {
+  STORE_PRODUCT = "store_product",
+  DELETE_STORED_PRODUCT = "delete_stored_product",
+}
+
+// eslint-disable-next-line no-shadow
 export enum PantriesActionType {
   SAVE_PANTRY = "save_pantry",
   DELETE_PANTRY = "delete_pantry",

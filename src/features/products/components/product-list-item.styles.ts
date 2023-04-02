@@ -1,8 +1,8 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import styled from "styled-components";
 import { Text, View } from "react-native";
 import {
   Entypo,
+  Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
@@ -25,13 +25,15 @@ export const LeftContent = styled(View)`
   justify-content: flex-start;
 `;
 
-export const LeftIcon = styled(MaterialCommunityIcons).attrs({
-  name: "food-apple",
-})`
+const MaterialCommunityIconsIcon = styled(MaterialCommunityIcons)`
   color: rgba(0, 0, 0, 1);
   font-size: 20px;
   margin-left: 10px;
 `;
+
+export const LeftIcon = styled(MaterialCommunityIconsIcon).attrs({
+  name: "food-apple",
+})``;
 
 export const LeftText = styled(Text)`
   color: #121212;
@@ -52,7 +54,17 @@ const EntypoIcon = styled(Entypo)`
   margin-left: 10px;
 `;
 
+const IoniconsIcon = styled(Ionicons)`
+  color: rgba(0, 0, 0, 1);
+  font-size: 25px;
+  margin-left: 10px;
+`;
+
 export const EditIcon = styled(EntypoIcon).attrs({ name: "pencil" })``;
+export const CookIcon = styled(IoniconsIcon).attrs({ name: "md-bonfire" })``;
+export const EatIcon = styled(MaterialCommunityIconsIcon).attrs({
+  name: "silverware-fork-knife",
+})``;
 
 export const DeleteIcon = styled(EntypoIcon).attrs({ name: "trash" })``;
 
