@@ -30,6 +30,7 @@ export const saveProduct =
     });
   };
 
+// todo when deleting a product, what should happen with the stored ones?
 // eslint-disable-next-line operator-linebreak
 export const deleteProduct =
   (product: IProduct) =>
@@ -46,11 +47,11 @@ export const deleteProduct =
 
 // eslint-disable-next-line operator-linebreak
 export const savePantry =
-  (pantry: IPantry) =>
+  (pantry: IPantry, saveMessaged?: string) =>
   (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
     dispatch({
       type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Pantry '${pantry.name}' saved.`,
+      infoMessage: saveMessaged ?? `Pantry '${pantry.name}' saved.`,
     });
     dispatch({
       type: PantriesActionType.SAVE_PANTRY,

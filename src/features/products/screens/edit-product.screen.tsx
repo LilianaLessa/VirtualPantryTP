@@ -105,7 +105,6 @@ export function EditProductScreen({ route }: { route: Props }) {
       <HelperText visible type="info" padding="none">
         Type the quantity of product in the package, in grams
       </HelperText>
-      <View />
       <TextInput
         mode="outlined"
         label="Bar code"
