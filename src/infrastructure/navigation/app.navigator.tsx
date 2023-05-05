@@ -39,6 +39,7 @@ import StoreProductScreen, {
 } from "../../features/products/screens/store-product.screen";
 import PantryContentScreen from "../../features/pantries/screens/pantry-content.screen";
 import ConfigurationScreen from "../../features/configuration/screens/configuration.screen";
+import NotificationScreen from "../../features/notification/screens/notification.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -56,7 +57,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName={ConfigurationsScreenRouteName as never}>
+    <Stack.Navigator initialRouteName={NotificationsScreenRouteName as never}>
       <Stack.Screen
         name={HomeScreenRouteName as never}
         component={HomeScreen}
@@ -119,7 +120,7 @@ function AppNavigator() {
       />
       <Stack.Screen
         name={NotificationsScreenRouteName as never}
-        component={ScreenPlaceHolder}
+        component={NotificationScreen}
         initialParams={{ screenName: "Notifications" } as never}
         options={{
           headerLeft: HeaderLeftActions,
