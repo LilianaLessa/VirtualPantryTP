@@ -1,5 +1,6 @@
 import {
   ApiActivityActionType,
+  NotificationsActionType,
   PantriesActionType,
   SavedProductsActionType,
   StoredProductActionType,
@@ -7,6 +8,7 @@ import {
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
+import { INotification } from "../../features/notification/interfaces/notification.interface";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -79,3 +81,23 @@ export type MessageSnackbarActions =
   | HideError
   | ShowInfo
   | HideInfo;
+
+interface AddNotification {
+  type: NotificationsActionType.ADD_NOTIFICATION;
+  newNotification: INotification;
+}
+
+interface RemoveNotification {
+  type: NotificationsActionType.REMOVE_NOTIFICATION;
+  notificationToRemove: INotification;
+}
+
+interface ReadNotification {
+  type: NotificationsActionType.READ_NOTIFICATION;
+  notificationToRead: INotification;
+}
+
+export type NotificationsActions =
+  | AddNotification
+  | RemoveNotification
+  | ReadNotification;

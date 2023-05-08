@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export const NotificationContainer = styled(TouchableOpacity)`
@@ -17,15 +17,6 @@ export const ExpirationNoticeLeftIcon = styled(FontAwesome).attrs({
   color: rgba(128, 128, 128, 1);
   font-size: 20px;
   margin: 10px 10px 10px 0;
-`;
-
-export const ExpirationNoticeDeleteButtonIcon = styled(Entypo).attrs({
-  name: "trash",
-})`
-  color: rgba(128, 128, 128, 1);
-  font-size: 20px;
-  margin: 0;
-  align-self: flex-start;
 `;
 
 export const NotificationMessageContainer = styled(View)`

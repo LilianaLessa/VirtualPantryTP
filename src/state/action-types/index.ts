@@ -29,3 +29,9 @@ export enum MessageSnackbarActionType {
   SHOW_INFO = "show_info",
   HIDE_INFO = "hide_info",
 }
+
+export enum NotificationsActionType {
+  ADD_NOTIFICATION = "add_notification",
+  REMOVE_NOTIFICATION = "remove_notification",
+  READ_NOTIFICATION = "read_notification",
+}

@@ -2,18 +2,21 @@ import { Dispatch } from "redux";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
   MessageSnackbarActionType,
+  NotificationsActionType,
   PantriesActionType,
   SavedProductsActionType,
   StoredProductActionType,
 } from "../action-types";
 import {
   MessageSnackbarActions,
+  NotificationsActions,
   PantriesActions,
   SavedProductsActions,
   StoredProductActions,
 } from "../actions";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
+import { INotification } from "../../features/notification/interfaces/notification.interface";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -133,5 +136,14 @@ export const deleteStoredProduct =
     dispatch({
       type: StoredProductActionType.DELETE_STORED_PRODUCT,
       storedProductToDelete,
+    });
+  };
+
+export const deleteNotification =
+  (notificationToRemove: INotification) =>
+  (dispatch: Dispatch<NotificationsActions>) => {
+    dispatch({
+      type: NotificationsActionType.REMOVE_NOTIFICATION,
+      notificationToRemove,
     });
   };

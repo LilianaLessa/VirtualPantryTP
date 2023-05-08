@@ -1,24 +1,25 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
 import ProductExpirationNoticeNotification from "../classes/product-expiration-notice-notification.class";
 import {
-  ExpirationNoticeDeleteButtonIcon,
   ExpirationNoticeLeftIcon,
   NotificationContainer,
   NotificationDatetime,
   NotificationMessage,
   NotificationMessageContainer,
 } from "./product-expiration-notice.styles";
+import NotificationDeleteButton from "./notification-delete-button.component";
 
 function ProductExpirationNotice({
-  productExpirationNoticeNotification: {
-    datetime,
-    storedProduct: { product },
-    remainingDays,
-  },
+  productExpirationNoticeNotification,
 }: {
   productExpirationNoticeNotification: ProductExpirationNoticeNotification;
 }) {
+  const {
+    datetime,
+    storedProduct: { product },
+    remainingDays,
+  } = productExpirationNoticeNotification;
+
   const getMessage = () =>
     `The product '${product.name}' will expire in ${remainingDays} days.`;
 
@@ -37,9 +38,9 @@ function ProductExpirationNotice({
         <NotificationMessage>{getMessage()}</NotificationMessage>
         <NotificationDatetime>{getDatetimeString()}</NotificationDatetime>
       </NotificationMessageContainer>
-      <TouchableOpacity>
-        <ExpirationNoticeDeleteButtonIcon />
-      </TouchableOpacity>
+      <NotificationDeleteButton
+        notification={productExpirationNoticeNotification}
+      />
     </NotificationContainer>
   );
 }

@@ -16,6 +16,4 @@ export default abstract class AbstractNotification implements INotification {
   getKey(): string {
     return `notification_${this.uuid}`;
   }
-
-  abstract getComponent(): JSX.Element;
 }
