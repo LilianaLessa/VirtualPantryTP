@@ -4,7 +4,7 @@ import { IPantry } from "../../pantries/interfaces/pantry.interface";
 export interface IStoredProduct {
   uuid: string;
 
-  product: IProduct;
+  product: Partial<IProduct>; // todo remove this Partial when finishing testing of notification
 
   pantry: IPantry;
 

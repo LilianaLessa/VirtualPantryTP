@@ -57,7 +57,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName={NotificationsScreenRouteName as never}>
+    <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
       <Stack.Screen
         name={HomeScreenRouteName as never}
         component={HomeScreen}
