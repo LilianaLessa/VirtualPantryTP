@@ -41,6 +41,9 @@ const notificationsReducer = (
         read: true,
       });
       return { ...state, notifications: new Map(state.notifications) };
+    case NotificationsActionType.CLEAR_NOTIFICATIONS:
+      state.notifications.clear();
+      return { ...state, notifications: new Map(state.notifications) };
     default:
       return state;
   }

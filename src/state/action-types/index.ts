@@ -34,4 +34,5 @@ export enum NotificationsActionType {
   ADD_NOTIFICATION = "add_notification",
   REMOVE_NOTIFICATION = "remove_notification",
   READ_NOTIFICATION = "read_notification",
+  CLEAR_NOTIFICATIONS = "clear_notifications",
 }

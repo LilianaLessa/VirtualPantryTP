@@ -147,3 +147,10 @@ export const deleteNotification =
       notificationToRemove,
     });
   };
+
+export const clearNotifications =
+  () => (dispatch: Dispatch<NotificationsActions>) => {
+    dispatch({
+      type: NotificationsActionType.CLEAR_NOTIFICATIONS,
+    });
+  };

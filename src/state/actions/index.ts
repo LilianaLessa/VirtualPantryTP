@@ -97,7 +97,12 @@ interface ReadNotification {
   notificationToRead: INotification;
 }
 
+interface ClearNotifications {
+  type: NotificationsActionType.CLEAR_NOTIFICATIONS;
+}
+
 export type NotificationsActions =
   | AddNotification
   | RemoveNotification
-  | ReadNotification;
+  | ReadNotification
+  | ClearNotifications;
