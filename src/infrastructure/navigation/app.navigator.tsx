@@ -14,6 +14,7 @@ import {
   ConfigurationsScreenRouteName,
   EditPantryScreenRouteName,
   EditProductScreenRouteName,
+  EditShoppingListScreenRouteName,
   GroupsRouteName,
   HomeScreenRouteName,
   NotificationsScreenRouteName,
@@ -41,6 +42,9 @@ import PantryContentScreen from "../../features/pantries/screens/pantry-content.
 import ConfigurationScreen from "../../features/configuration/screens/configuration.screen";
 import NotificationScreen from "../../features/notification/screens/notification.screen";
 import ShoppingListScreen from "../../features/shoppingList/screens/shopping-list.screen";
+import EditShoppingListScreen, {
+  EditShoppingListScreenParams,
+} from "../../features/shoppingList/screens/edit-shopping-list.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -52,7 +56,8 @@ type RootStackParamList =
   | ProductSearchResultsScreenParams
   | EditProductScreenParams
   | EditPantryScreenParams
-  | StoreProductScreenParams;
+  | StoreProductScreenParams
+  | EditShoppingListScreenParams;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -134,6 +139,14 @@ function AppNavigator() {
       <Stack.Screen
         name={ShoppingListsRouteName as never}
         component={ShoppingListScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={EditShoppingListScreenRouteName as never}
+        component={EditShoppingListScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,

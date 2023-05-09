@@ -11,4 +11,7 @@ export const NotificationsScreenRouteName = "NotificationsScreen";
 export const ConfigurationsScreenRouteName = "ConfigurationsScreen";
 
 export const ShoppingListsRouteName = "ShoppingLists";
+
+export const EditShoppingListScreenRouteName = "EditShoppingList";
+
 export const GroupsRouteName = "Groups";

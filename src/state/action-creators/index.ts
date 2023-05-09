@@ -5,6 +5,7 @@ import {
   NotificationsActionType,
   PantriesActionType,
   SavedProductsActionType,
+  ShoppingListsActionType,
   StoredProductActionType,
 } from "../action-types";
 import {
@@ -12,11 +13,13 @@ import {
   NotificationsActions,
   PantriesActions,
   SavedProductsActions,
+  ShoppingListsActions,
   StoredProductActions,
 } from "../actions";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
+import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -152,5 +155,23 @@ export const clearNotifications =
   () => (dispatch: Dispatch<NotificationsActions>) => {
     dispatch({
       type: NotificationsActionType.CLEAR_NOTIFICATIONS,
+    });
+  };
+
+export const saveShoppingList =
+  (newShoppingList: IShoppingList) =>
+  (dispatch: Dispatch<ShoppingListsActions>) => {
+    dispatch({
+      type: ShoppingListsActionType.SAVE_SHOPPING_LIST,
+      newShoppingList,
+    });
+  };
+
+export const deleteShoppingList =
+  (shoppingListToDelete: IShoppingList) =>
+  (dispatch: Dispatch<ShoppingListsActions>) => {
+    dispatch({
+      type: ShoppingListsActionType.DELETE_SHOPPING_LIST,
+      shoppingListToDelete,
     });
   };
