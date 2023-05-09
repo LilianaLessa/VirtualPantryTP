@@ -40,6 +40,7 @@ import StoreProductScreen, {
 import PantryContentScreen from "../../features/pantries/screens/pantry-content.screen";
 import ConfigurationScreen from "../../features/configuration/screens/configuration.screen";
 import NotificationScreen from "../../features/notification/screens/notification.screen";
+import ShoppingListScreen from "../../features/shoppingList/screens/shopping-list.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -132,8 +133,7 @@ function AppNavigator() {
       />
       <Stack.Screen
         name={ShoppingListsRouteName as never}
-        component={ScreenPlaceHolder}
-        initialParams={{ screenName: "Shopping Lists" } as never}
+        component={ShoppingListScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
