@@ -5,6 +5,7 @@ import messageSnackbarReducer from "./message-snackbar.reducer";
 import pantriesReducer from "./pantries.reducer";
 import storedProductsReducer from "./stored-products.reducer";
 import notificationsReducer from "./notifications.reducer";
+import shoppingListsReducer from "./shopping-lists.reducer";
 
 const reducers = combineReducers({
   savedProducts: savedProductsReducer,
@@ -16,6 +17,7 @@ const reducers = combineReducers({
   apiActivity: apiActivityReducer,
   messageSnackbar: messageSnackbarReducer,
   notifications: notificationsReducer,
+  shoppingLists: shoppingListsReducer,
 });
 
 export default reducers;

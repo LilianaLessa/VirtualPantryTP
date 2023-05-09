@@ -3,12 +3,14 @@ import {
   NotificationsActionType,
   PantriesActionType,
   SavedProductsActionType,
+  ShoppingListsActionType,
   StoredProductActionType,
 } from "../action-types";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
+import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -106,3 +108,15 @@ export type NotificationsActions =
   | RemoveNotification
   | ReadNotification
   | ClearNotifications;
+
+interface SaveShoppingList {
+  type: ShoppingListsActionType.SAVE_SHOPPING_LIST;
+  newShoppingList: IShoppingList;
+}
+
+interface DeleteShoppingList {
+  type: ShoppingListsActionType.DELETE_SHOPPING_LIST;
+  shoppingListToDelete: IShoppingList;
+}
+
+export type ShoppingListsActions = SaveShoppingList | DeleteShoppingList;

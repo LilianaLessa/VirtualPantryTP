@@ -2,16 +2,19 @@ import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import ShoppingLists from "../components/shopping-lists.component";
-import IShoppingList from "../interfaces/shopping-list.interface";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 function ShoppingListScreen() {
-  const [shoppingListsOnScreen, setShoppingListsOnScreen] = useState<
-    IShoppingList[]
-  >([]);
+  const { shoppingLists } = useTypedSelector((state) => state.shoppingLists);
+
+  const [shoppingListsOnScreen, setShoppingListsOnScreen] = useState(
+    // eslint-disable-next-line comma-dangle
+    Array.from(shoppingLists.values())
+  );
 
   useEffect(() => {
-    setShoppingListsOnScreen([]);
-  }, []);
+    setShoppingListsOnScreen(Array.from(shoppingLists.values()));
+  }, [shoppingLists]);
 
   return (
     <View>

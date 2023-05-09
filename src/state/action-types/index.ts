@@ -36,3 +36,8 @@ export enum NotificationsActionType {
   READ_NOTIFICATION = "read_notification",
   CLEAR_NOTIFICATIONS = "clear_notifications",
 }
+
+export enum ShoppingListsActionType {
+  SAVE_SHOPPING_LIST = "save_shopping_list",
+  DELETE_SHOPPING_LIST = "delete_shopping_list",
+}

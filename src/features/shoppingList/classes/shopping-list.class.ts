@@ -8,7 +8,7 @@ export default class ShoppingList implements IShoppingList {
 
   items: IShoppingListItem[];
 
-  constructor(uuid: string, name: string, items: IShoppingListItem[]) {
+  constructor(uuid: string, name: string, items: IShoppingListItem[] = []) {
     this.uuid = uuid;
     this.name = name;
     this.items = items;

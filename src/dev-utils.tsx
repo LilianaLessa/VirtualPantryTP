@@ -9,9 +9,14 @@ import Pantry from "./features/pantries/classes/pantry.class";
 import { IPantry } from "./features/pantries/interfaces/pantry.interface";
 import ProductExpirationNoticeNotification from "./features/notification/classes/product-expiration-notice-notification.class";
 import { INotification } from "./features/notification/interfaces/notification.interface";
+import IShoppingList from "./features/shoppingList/interfaces/shopping-list.interface";
+import ShoppingList from "./features/shoppingList/classes/shopping-list.class";
 
 export const createMockProduct = (): IProduct =>
   new Product(uuidv4(), "", faker.commerce.productName());
+
+export const createMockShoppingLists = (): IShoppingList =>
+  new ShoppingList(uuidv4(), faker.word.verb());
 
 export const createMockNotification = (): INotification =>
   new ProductExpirationNoticeNotification(
