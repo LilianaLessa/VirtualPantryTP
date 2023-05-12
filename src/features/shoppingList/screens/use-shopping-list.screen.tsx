@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { v4 as uuidv4 } from "uuid";
 import { FlatList, View } from "react-native";
@@ -9,6 +9,11 @@ import IShoppingListItem from "../interfaces/shopping-list-item.interface";
 import ShoppingListItem from "../classes/shopping-list-item.class";
 import { useActions } from "../../../hooks/useActions";
 import UseShoppingListItem from "../components/use-shopping-list-item";
+import { ProductSearchContext } from "../../../services/productSearch/product-search.context";
+import Product from "../../products/classes/product.class";
+import { saveProduct } from "../../../state/action-creators";
+import { StoreProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import { IProduct } from "../../products/interfaces/product.interface";
 
 export type UseShoppingListScreenParams = {
   UseShoppingList: {
@@ -36,7 +41,7 @@ function UseShoppingListScreen({ route }: { route: Props }) {
     });
   }, [shoppingList, navigation]);
 
-  const { saveShoppingList } = useActions();
+  const { saveShoppingList, saveProduct } = useActions();
 
   function updateItemsOnShoppingList() {
     shoppingList.items = Array.from(items.values());
@@ -47,6 +52,8 @@ function UseShoppingListScreen({ route }: { route: Props }) {
     updateItemsOnShoppingList();
   }, [items]);
 
+  const { searchInSavedProducts } = useContext(ProductSearchContext);
+
   const handleAddItem = () => {
     const newItem = new ShoppingListItem(uuidv4());
     newItem.name = faker.word.noun();
@@ -55,8 +62,38 @@ function UseShoppingListScreen({ route }: { route: Props }) {
     setItems(new Map(items));
   };
 
+  const removeItem = (uuid: string) => {
+    items.delete(uuid);
+    setItems(new Map(items));
+  };
+
+  const handleStoreProduct = (
+    product: IProduct,
+    shoppingListItem?: IShoppingListItem
+  ) => {
+    navigation.navigate(
+      StoreProductScreenRouteName as never,
+      {
+        product,
+        shoppingListItem,
+      } as never
+    );
+  };
+
   const storeItem = (uuid: string) => {
-    console.log("Store Item", uuid);
+    const item = items.get(uuid);
+    const searchResults = searchInSavedProducts(item?.name ?? "");
+
+    let productToStore = searchResults.shift();
+    if (typeof productToStore === "undefined") {
+      productToStore = new Product(uuidv4());
+      productToStore.name = item?.name ?? "";
+
+      saveProduct(productToStore);
+    }
+
+    handleStoreProduct(productToStore, item);
+    // todo if store is confirmed, delete the shopping list item.
   };
 
   const copyItem = (uuid: string) => {
@@ -71,13 +108,6 @@ function UseShoppingListScreen({ route }: { route: Props }) {
     items.set(copiedItem.uuid, copiedItem);
     setItems(new Map(items));
   };
-
-  const removeItem = (uuid: string) => {
-    items.delete(uuid);
-    setItems(new Map(items));
-  };
-
-  // todo save shopping list on item add/delete/change
 
   const renderItem = ({ item }: { item: IShoppingListItem }) => (
     <UseShoppingListItem

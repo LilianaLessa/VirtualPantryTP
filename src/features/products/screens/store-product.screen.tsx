@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { PaperSelect } from "react-native-paper-select";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { list } from "react-native-paper-select/src/interface/paperSelect.interface";
 import { useFonts } from "expo-font";
 // this is needed to React Native Paper Select
@@ -12,7 +12,7 @@ import styled from "styled-components";
 import { Button, HelperText, TextInput } from "react-native-paper";
 // eslint-disable-next-line import/no-unresolved
 import { SelectedItem } from "react-native-paper-select/lib/typescript/interface/paperSelect.interface";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import {
   enGB,
   registerTranslation,
@@ -32,11 +32,13 @@ import { BarCodeScanIcon } from "../components/product-search-bar.styles";
 import StoredProduct from "../classes/stored.product";
 import { IStoredProduct } from "../interfaces/stored-product.interface";
 import { useActions } from "../../../hooks/useActions";
+import IShoppingListItem from "../../shoppingList/interfaces/shopping-list-item.interface";
 
 export type StoreProductScreenParams = {
   StoreProduct: {
     product?: IProduct;
     pantry?: IPantry;
+    shoppingListItem?: IShoppingListItem;
   };
 };
 
@@ -61,7 +63,7 @@ const SelectProductContainer = styled(View)`
 
 export default function StoreProductScreen({ route }: { route: Props }) {
   registerTranslation("enGB", enGB);
-  const { product, pantry } = route.params ?? {};
+  const { product, pantry, shoppingListItem } = route.params ?? {};
 
   const { savedProducts } = useTypedSelector((state) => state.savedProducts);
   const { storedProductsByCompositeKey } = useTypedSelector(
@@ -98,7 +100,9 @@ export default function StoreProductScreen({ route }: { route: Props }) {
     );
   }, [storedProductsByCompositeKey, selectedProduct, selectedPantry]);
 
-  const [quantity, setQuantity] = useState(storedProduct?.quantity ?? 1);
+  const [quantity, setQuantity] = useState(
+    storedProduct?.quantity ?? shoppingListItem?.quantity ?? 1
+  );
   const [bestBefore, setBestBefore] = useState(
     storedProduct?.bestBefore ?? new Date()
   );
@@ -106,7 +110,7 @@ export default function StoreProductScreen({ route }: { route: Props }) {
     storedProduct?.storedAt ?? new Date()
   );
   const [boughtPrice, setBoughtPrice] = useState(
-    storedProduct?.boughtPrice ?? 0
+    storedProduct?.boughtPrice ?? shoppingListItem?.boughtPrice ?? 0
   );
 
   useEffect(() => {
