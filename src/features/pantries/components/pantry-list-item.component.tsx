@@ -78,24 +78,23 @@ function PantryListItem({
   };
 
   return (
-    <ProductListItemContainer>
-      <LeftContent>
-        <PantryLeftIcon />
-        <LeftText>{item.name}</LeftText>
-      </LeftContent>
-      <RightContent>
-        <TouchableOpacity onPress={handleEdit}>
-          <EditIcon />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={showConfirmDeletionModal}>
-          <DeleteIcon />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleShowContent}>
-          <AddToPantryIcon />
-        </TouchableOpacity>
-        <DragHandler />
-      </RightContent>
-    </ProductListItemContainer>
+    <TouchableOpacity onPress={handleShowContent}>
+      <ProductListItemContainer>
+        <LeftContent>
+          <PantryLeftIcon />
+          <LeftText>{item.name}</LeftText>
+        </LeftContent>
+        <RightContent>
+          <TouchableOpacity onPress={handleEdit}>
+            <EditIcon />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={showConfirmDeletionModal}>
+            <DeleteIcon />
+          </TouchableOpacity>
+          <DragHandler />
+        </RightContent>
+      </ProductListItemContainer>
+    </TouchableOpacity>
   );
 }
 
