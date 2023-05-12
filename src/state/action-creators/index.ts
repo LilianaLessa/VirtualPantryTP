@@ -34,7 +34,7 @@ export const saveProduct =
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
       console.log(storedUser?.uid, product.ownerUid);
-      if (storedUser !== null && product.ownerUid === "undefined") {
+      if (storedUser !== null && typeof product.ownerUid === "undefined") {
         product.ownerUid = storedUser.uid;
       }
       dispatch({
@@ -76,13 +76,21 @@ export const initProductCollection =
 export const savePantry =
   (pantry: IPantry) =>
   (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
-    dispatch({
-      type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Pantry '${pantry.name}' saved.`,
-    });
-    dispatch({
-      type: PantriesActionType.SAVE_PANTRY,
-      newPantry: pantry,
+    AsyncStorage.getItem("@loggedUser").then((result) => {
+      const storedUser = result ? JSON.parse(result) : null;
+      console.log(storedUser?.uid, pantry.ownerUid);
+      if (storedUser !== null && typeof pantry.ownerUid === "undefined") {
+        pantry.ownerUid = storedUser.uid;
+      }
+
+      dispatch({
+        type: MessageSnackbarActionType.SHOW_INFO,
+        infoMessage: `Pantry '${pantry.name}' saved.`,
+      });
+      dispatch({
+        type: PantriesActionType.SAVE_PANTRY,
+        newPantry: pantry,
+      });
     });
   };
 

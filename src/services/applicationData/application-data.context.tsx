@@ -34,11 +34,9 @@ export function ApplicationDataContextProvider({
 
   const initSavedProducts = (user: User | null) => {
     const args = user ? [user.uid] : [];
-
     let query = `Select * from ${LocalTable.PRODUCT}`;
-    // if (user !== null) {
     query = `${query} WHERE ownerUid ${user === null ? "IS NULL" : " = ?"}`;
-    // }
+
     return DbContext.getInstance()
       .database.find(query, args)
       .then((results: any) => {
@@ -73,18 +71,22 @@ export function ApplicationDataContextProvider({
     initPantryCollection(Array.from(loadedPantries.values()));
   }, [loadedPantries]);
 
-  const initPantries = () =>
-    DbContext.getInstance()
-      .database.find(`Select * from ${LocalTable.PANTRY}`, [])
+  const initPantries = (user: User | null) => {
+    const args = user ? [user.uid] : [];
+    let query = `Select * from ${LocalTable.PANTRY}`;
+    query = `${query} WHERE ownerUid ${user === null ? "IS NULL" : " = ?"}`;
+    return DbContext.getInstance()
+      .database.find(query, args)
       .then((results: any) => {
         setLoadedPantries(
           results.reduce(
             (map: Map<number, Pantry>, r: Pantry) =>
-              map.set(r.id, new Pantry(r.uuid, r.name, r.id)),
+              map.set(r.id, new Pantry(r.uuid, r.name, r.id, r.ownerUid)),
             new Map<number, Pantry>()
           )
         );
       });
+  };
 
   const { initStoredProductCollection } = useActions();
   const initStoredProducts = () => {
@@ -129,15 +131,14 @@ export function ApplicationDataContextProvider({
   useEffect(() => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      // if (storedUser) {
-      //   storedUser = storedUser as User;
-      // }
 
       DbContext.getInstance()
         .database.setUpDataBase()
         .then(() => {
           initSavedProducts(storedUser).then(() => {
-            initPantries().then(() => {});
+            initPantries(storedUser).then(() => {
+              console.log("Application data loaded.");
+            });
           });
         });
     });

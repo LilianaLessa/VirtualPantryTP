@@ -13,6 +13,8 @@ import { BarCodeScanScreenRouteName } from "../../../infrastructure/navigation/r
 
 export type EditProductScreenParams = {
   EditProduct: {
+    // todo it's possible to edit another person product if login
+    //  on the product edit screen and go back., and the same happens on pantries. fix it.
     product?: IProduct;
     isEdit?: boolean;
     routeToNavigateOnSave?: string | null;

@@ -10,12 +10,17 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
 
   name: string;
 
-  constructor(uuid: string, name?: string, id?: number) {
+  ownerUid?: string;
+
+  constructor(uuid: string, name?: string, id?: number, ownerUid?: string) {
     super(LocalTable.PANTRY);
     this.uuid = uuid;
     this.name = name ?? "";
     if (typeof id !== "undefined") {
       this.id = id;
+    }
+    if (typeof ownerUid !== "undefined") {
+      this.ownerUid = ownerUid;
     }
   }
 
@@ -28,6 +33,7 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
       .column("id")
       .primary.autoIncrement.number.column("uuid")
       .column("name")
-      .objectPrototype(Pantry.prototype);
+      .column("ownerUid")
+      .string.nullable.objectPrototype(Pantry.prototype);
   }
 }
