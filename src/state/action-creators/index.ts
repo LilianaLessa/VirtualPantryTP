@@ -91,6 +91,14 @@ export const deletePantry =
     });
   };
 
+export const initPantryCollection =
+  (pantryCollection: IPantry[]) => (dispatch: Dispatch<PantriesActions>) => {
+    dispatch({
+      type: PantriesActionType.INIT_PANTRY_COLLECTION,
+      pantryCollection,
+    });
+  };
+
 // eslint-disable-next-line operator-linebreak
 export const showErrorSnack =
   (errorMessage: string) => (dispatch: Dispatch<MessageSnackbarActions>) => {

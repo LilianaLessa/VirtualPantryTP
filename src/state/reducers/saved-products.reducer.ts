@@ -1,10 +1,11 @@
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { SavedProductsActionType } from "../action-types";
 import { SavedProductsActions } from "../actions";
-import Product, {
-  ProductDbContext,
-} from "../../features/products/classes/product.class";
 import { createMockProduct } from "../../dev-utils";
+
+import Product from "../../features/products/classes/product.class";
+import { LocalTable } from "../../services/applicationData/localDatabase/tables";
+import DbContext from "../../services/applicationData/localDatabase/classes/db-context.class";
 
 interface SavedProductsState {
   savedProducts: Map<string, IProduct>;
@@ -29,8 +30,8 @@ const savedProductsReducer = (
 ): SavedProductsState => {
   switch (action.type) {
     case SavedProductsActionType.SAVE_PRODUCT:
-      ProductDbContext.getInstance()
-        .database.save(action.newProduct as Product, false, "savedProducts")
+      DbContext.getInstance()
+        .database.save(action.newProduct as Product, false, LocalTable.PRODUCT)
         .then(() => {
           console.log("Product Persisted");
         })
@@ -40,15 +41,17 @@ const savedProductsReducer = (
       state.savedProducts.set(action.newProduct.uuid, action.newProduct);
       return { ...state, savedProducts: new Map(state.savedProducts) };
     case SavedProductsActionType.DELETE_PRODUCT:
-      ProductDbContext.getInstance()
-        .database.delete(action.productToDelete as Product)
+      DbContext.getInstance()
+        .database.delete(action.productToDelete as Product, LocalTable.PRODUCT)
         .then(() => {
           console.log("Product deleted");
+        })
+        .catch(() => {
+          console.log("Product deletion error");
         });
       state.savedProducts.delete(action.productToDelete.uuid);
       return { ...state, savedProducts: new Map(state.savedProducts) };
     case SavedProductsActionType.INIT_COLLECTION:
-      console.log(action);
       return {
         ...state,
         savedProducts: action.productCollection.reduce(

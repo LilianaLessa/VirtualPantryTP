@@ -15,6 +15,7 @@ export enum StoredProductActionType {
 export enum PantriesActionType {
   SAVE_PANTRY = "save_pantry",
   DELETE_PANTRY = "delete_pantry",
+  INIT_PANTRY_COLLECTION = "init_pantry_collection",
 }
 
 // eslint-disable-next-line no-shadow

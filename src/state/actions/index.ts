@@ -56,7 +56,15 @@ interface DeletePantryAction {
   pantryToDelete: IPantry;
 }
 
-export type PantriesActions = SavePantryAction | DeletePantryAction;
+interface InitPantryCollectionAction {
+  type: PantriesActionType.INIT_PANTRY_COLLECTION;
+  pantryCollection: IPantry[];
+}
+
+export type PantriesActions =
+  | SavePantryAction
+  | DeletePantryAction
+  | InitPantryCollectionAction;
 
 interface DataFetchingStarted {
   type: ApiActivityActionType.DATA_FETCHING_STARTED;

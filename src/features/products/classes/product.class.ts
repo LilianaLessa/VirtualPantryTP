@@ -1,12 +1,9 @@
-import createDbContext, {
-  IBaseModule,
-  TableBuilder,
-  IDatabase,
-} from "expo-sqlite-wrapper";
-import * as SQLite from "expo-sqlite";
+import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
 import { IProduct } from "../interfaces/product.interface";
-
-export type TableNames = "savedProducts";
+import {
+  LocalTable,
+  TableNames,
+} from "../../../services/applicationData/localDatabase/tables";
 
 export default class Product
   extends IBaseModule<TableNames>
@@ -30,7 +27,7 @@ export default class Product
     // eslint-disable-next-line comma-dangle
     packageWeight?: number
   ) {
-    super("savedProducts");
+    super(LocalTable.PRODUCT);
     this.uuid = uuid;
     this.barCode = barCode ?? "";
     this.name = name ?? "";
@@ -55,7 +52,7 @@ export default class Product
 
   // This method will return the table setup that we will be using later on in `repository`
   static GetTableStructor() {
-    return TableBuilder<Product, TableNames>("savedProducts")
+    return TableBuilder<Product, TableNames>(LocalTable.PRODUCT)
       .column("id")
       .primary.autoIncrement.number.column("uuid")
       .unique.string.column("barCode")
@@ -64,27 +61,6 @@ export default class Product
       .column("packageWeight")
       .objectPrototype(Product.prototype);
   }
-}
-
-const tables = [Product.GetTableStructor()];
-export class ProductDbContext {
-  private static instance: ProductDbContext;
-
-  databaseName = "localStorage.db";
-
-  database: IDatabase<TableNames>;
-
-  private constructor() {
-    this.database = createDbContext<TableNames>(tables, async () =>
-      SQLite.openDatabase(this.databaseName)
-    );
-  }
-
-  static getInstance = () => {
-    ProductDbContext.instance =
-      ProductDbContext.instance ?? new ProductDbContext();
-    return ProductDbContext.instance;
-  };
 }
 
 // ProductDbContext.instance.database.dropTables().then(() => {
