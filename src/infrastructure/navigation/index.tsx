@@ -15,6 +15,7 @@ import { ProductSearchContextProvider } from "../../services/productSearch/produ
 import { ApplicationDataContextProvider } from "../../services/applicationData/application-data.context";
 import { FirebaseContextProvider } from "../../services/firebase/firebase.context";
 import { AuthenticationContextProvider } from "../../services/firebase/authentication.context";
+import { FirestoreContextProvider } from "../../services/firebase/firestore.context";
 
 // todo PaperProvider also needs a theme. check how it works with ThemeProvider.
 function Navigation() {
@@ -24,21 +25,23 @@ function Navigation() {
         <ReduxProvider store={store}>
           <FirebaseContextProvider>
             <AuthenticationContextProvider>
-              <ApplicationDataContextProvider>
-                <BarCodeScannerContextProvider>
-                  <DialogModalContextProvider>
-                    <ProductSearchContextProvider>
-                      <PaperProvider>
-                        <AppNavigator />
-                        <DialogModal />
-                        <LoadingModal />
-                        <ErrorSnackbar />
-                        <InfoSnackbar />
-                      </PaperProvider>
-                    </ProductSearchContextProvider>
-                  </DialogModalContextProvider>
-                </BarCodeScannerContextProvider>
-              </ApplicationDataContextProvider>
+              <FirestoreContextProvider>
+                <ApplicationDataContextProvider>
+                  <BarCodeScannerContextProvider>
+                    <DialogModalContextProvider>
+                      <ProductSearchContextProvider>
+                        <PaperProvider>
+                          <AppNavigator />
+                          <DialogModal />
+                          <LoadingModal />
+                          <ErrorSnackbar />
+                          <InfoSnackbar />
+                        </PaperProvider>
+                      </ProductSearchContextProvider>
+                    </DialogModalContextProvider>
+                  </BarCodeScannerContextProvider>
+                </ApplicationDataContextProvider>
+              </FirestoreContextProvider>
             </AuthenticationContextProvider>
           </FirebaseContextProvider>
         </ReduxProvider>

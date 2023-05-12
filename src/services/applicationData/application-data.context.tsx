@@ -8,6 +8,7 @@ import { LocalTable } from "./localDatabase/tables";
 import Pantry from "../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../features/products/classes/stored.product";
 import { AuthenticationContext } from "../firebase/authentication.context";
+import { FirestoreContext } from "../firebase/firestore.context";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -23,6 +24,7 @@ export function ApplicationDataContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const { isAuthenticated } = useContext(AuthenticationContext);
+  const { getAllProductsFromUser } = useContext(FirestoreContext);
   const { initProductCollection } = useActions();
   const [loadedProducts, setLoadedProducts] = useState<Map<number, Product>>(
     new Map<number, Product>()
@@ -124,11 +126,6 @@ export function ApplicationDataContextProvider({
   };
 
   useEffect(() => {
-    // console.log(loadedProducts, loadedPantries);
-    initStoredProducts();
-  }, [initStoredProducts, loadedProducts, loadedPantries]);
-
-  useEffect(() => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
 
@@ -137,7 +134,16 @@ export function ApplicationDataContextProvider({
         .then(() => {
           initSavedProducts(storedUser).then(() => {
             initPantries(storedUser).then(() => {
+              // initStoredProducts();
+              console.log("stored products not initiated.");
               console.log("Application data loaded.");
+              if (getAllProductsFromUser) {
+                getAllProductsFromUser();
+              }
+
+              // sync to firebase, based on updated at?
+
+              // sync from firebase
             });
           });
         });

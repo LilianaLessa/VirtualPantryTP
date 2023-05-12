@@ -10,6 +10,7 @@ import { useActions } from "../../../hooks/useActions";
 import Product from "../classes/product.class";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 import { BarCodeScanScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import { FirestoreContext } from "../../../services/firebase/firestore.context";
 
 export type EditProductScreenParams = {
   EditProduct: {
@@ -44,6 +45,7 @@ export function EditProductScreen({ route }: { route: Props }) {
     product?.packageWeight ?? 1
   );
   const { saveProduct } = useActions();
+  const { saveProductOnFirestore } = useContext(FirestoreContext);
 
   const handleProductSave = () => {
     product = product ?? new Product(uuidv4());
@@ -53,6 +55,7 @@ export function EditProductScreen({ route }: { route: Props }) {
     product.barCode = barCode;
 
     saveProduct(product);
+    saveProductOnFirestore(product);
     if (typeof routeToNavigateOnSave === "string") {
       navigation.navigate(routeToNavigateOnSave as never);
     } else {
