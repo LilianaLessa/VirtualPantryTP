@@ -18,8 +18,11 @@ export default class DbContext {
   database: IDatabase<TableNames>;
 
   private constructor() {
-    this.database = createDbContext<TableNames>(tables, async () =>
-      SQLite.openDatabase(this.databaseName)
+    this.database = createDbContext<TableNames>(
+      tables,
+      async () => SQLite.openDatabase(this.databaseName),
+      undefined,
+      true
     );
   }
 

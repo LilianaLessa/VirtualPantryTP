@@ -72,10 +72,10 @@ const StoredProductsReducer = (
       DbContext.getInstance()
         .database.save(action.productToStore as StoredProduct)
         .then(() => {
-          console.log("StoredProduct Persisted. Id:", action.productToStore.id);
+          // console.log("StoredProduct Persisted. Id:", action.productToStore.id);
         })
         .catch(() => {
-          console.log("StoredProduct persisting error");
+          // console.log("StoredProduct persisting error");
         });
 
       return insertStoredProductOnState(state, action.productToStore);
@@ -86,10 +86,10 @@ const StoredProductsReducer = (
           LocalTable.STORED_PRODUCT
         )
         .then(() => {
-          console.log("StoredProduct deleted", action.storedProductToDelete.id);
+          // console.log("StoredProduct deleted", action.storedProductToDelete.id);
         })
         .catch(() => {
-          console.log("StoredProduct deletion error");
+          // console.log("StoredProduct deletion error");
         });
       state.storedProductsByUuid.delete(action.storedProductToDelete.uuid);
 
@@ -115,7 +115,7 @@ const StoredProductsReducer = (
         ),
       };
     case StoredProductActionType.INIT_STORED_PRODUCT_COLLECTION:
-      console.log("init stored product collection");
+      // console.log("init stored product collection");
       let newState = state;
       action.storedProductCollection.forEach((p) => {
         newState = {

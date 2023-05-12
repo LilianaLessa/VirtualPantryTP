@@ -24,10 +24,10 @@ const pantriesReducer = (
       DbContext.getInstance()
         .database.save(action.newPantry as Pantry)
         .then(() => {
-          console.log("Pantry Persisted");
+          // console.log("Pantry Persisted");
         })
         .catch(() => {
-          console.log("Pantry persisting error");
+          // console.log("Pantry persisting error");
         });
       state.pantries.set(action.newPantry.uuid, action.newPantry);
       return { ...state, pantries: new Map(state.pantries) };
@@ -35,10 +35,10 @@ const pantriesReducer = (
       DbContext.getInstance()
         .database.delete(action.pantryToDelete as Pantry)
         .then(() => {
-          console.log("Pantry deleted");
+          // console.log("Pantry deleted");
         })
         .catch(() => {
-          console.log("Pantry deletion error");
+          // console.log("Pantry deletion error");
         });
       state.pantries.delete(action.pantryToDelete.uuid);
       return { ...state, pantries: new Map(state.pantries) };

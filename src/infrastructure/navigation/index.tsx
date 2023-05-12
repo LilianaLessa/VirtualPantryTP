@@ -13,6 +13,8 @@ import { DialogModalContextProvider } from "../../services/modal/dialog-modal.co
 import DialogModal from "../../components/dialogs/dialog-modal.component";
 import { ProductSearchContextProvider } from "../../services/productSearch/product-search.context";
 import { ApplicationDataContextProvider } from "../../services/applicationData/application-data.context";
+import { FirebaseContextProvider } from "../../services/firebase/firebase.context";
+import { AuthenticationContextProvider } from "../../services/firebase/authentication.context";
 
 // todo PaperProvider also needs a theme. check how it works with ThemeProvider.
 function Navigation() {
@@ -20,21 +22,25 @@ function Navigation() {
     <NavigationContainer>
       <SafeAreaProvider>
         <ReduxProvider store={store}>
-          <ApplicationDataContextProvider>
-            <BarCodeScannerContextProvider>
-              <DialogModalContextProvider>
-                <ProductSearchContextProvider>
-                  <PaperProvider>
-                    <AppNavigator />
-                    <DialogModal />
-                    <LoadingModal />
-                    <ErrorSnackbar />
-                    <InfoSnackbar />
-                  </PaperProvider>
-                </ProductSearchContextProvider>
-              </DialogModalContextProvider>
-            </BarCodeScannerContextProvider>
-          </ApplicationDataContextProvider>
+          <FirebaseContextProvider>
+            <AuthenticationContextProvider>
+              <ApplicationDataContextProvider>
+                <BarCodeScannerContextProvider>
+                  <DialogModalContextProvider>
+                    <ProductSearchContextProvider>
+                      <PaperProvider>
+                        <AppNavigator />
+                        <DialogModal />
+                        <LoadingModal />
+                        <ErrorSnackbar />
+                        <InfoSnackbar />
+                      </PaperProvider>
+                    </ProductSearchContextProvider>
+                  </DialogModalContextProvider>
+                </BarCodeScannerContextProvider>
+              </ApplicationDataContextProvider>
+            </AuthenticationContextProvider>
+          </FirebaseContextProvider>
         </ReduxProvider>
       </SafeAreaProvider>
     </NavigationContainer>

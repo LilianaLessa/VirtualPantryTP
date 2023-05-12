@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Button, HelperText, TextInput } from "react-native-paper";
+import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 
 function AccountScreen() {
+  const { onLogin, user } = useContext(AuthenticationContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [currentUser, setCurrentUser] = useState(user);
+
+  useEffect(() => {
+    setCurrentUser(user);
+  }, [user]);
 
   const handleSignIn = () => {
-    console.log("SignIn with credentials", email, password.replace(/./g, "*"));
+    // console.log("SignIn with credentials", email, password.replace(/./g, "*"));
+    if (onLogin) {
+      onLogin(email, password);
+    }
   };
 
   return (
@@ -44,6 +55,16 @@ function AccountScreen() {
       <TouchableOpacity>
         <Button mode="contained-tonal">Sign Up</Button>
       </TouchableOpacity>
+      {currentUser && (
+        <View>
+          <Text>{`Logged as ${currentUser.email}`}</Text>
+        </View>
+      )}
+      {!currentUser && (
+        <View>
+          <Text>Unlogged</Text>
+        </View>
+      )}
     </View>
   );
 }

@@ -24,7 +24,7 @@ export function ApplicationDataContextProvider({
     new Map<number, Product>()
   );
   useEffect(() => {
-    console.log("useEffect on loadedProducts", loadedProducts);
+    // console.log("useEffect on loadedProducts", loadedProducts);
     initProductCollection(Array.from(loadedProducts.values()));
   }, [loadedProducts]);
 
@@ -57,7 +57,7 @@ export function ApplicationDataContextProvider({
   );
 
   useEffect(() => {
-    console.log("useEffect on loadedPantries", loadedPantries);
+    // console.log("useEffect on loadedPantries", loadedPantries);
     initPantryCollection(Array.from(loadedPantries.values()));
   }, [loadedPantries]);
 
@@ -110,7 +110,7 @@ export function ApplicationDataContextProvider({
   };
 
   useEffect(() => {
-    console.log(loadedProducts, loadedPantries);
+    // console.log(loadedProducts, loadedPantries);
     initStoredProducts();
   }, [initStoredProducts, loadedProducts, loadedPantries]);
 

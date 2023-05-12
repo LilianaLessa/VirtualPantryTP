@@ -33,10 +33,10 @@ const savedProductsReducer = (
       DbContext.getInstance()
         .database.save(action.newProduct as Product)
         .then(() => {
-          console.log("Product Persisted. Id:", action.newProduct.id);
+          // console.log("Product Persisted. Id:", action.newProduct.id);
         })
         .catch(() => {
-          console.log("Product persisting error");
+          // console.log("Product persisting error");
         });
       state.savedProducts.set(action.newProduct.uuid, action.newProduct);
       return { ...state, savedProducts: new Map(state.savedProducts) };
@@ -44,10 +44,10 @@ const savedProductsReducer = (
       DbContext.getInstance()
         .database.delete(action.productToDelete as Product)
         .then(() => {
-          console.log("Product deleted");
+          // console.log("Product deleted");
         })
         .catch(() => {
-          console.log("Product deletion error");
+          // console.log("Product deletion error");
         });
       state.savedProducts.delete(action.productToDelete.uuid);
       return { ...state, savedProducts: new Map(state.savedProducts) };

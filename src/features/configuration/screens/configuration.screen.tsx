@@ -49,7 +49,7 @@ async function registerForPushNotificationsAsync() {
       finalStatus = status;
     }
     if (finalStatus !== "granted") {
-      console.log("Failed to get push token for push notification!");
+      // console.log("Failed to get push token for push notification!");
       return;
     }
     token = (
@@ -57,9 +57,9 @@ async function registerForPushNotificationsAsync() {
         // projectId: 'projectId'
       })
     ).data;
-    console.log(token);
+    // console.log(token);
   } else {
-    console.log("Must use physical device for Push Notifications");
+    // console.log("Must use physical device for Push Notifications");
   }
 
   if (Platform.OS === "android") {
@@ -92,7 +92,7 @@ function ConfigurationScreen() {
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
+        // console.log(response);
       });
 
     return () => {

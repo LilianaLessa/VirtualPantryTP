@@ -28,7 +28,7 @@ export default class OpenFoodFacts implements IProductDataProvider {
             new Product(uuidv4(), apiResponse.code, apiResponse.product_name)
           );
         } else {
-          console.log("Error from openFoodFactsApi:", apiResponse);
+          // console.log("Error from openFoodFactsApi:", apiResponse);
           errorCallback(apiResponse);
         }
       })

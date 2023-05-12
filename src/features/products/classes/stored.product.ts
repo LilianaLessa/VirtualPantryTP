@@ -42,7 +42,7 @@ export default class StoredProduct
     id?: number
   ) {
     super(LocalTable.STORED_PRODUCT);
-    console.log(product.id, product);
+    // console.log(product.id, product);
     this.uuid = uuid;
     this.productId = product.id;
     this.product = product;
