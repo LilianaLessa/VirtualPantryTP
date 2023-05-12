@@ -4,7 +4,7 @@ import { Button, HelperText, TextInput } from "react-native-paper";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 
 function AccountScreen() {
-  const { onLogin, user } = useContext(AuthenticationContext);
+  const { onLogin, onLogout, user } = useContext(AuthenticationContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,48 +21,56 @@ function AccountScreen() {
     }
   };
 
+  const handleSignOut = () => {
+    console.log("Sign out");
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   return (
     <View>
-      <TextInput
-        mode="outlined"
-        label="Email"
-        placeholder="test@test.com"
-        value={email}
-        onChangeText={(text) => setEmail(text as unknown as number)}
-        keyboardType="email-address"
-        style={{ width: "100%" }}
-      />
-      <HelperText visible type="info" padding="none">
-        email
-      </HelperText>
-
-      <TextInput
-        mode="outlined"
-        label="password"
-        placeholder="your password here"
-        value={password}
-        onChangeText={(text) => setPassword(text as unknown as number)}
-        style={{ width: "100%" }}
-        secureTextEntry
-      />
-      <HelperText visible type="info" padding="none">
-        password
-      </HelperText>
-
-      <TouchableOpacity onPress={handleSignIn}>
-        <Button mode="contained">Sign In</Button>
-      </TouchableOpacity>
-      <TouchableOpacity>
-        <Button mode="contained-tonal">Sign Up</Button>
-      </TouchableOpacity>
       {currentUser && (
         <View>
           <Text>{`Logged as ${currentUser.email}`}</Text>
+          <TouchableOpacity onPress={handleSignOut}>
+            <Button mode="contained">Sign out</Button>
+          </TouchableOpacity>
         </View>
       )}
       {!currentUser && (
         <View>
-          <Text>Unlogged</Text>
+          <TextInput
+            mode="outlined"
+            label="Email"
+            placeholder="test@test.com"
+            value={email}
+            onChangeText={(text) => setEmail(text as unknown as number)}
+            keyboardType="email-address"
+            style={{ width: "100%" }}
+          />
+          <HelperText visible type="info" padding="none">
+            email
+          </HelperText>
+
+          <TextInput
+            mode="outlined"
+            label="password"
+            placeholder="your password here"
+            value={password}
+            onChangeText={(text) => setPassword(text as unknown as number)}
+            style={{ width: "100%" }}
+            secureTextEntry
+          />
+          <HelperText visible type="info" padding="none">
+            password
+          </HelperText>
+          <TouchableOpacity onPress={handleSignIn}>
+            <Button mode="contained">Sign In</Button>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Button mode="contained-tonal">Sign Up</Button>
+          </TouchableOpacity>
         </View>
       )}
     </View>

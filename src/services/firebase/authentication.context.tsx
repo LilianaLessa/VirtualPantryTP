@@ -9,6 +9,7 @@ import {
   initializeAuth,
   onAuthStateChanged,
   getAuth,
+  signOut,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirebaseContext } from "./firebase.context";
@@ -18,6 +19,7 @@ type AuthenticationContextType = {
   user: User | null;
   isAuthenticated: boolean;
   onLogin?: (email: string, password: string) => void;
+  onLogout?: () => void;
 };
 
 export const AuthenticationContext = createContext<AuthenticationContextType>({
@@ -97,12 +99,31 @@ export function AuthenticationContextProvider({
     // todo the login Request should move to service?
   }
 
+  function onLogout(): void {
+    if (auth) {
+      signOut(auth)
+        .then(() => {
+          AsyncStorage.setItem("@loggedUser", JSON.stringify(null))
+            .then(() => {
+              setUser(null);
+            })
+            .catch((e) => {
+              console.warn("failed to remove stored user session", e);
+            });
+        })
+        .catch((e) => {
+          console.log("Error on logging out:", e);
+        });
+    }
+  }
+
   return (
     <AuthenticationContext.Provider
       value={{
         user,
         isAuthenticated,
         onLogin,
+        onLogout,
       }}
     >
       {children}
