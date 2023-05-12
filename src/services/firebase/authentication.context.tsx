@@ -68,6 +68,7 @@ export function AuthenticationContextProvider({
 
       setAuth(newAuth);
       onAuthStateChanged(newAuth, (newUser) => {
+        setIsAuthenticated(newUser !== null);
         if (newUser) {
           AsyncStorage.setItem(
             "@loggedUser",

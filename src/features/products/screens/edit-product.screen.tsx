@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -131,6 +131,7 @@ export function EditProductScreen({ route }: { route: Props }) {
       <Button mode="contained" onPress={handleProductSave}>
         Save
       </Button>
+      <Text>{`Owner UID: ${product?.ownerUid}`}</Text>
     </View>
   );
 }

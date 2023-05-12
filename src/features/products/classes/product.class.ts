@@ -19,14 +19,17 @@ export default class Product
 
   uuid: string;
 
+  ownerUid?: string;
+
   constructor(
     uuid: string,
     barCode?: string,
     name?: string,
     measureUnit?: string,
     packageWeight?: number,
-    // eslint-disable-next-line comma-dangle
-    id?: number
+
+    id?: number,
+    ownerUid?: string
   ) {
     super(LocalTable.PRODUCT);
     this.uuid = uuid;
@@ -36,6 +39,9 @@ export default class Product
     this.packageWeight = packageWeight ?? 1;
     if (typeof id !== "undefined") {
       this.id = id;
+    }
+    if (typeof id !== "undefined") {
+      this.ownerUid = ownerUid;
     }
   }
 
@@ -63,6 +69,7 @@ export default class Product
       .column("name")
       .column("measureUnit")
       .column("packageWeight")
-      .objectPrototype(Product.prototype);
+      .column("ownerUid")
+      .string.nullable.objectPrototype(Product.prototype);
   }
 }

@@ -1,4 +1,6 @@
 import { Dispatch } from "redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "firebase/auth";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
   MessageSnackbarActionType,
@@ -29,13 +31,20 @@ import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.
 export const saveProduct =
   (product: IProduct) =>
   (dispatch: Dispatch<SavedProductsActions | MessageSnackbarActions>) => {
-    dispatch({
-      type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Product '${product.name}' saved.`,
-    });
-    dispatch({
-      type: SavedProductsActionType.SAVE_PRODUCT,
-      newProduct: product,
+    AsyncStorage.getItem("@loggedUser").then((result) => {
+      const storedUser = result ? JSON.parse(result) : null;
+      console.log(storedUser?.uid, product.ownerUid);
+      if (storedUser !== null && product.ownerUid === "undefined") {
+        product.ownerUid = storedUser.uid;
+      }
+      dispatch({
+        type: MessageSnackbarActionType.SHOW_INFO,
+        infoMessage: `Product '${product.name}' saved.`,
+      });
+      dispatch({
+        type: SavedProductsActionType.SAVE_PRODUCT,
+        newProduct: product,
+      });
     });
   };
 

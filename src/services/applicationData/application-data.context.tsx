@@ -1,10 +1,13 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { User } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useActions } from "../../hooks/useActions";
 import DbContext from "./localDatabase/classes/db-context.class";
 import Product from "../../features/products/classes/product.class";
 import { LocalTable } from "./localDatabase/tables";
 import Pantry from "../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../features/products/classes/stored.product";
+import { AuthenticationContext } from "../firebase/authentication.context";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -19,6 +22,7 @@ export function ApplicationDataContextProvider({
 }: {
   children: React.ReactNode[] | React.ReactNode;
 }) {
+  const { isAuthenticated } = useContext(AuthenticationContext);
   const { initProductCollection } = useActions();
   const [loadedProducts, setLoadedProducts] = useState<Map<number, Product>>(
     new Map<number, Product>()
@@ -28,9 +32,15 @@ export function ApplicationDataContextProvider({
     initProductCollection(Array.from(loadedProducts.values()));
   }, [loadedProducts]);
 
-  const initSavedProducts = () =>
-    DbContext.getInstance()
-      .database.find(`Select * from ${LocalTable.PRODUCT}`, [])
+  const initSavedProducts = (user: User | null) => {
+    const args = user ? [user.uid] : [];
+
+    let query = `Select * from ${LocalTable.PRODUCT}`;
+    // if (user !== null) {
+    query = `${query} WHERE ownerUid ${user === null ? "IS NULL" : " = ?"}`;
+    // }
+    return DbContext.getInstance()
+      .database.find(query, args)
       .then((results: any) => {
         setLoadedProducts(
           results.reduce(
@@ -43,13 +53,15 @@ export function ApplicationDataContextProvider({
                   r.name,
                   r.measureUnit,
                   r.packageWeight,
-                  r.id
+                  r.id,
+                  r.ownerUid
                 )
               ),
             new Map<number, Product>()
           )
         );
       });
+  };
 
   const { initPantryCollection } = useActions();
   const [loadedPantries, setLoadedPantries] = useState<Map<number, Pantry>>(
@@ -115,14 +127,21 @@ export function ApplicationDataContextProvider({
   }, [initStoredProducts, loadedProducts, loadedPantries]);
 
   useEffect(() => {
-    DbContext.getInstance()
-      .database.setUpDataBase()
-      .then(() => {
-        initSavedProducts().then(() => {
-          initPantries().then(() => {});
+    AsyncStorage.getItem("@loggedUser").then((result) => {
+      const storedUser = result ? JSON.parse(result) : null;
+      // if (storedUser) {
+      //   storedUser = storedUser as User;
+      // }
+
+      DbContext.getInstance()
+        .database.setUpDataBase()
+        .then(() => {
+          initSavedProducts(storedUser).then(() => {
+            initPantries().then(() => {});
+          });
         });
-      });
-  }, []);
+    });
+  }, [isAuthenticated]);
 
   return (
     <ApplicationDataContext.Provider value={{}}>

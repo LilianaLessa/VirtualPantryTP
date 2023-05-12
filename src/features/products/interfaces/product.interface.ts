@@ -5,6 +5,7 @@ export interface IProduct {
   packageWeight: number;
   barCode: string;
   uuid: string;
+  ownerUid?: string;
 
   getKey: () => string;
 
