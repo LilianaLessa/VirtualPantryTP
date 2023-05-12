@@ -9,6 +9,7 @@ import {
   query,
   where,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { Firestore } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +24,10 @@ type FirestoreContextType = {
     successCallback: (result: any) => void
   ) => void;
   saveProductOnFirestore: (
+    product: IProduct,
+    successCallback?: (result: any) => void
+  ) => void;
+  deleteProductOnFirestore: (
     product: IProduct,
     successCallback?: (result: any) => void
   ) => void;
@@ -147,9 +152,58 @@ export function FirestoreContextProvider({
     });
   };
 
+  const deleteProductOnFirestore = (
+    product: IProduct,
+    successCallback?: (result: any) => void
+  ) => {
+    AsyncStorage.getItem("@loggedUser").then((result) => {
+      const storedUser = result ? JSON.parse(result) : null;
+      if (storedUser === null) {
+        console.log("Skipping firestore save: No logged user");
+        return;
+      }
+      if (firestore) {
+        const collectionRef = collection(firestore, "savedProducts");
+        const q = query(collectionRef, where("uuid", "==", product.uuid));
+        console.log("pre deleting on firestore", product);
+        getDocs(q)
+          .then((querySnapshot) => {
+            const documentIds = Array<string>([]);
+            querySnapshot.forEach((doc) => {
+              documentIds.push(doc.id);
+              console.log(` from firebase ${doc.id} =>`, doc.data());
+            });
+            if (documentIds.length > 0) {
+              const documentId = documentIds.pop();
+              deleteDoc(doc(firestore, "savedProducts", documentId))
+                .then(() => {
+                  console.log(
+                    `Product ${product.uuid} deleted from Firestore: ${documentId}`
+                  );
+                })
+                .catch((e) => {
+                  console.log(
+                    `Product ${product.uuid} couldn't be deleted from Firestore:`,
+                    e
+                  );
+                });
+            }
+          })
+          .catch((e) => {
+            console.log("Failed to fetch products from Firestore:", e);
+            console.log(`it wasn't possible to delete product ${product.uuid}`);
+          });
+      }
+    });
+  };
+
   return (
     <FirestoreContext.Provider
-      value={{ getAllProductsFromUser, saveProductOnFirestore }}
+      value={{
+        getAllProductsFromUser,
+        saveProductOnFirestore,
+        deleteProductOnFirestore,
+      }}
     >
       {children}
     </FirestoreContext.Provider>
