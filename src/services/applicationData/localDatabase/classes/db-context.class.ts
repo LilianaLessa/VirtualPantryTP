@@ -24,7 +24,7 @@ export default class DbContext {
       undefined
       // true
     );
-    this.database.dropTables();
+    // this.database.dropTables();
   }
 
   static getInstance = () => {
