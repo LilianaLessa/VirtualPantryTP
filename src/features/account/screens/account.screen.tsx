@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Button, HelperText, TextInput } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
+import { CreateAccountScreenRouteName } from "../../../infrastructure/navigation/route-names";
 
 function AccountScreen() {
-  const { onLogin, onLogout, user } = useContext(AuthenticationContext);
+  const navigation = useNavigation();
+  const { onLogin, onLogout, user, error } = useContext(AuthenticationContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +31,15 @@ function AccountScreen() {
     }
   };
 
+  const handleSignUp = () => {
+    navigation.navigate(
+      CreateAccountScreenRouteName as never,
+      {
+        email,
+      } as never
+    );
+  };
+
   return (
     <View>
       {currentUser && (
@@ -45,7 +57,7 @@ function AccountScreen() {
             label="Email"
             placeholder="test@test.com"
             value={email}
-            onChangeText={(text) => setEmail(text as unknown as number)}
+            onChangeText={(text) => setEmail(text)}
             keyboardType="email-address"
             style={{ width: "100%" }}
           />
@@ -58,7 +70,7 @@ function AccountScreen() {
             label="password"
             placeholder="your password here"
             value={password}
-            onChangeText={(text) => setPassword(text as unknown as number)}
+            onChangeText={(text) => setPassword(text)}
             style={{ width: "100%" }}
             secureTextEntry
           />
@@ -68,9 +80,10 @@ function AccountScreen() {
           <TouchableOpacity onPress={handleSignIn}>
             <Button mode="contained">Sign In</Button>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleSignUp}>
             <Button mode="contained-tonal">Sign Up</Button>
           </TouchableOpacity>
+          {error && <Text>{`Error: ${error}`}</Text>}
         </View>
       )}
     </View>

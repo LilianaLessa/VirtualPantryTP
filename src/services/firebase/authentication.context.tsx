@@ -10,16 +10,24 @@ import {
   onAuthStateChanged,
   getAuth,
   signOut,
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirebaseContext } from "./firebase.context";
-import { store } from "../../state";
 
 type AuthenticationContextType = {
   user: User | null;
   isAuthenticated: boolean;
   onLogin?: (email: string, password: string) => void;
   onLogout?: () => void;
+  error?: FirebaseError | null;
+  createAccount?: (
+    email: string,
+    password: string,
+    displayName: string,
+    onSuccessCallback: () => void,
+    onErrorCallback?: (e: any) => void
+  ) => void;
 };
 
 export const AuthenticationContext = createContext<AuthenticationContextType>({
@@ -117,6 +125,28 @@ export function AuthenticationContextProvider({
     }
   }
 
+  const createAccount = (
+    email: string,
+    password: string,
+    displayName: string,
+    onSuccessCallback: () => void,
+    onErrorCallback?: (e: any) => void
+  ): void => {
+    if (auth) {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          onLogin(email, password);
+          onSuccessCallback();
+        })
+        .catch((e) => {
+          setError(e);
+          if (typeof onErrorCallback !== "undefined") {
+            onErrorCallback(e);
+          }
+        });
+    }
+  };
+
   return (
     <AuthenticationContext.Provider
       value={{
@@ -124,6 +154,8 @@ export function AuthenticationContextProvider({
         isAuthenticated,
         onLogin,
         onLogout,
+        error,
+        createAccount,
       }}
     >
       {children}
