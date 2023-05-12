@@ -31,6 +31,10 @@ type FirestoreContextType = {
     product: IProduct,
     successCallback?: (result: any) => void
   ) => void;
+  filterDeletedProductsUuids: (
+    uuids: string[],
+    successCallback: (result: any) => void
+  ) => void;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -83,6 +87,31 @@ export function FirestoreContextProvider({
           console.log(
             `failed to fetch products for the user ${user.uid} on firebase.`
           );
+          successCallback(Array<IProduct>());
+        });
+    }
+  };
+
+  const filterDeletedProductsUuids = (
+    uuids: string[],
+    successCallback: (result: any) => void
+  ) => {
+    if (firestore) {
+      console.log("filterDeletedProductsUuids", uuids);
+      const deletedProducts = collection(firestore, "deletedProducts");
+      const q = query(deletedProducts, where("uuid", "in", uuids));
+
+      getDocs(q)
+        .then((querySnapshot) => {
+          const products = Array<string>();
+          querySnapshot.forEach((doc) => {
+            products.push(doc.data().uuid);
+          });
+
+          successCallback(products);
+        })
+        .catch((e) => {
+          console.log("failed to fetch deleted products");
           successCallback(Array<IProduct>());
         });
     }
@@ -163,8 +192,15 @@ export function FirestoreContextProvider({
         return;
       }
       if (firestore) {
-        const collectionRef = collection(firestore, "savedProducts");
-        const q = query(collectionRef, where("uuid", "==", product.uuid));
+        const productCollectionRef = collection(firestore, "savedProducts");
+        const deletedProductCollectionRef = collection(
+          firestore,
+          "deletedProducts"
+        );
+        const q = query(
+          productCollectionRef,
+          where("uuid", "==", product.uuid)
+        );
         console.log("pre deleting on firestore", product);
         getDocs(q)
           .then((querySnapshot) => {
@@ -180,6 +216,23 @@ export function FirestoreContextProvider({
                   console.log(
                     `Product ${product.uuid} deleted from Firestore: ${documentId}`
                   );
+                  // add to deleted.
+                  addDoc(deletedProductCollectionRef, {
+                    uuid: product.uuid,
+                    ownerUid: product.ownerUid,
+                    deletedAt: new Date(),
+                  })
+                    .then((doc) => {
+                      console.log(
+                        `Product ${product.uuid} deletion record saved to Firestore: ${doc.id}`
+                      );
+                    })
+                    .catch((e) => {
+                      console.log(
+                        `Product ${product.uuid} deletion record couldn't be saved to Firestore:`,
+                        e
+                      );
+                    });
                 })
                 .catch((e) => {
                   console.log(
@@ -203,6 +256,7 @@ export function FirestoreContextProvider({
         getAllProductsFromUser,
         saveProductOnFirestore,
         deleteProductOnFirestore,
+        filterDeletedProductsUuids,
       }}
     >
       {children}

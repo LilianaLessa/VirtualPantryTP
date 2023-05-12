@@ -10,6 +10,7 @@ import StoredProduct from "../../features/products/classes/stored.product";
 import { AuthenticationContext } from "../firebase/authentication.context";
 import { FirestoreContext } from "../firebase/firestore.context";
 import { IProduct } from "../../features/products/interfaces/product.interface";
+import { deleteProductInSilent } from "../../state/action-creators";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -25,9 +26,13 @@ export function ApplicationDataContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const { isAuthenticated } = useContext(AuthenticationContext);
-  const { getAllProductsFromUser, saveProductOnFirestore } =
-    useContext(FirestoreContext);
-  const { initProductCollection, saveProductInSilent } = useActions();
+  const {
+    getAllProductsFromUser,
+    saveProductOnFirestore,
+    filterDeletedProductsUuids,
+  } = useContext(FirestoreContext);
+  const { initProductCollection, saveProductInSilent, deleteProductInSilent } =
+    useActions();
   const [loadedProducts, setLoadedProducts] = useState<Map<number, Product>>(
     new Map<number, Product>()
   );
@@ -101,6 +106,23 @@ export function ApplicationDataContextProvider({
                 saveProductInSilent(fp);
               }
             });
+
+            DbContext.getInstance()
+              .database.find(query, args)
+              .then((results: any) => {
+                if (results.length > 0) {
+                  filterDeletedProductsUuids(
+                    results.map(({ uuid }: { uuid: string }) => uuid),
+                    (deletedUuids: string[]) => {
+                      console.log("deleted product uuids found", deletedUuids);
+                      deletedUuids.forEach((uuid) => {
+                        console.log("deleting local version of product", uuid);
+                        deleteProductInSilent(localProductsByUuid.get(uuid));
+                      });
+                    }
+                  );
+                }
+              });
           });
         }
       });

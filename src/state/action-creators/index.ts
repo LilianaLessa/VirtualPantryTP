@@ -78,6 +78,14 @@ export const deleteProduct =
     });
   };
 
+export const deleteProductInSilent =
+  (product: IProduct) => (dispatch: Dispatch<SavedProductsActions>) => {
+    dispatch({
+      type: SavedProductsActionType.DELETE_PRODUCT,
+      productToDelete: product,
+    });
+  };
+
 export const initProductCollection =
   (productCollection: IProduct[]) =>
   (dispatch: Dispatch<SavedProductsActions>) => {
