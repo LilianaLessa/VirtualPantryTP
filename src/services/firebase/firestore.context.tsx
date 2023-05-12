@@ -12,11 +12,16 @@ import {
 } from "firebase/firestore";
 import { Firestore } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "firebase/auth";
 import { FirebaseContext } from "./firebase.context";
 import { IProduct } from "../../features/products/interfaces/product.interface";
+import Product from "../../features/products/classes/product.class";
 
 type FirestoreContextType = {
-  getAllProductsFromUser: (successCallback?: (result: any) => void) => void;
+  getAllProductsFromUser: (
+    user: User,
+    successCallback: (result: any) => void
+  ) => void;
   saveProductOnFirestore: (
     product: IProduct,
     successCallback?: (result: any) => void
@@ -41,16 +46,40 @@ export function FirestoreContextProvider({
     setFirestore(firebaseApp ? getFirestore(firebaseApp) : null);
   }, [firebaseApp]);
 
-  const getAllProductsFromUser = (successCallback?: (result: any) => void) => {
+  const getAllProductsFromUser = (
+    user: User,
+    successCallback: (result: any) => void
+  ) => {
     if (firestore) {
-      getDocs(collection(firestore, "savedProducts")).then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          console.log(`${doc.id} =>`, doc.data());
+      const collectionRef = collection(firestore, "savedProducts");
+      const q = query(collectionRef, where("ownerUid", "==", user.uid));
+
+      getDocs(q)
+        .then((querySnapshot) => {
+          const products = Array<IProduct>();
+          querySnapshot.forEach((doc) => {
+            products.push(
+              new Product(
+                doc.data().uuid,
+                doc.data().barCode,
+                doc.data().name,
+                doc.data().measureUnit,
+                doc.data().packageWeight,
+                doc.data().id,
+                doc.data().ownerUid,
+                doc.data().updatedAt.toDate().toString()
+              )
+            );
+          });
+
+          successCallback(products);
+        })
+        .catch((e) => {
+          console.log(
+            `failed to fetch products for the user ${user.uid} on firebase.`
+          );
+          successCallback(Array<IProduct>());
         });
-        if (successCallback) {
-          successCallback(querySnapshot);
-        }
-      });
     }
   };
 

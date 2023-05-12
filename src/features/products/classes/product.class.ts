@@ -21,15 +21,17 @@ export default class Product
 
   ownerUid?: string;
 
+  updatedAt?: string;
+
   constructor(
     uuid: string,
     barCode?: string,
     name?: string,
     measureUnit?: string,
     packageWeight?: number,
-
     id?: number,
-    ownerUid?: string
+    ownerUid?: string,
+    updatedAt?: string
   ) {
     super(LocalTable.PRODUCT);
     this.uuid = uuid;
@@ -42,6 +44,9 @@ export default class Product
     }
     if (typeof id !== "undefined") {
       this.ownerUid = ownerUid;
+    }
+    if (typeof updatedAt !== "undefined") {
+      this.updatedAt = updatedAt;
     }
   }
 
@@ -70,6 +75,7 @@ export default class Product
       .column("measureUnit")
       .column("packageWeight")
       .column("ownerUid")
+      .string.nullable.column("updatedAt")
       .string.nullable.objectPrototype(Product.prototype);
   }
 }

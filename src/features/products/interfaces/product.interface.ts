@@ -6,6 +6,7 @@ export interface IProduct {
   barCode: string;
   uuid: string;
   ownerUid?: string;
+  updatedAt?: string;
 
   getKey: () => string;
 

@@ -48,6 +48,21 @@ export const saveProduct =
     });
   };
 
+export const saveProductInSilent =
+  (product: IProduct) => (dispatch: Dispatch<SavedProductsActions>) => {
+    AsyncStorage.getItem("@loggedUser").then((result) => {
+      const storedUser = result ? JSON.parse(result) : null;
+      console.log(storedUser?.uid, product.ownerUid);
+      if (storedUser !== null && typeof product.ownerUid === "undefined") {
+        product.ownerUid = storedUser.uid;
+      }
+      dispatch({
+        type: SavedProductsActionType.SAVE_PRODUCT,
+        newProduct: product,
+      });
+    });
+  };
+
 // todo when deleting a product, what should happen with the stored ones?
 // eslint-disable-next-line operator-linebreak
 export const deleteProduct =

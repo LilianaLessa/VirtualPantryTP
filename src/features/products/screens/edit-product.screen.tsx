@@ -53,6 +53,7 @@ export function EditProductScreen({ route }: { route: Props }) {
     product.measureUnit = measureUnit;
     product.packageWeight = packageWeight;
     product.barCode = barCode;
+    product.updatedAt = new Date().toString();
 
     saveProduct(product);
     saveProductOnFirestore(product);

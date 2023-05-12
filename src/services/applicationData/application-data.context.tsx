@@ -9,6 +9,7 @@ import Pantry from "../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../features/products/classes/stored.product";
 import { AuthenticationContext } from "../firebase/authentication.context";
 import { FirestoreContext } from "../firebase/firestore.context";
+import { IProduct } from "../../features/products/interfaces/product.interface";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -24,8 +25,9 @@ export function ApplicationDataContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const { isAuthenticated } = useContext(AuthenticationContext);
-  const { getAllProductsFromUser } = useContext(FirestoreContext);
-  const { initProductCollection } = useActions();
+  const { getAllProductsFromUser, saveProductOnFirestore } =
+    useContext(FirestoreContext);
+  const { initProductCollection, saveProductInSilent } = useActions();
   const [loadedProducts, setLoadedProducts] = useState<Map<number, Product>>(
     new Map<number, Product>()
   );
@@ -42,24 +44,65 @@ export function ApplicationDataContextProvider({
     return DbContext.getInstance()
       .database.find(query, args)
       .then((results: any) => {
-        setLoadedProducts(
-          results.reduce(
-            (map: Map<number, Product>, r: Product) =>
-              map.set(
+        const localLoadedProducts = results.reduce(
+          (map: Map<number, Product>, r: Product) =>
+            map.set(
+              r.id,
+              new Product(
+                r.uuid,
+                r.barCode,
+                r.name,
+                r.measureUnit,
+                r.packageWeight,
                 r.id,
-                new Product(
-                  r.uuid,
-                  r.barCode,
-                  r.name,
-                  r.measureUnit,
-                  r.packageWeight,
-                  r.id,
-                  r.ownerUid
-                )
-              ),
-            new Map<number, Product>()
-          )
+                r.ownerUid,
+                r.updatedAt
+              )
+            ),
+          new Map<number, Product>()
         );
+
+        console.log("loaded from local", user?.uid, localLoadedProducts);
+        setLoadedProducts(localLoadedProducts);
+
+        if (user !== null) {
+          getAllProductsFromUser(user, (productsFromFirebase) => {
+            const localProductsByUuid = results.reduce(
+              (map: Map<number, Product>, r: Product) =>
+                map.set(
+                  r.uuid,
+                  new Product(
+                    r.uuid,
+                    r.barCode,
+                    r.name,
+                    r.measureUnit,
+                    r.packageWeight,
+                    r.id,
+                    r.ownerUid,
+                    r.updatedAt
+                  )
+                ),
+              new Map<number, Product>()
+            );
+
+            productsFromFirebase.forEach((fp: IProduct) => {
+              if (localProductsByUuid.has(fp.uuid)) {
+                const lp = localProductsByUuid.get(fp.uuid);
+                console.log("product conflict. keep most updated version.");
+                if (new Date(fp.updatedAt) > new Date(lp.updatedAt)) {
+                  console.log("product conflict: save from firebase");
+                  saveProductInSilent(fp);
+                } else {
+                  console.log("product conflict: save from local");
+                  saveProductOnFirestore(lp);
+                }
+              } else {
+                console.log("product from firebase not on local: save");
+                saveProductInSilent(fp);
+              }
+            });
+          });
+        }
       });
   };
 
@@ -137,13 +180,6 @@ export function ApplicationDataContextProvider({
               // initStoredProducts();
               console.log("stored products not initiated.");
               console.log("Application data loaded.");
-              if (getAllProductsFromUser) {
-                getAllProductsFromUser();
-              }
-
-              // sync to firebase, based on updated at?
-
-              // sync from firebase
             });
           });
         });
