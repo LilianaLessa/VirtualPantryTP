@@ -15,7 +15,10 @@ import {
 } from "../../products/components/product-list-item.styles";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
-import { EditShoppingListScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import {
+  EditShoppingListScreenRouteName,
+  UseShoppingListScreenRouteName,
+} from "../../../infrastructure/navigation/route-names";
 import IShoppingListItem from "../interfaces/shopping-list-item.interface";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
@@ -98,12 +101,23 @@ function ShoppingList({
     );
   };
 
+  function handleShoppingListPress() {
+    navigation.navigate(
+      UseShoppingListScreenRouteName as never,
+      {
+        shoppingList,
+        // eslint-disable-next-line comma-dangle
+      } as never
+    );
+  }
+
   function calculateProgress(): number {
     return totalItemsAmount === 0 ? 0 : boughtItemsAmount / totalItemsAmount;
   }
 
   return (
     <TouchableOpacity
+      onPress={handleShoppingListPress}
       style={{ marginBottom: 5, paddingLeft: 10, paddingRight: 10 }}
     >
       <ProductListItemContainer>

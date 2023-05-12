@@ -24,6 +24,7 @@ import {
   ProductSearchResultScreenRouteName,
   ShoppingListsRouteName,
   StoreProductScreenRouteName,
+  UseShoppingListScreenRouteName,
 } from "./route-names";
 import ProductScreen from "../../features/products/screens/product.screen";
 import BarCodeScanScreen from "../../features/products/screens/barcode-scan.screen";
@@ -45,6 +46,7 @@ import ShoppingListScreen from "../../features/shoppingList/screens/shopping-lis
 import EditShoppingListScreen, {
   EditShoppingListScreenParams,
 } from "../../features/shoppingList/screens/edit-shopping-list.screen";
+import UseShoppingListScreen from "../../features/shoppingList/screens/use-shopping-list.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -147,6 +149,14 @@ function AppNavigator() {
       <Stack.Screen
         name={EditShoppingListScreenRouteName as never}
         component={EditShoppingListScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={UseShoppingListScreenRouteName as never}
+        component={UseShoppingListScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
