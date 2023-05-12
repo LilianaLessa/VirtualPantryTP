@@ -54,6 +54,15 @@ export const deleteProduct =
     });
   };
 
+export const initProductCollection =
+  (productCollection: IProduct[]) =>
+  (dispatch: Dispatch<SavedProductsActions>) => {
+    dispatch({
+      type: SavedProductsActionType.INIT_COLLECTION,
+      productCollection,
+    });
+  };
+
 // eslint-disable-next-line operator-linebreak
 export const savePantry =
   (pantry: IPantry) =>

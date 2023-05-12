@@ -22,7 +22,15 @@ interface DeleteProductAction {
   productToDelete: IProduct;
 }
 
-export type SavedProductsActions = SaveProductAction | DeleteProductAction;
+interface InitProductCollectionAction {
+  type: SavedProductsActionType.INIT_COLLECTION;
+  productCollection: IProduct[];
+}
+
+export type SavedProductsActions =
+  | SaveProductAction
+  | DeleteProductAction
+  | InitProductCollectionAction;
 
 interface StoreProductAction {
   type: StoredProductActionType.STORE_PRODUCT;

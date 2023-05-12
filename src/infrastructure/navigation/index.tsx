@@ -12,6 +12,7 @@ import { BarCodeScannerContextProvider } from "../../services/barCodeScanner/bar
 import { DialogModalContextProvider } from "../../services/modal/dialog-modal.context";
 import DialogModal from "../../components/dialogs/dialog-modal.component";
 import { ProductSearchContextProvider } from "../../services/productSearch/product-search.context";
+import { ApplicationDataContextProvider } from "../../services/applicationData/application-data.context";
 
 // todo PaperProvider also needs a theme. check how it works with ThemeProvider.
 function Navigation() {
@@ -19,19 +20,21 @@ function Navigation() {
     <NavigationContainer>
       <SafeAreaProvider>
         <ReduxProvider store={store}>
-          <BarCodeScannerContextProvider>
-            <DialogModalContextProvider>
-              <ProductSearchContextProvider>
-                <PaperProvider>
-                  <AppNavigator />
-                  <DialogModal />
-                  <LoadingModal />
-                  <ErrorSnackbar />
-                  <InfoSnackbar />
-                </PaperProvider>
-              </ProductSearchContextProvider>
-            </DialogModalContextProvider>
-          </BarCodeScannerContextProvider>
+          <ApplicationDataContextProvider>
+            <BarCodeScannerContextProvider>
+              <DialogModalContextProvider>
+                <ProductSearchContextProvider>
+                  <PaperProvider>
+                    <AppNavigator />
+                    <DialogModal />
+                    <LoadingModal />
+                    <ErrorSnackbar />
+                    <InfoSnackbar />
+                  </PaperProvider>
+                </ProductSearchContextProvider>
+              </DialogModalContextProvider>
+            </BarCodeScannerContextProvider>
+          </ApplicationDataContextProvider>
         </ReduxProvider>
       </SafeAreaProvider>
     </NavigationContainer>
