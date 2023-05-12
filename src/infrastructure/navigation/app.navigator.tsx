@@ -10,6 +10,7 @@ import {
 } from "../../features/products/screens/edit-product.screen";
 import HomeScreen from "../../features/home/screens/home.screen";
 import {
+  AccountRouteName,
   BarCodeScanScreenRouteName,
   ConfigurationsScreenRouteName,
   EditPantryScreenRouteName,
@@ -47,6 +48,7 @@ import EditShoppingListScreen, {
   EditShoppingListScreenParams,
 } from "../../features/shoppingList/screens/edit-shopping-list.screen";
 import UseShoppingListScreen from "../../features/shoppingList/screens/use-shopping-list.screen";
+import AccountScreen from "../../features/account/screens/account.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -65,7 +67,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
+    <Stack.Navigator initialRouteName={AccountRouteName as never}>
       <Stack.Screen
         name={HomeScreenRouteName as never}
         component={HomeScreen}
@@ -174,6 +176,14 @@ function AppNavigator() {
       <Stack.Screen
         name={ProductSearchResultScreenRouteName as never}
         component={ProductSearchResultScreen}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={AccountRouteName as never}
+        component={AccountScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,

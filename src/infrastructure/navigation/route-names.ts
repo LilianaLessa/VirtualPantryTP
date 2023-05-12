@@ -16,3 +16,7 @@ export const EditShoppingListScreenRouteName = "EditShoppingList";
 export const UseShoppingListScreenRouteName = "UseShoppingList";
 
 export const GroupsRouteName = "Groups";
+
+export const AccountRouteName = "Account";
+
+export const CreateAccountRouteName = "CreateAccount";
