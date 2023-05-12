@@ -51,6 +51,7 @@ import EditShoppingListScreen, {
 import UseShoppingListScreen from "../../features/shoppingList/screens/use-shopping-list.screen";
 import AccountScreen from "../../features/account/screens/account.screen";
 import AccountCreateScreen from "../../features/account/screens/account-create.screen";
+import GroupsScreen from "../../features/group/screens/groups.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -168,8 +169,7 @@ function AppNavigator() {
       />
       <Stack.Screen
         name={GroupsRouteName as never}
-        component={ScreenPlaceHolder}
-        initialParams={{ screenName: "Groups" } as never}
+        component={GroupsScreen}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
