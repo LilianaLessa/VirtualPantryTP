@@ -9,6 +9,7 @@ export enum SavedProductsActionType {
 export enum StoredProductActionType {
   STORE_PRODUCT = "store_product",
   DELETE_STORED_PRODUCT = "delete_stored_product",
+  INIT_STORED_PRODUCT_COLLECTION = "init_stored_product_collection",
 }
 
 // eslint-disable-next-line no-shadow

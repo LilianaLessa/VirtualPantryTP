@@ -24,8 +24,9 @@ export default class Product
     barCode?: string,
     name?: string,
     measureUnit?: string,
+    packageWeight?: number,
     // eslint-disable-next-line comma-dangle
-    packageWeight?: number
+    id?: number
   ) {
     super(LocalTable.PRODUCT);
     this.uuid = uuid;
@@ -33,6 +34,9 @@ export default class Product
     this.name = name ?? "";
     this.measureUnit = measureUnit ?? "";
     this.packageWeight = packageWeight ?? 1;
+    if (typeof id !== "undefined") {
+      this.id = id;
+    }
   }
 
   clone(override: Partial<IProduct>): IProduct {
@@ -62,7 +66,3 @@ export default class Product
       .objectPrototype(Product.prototype);
   }
 }
-
-// ProductDbContext.instance.database.dropTables().then(() => {
-//   console.log("tables dropped");
-// });

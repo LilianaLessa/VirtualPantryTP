@@ -62,7 +62,7 @@ export default function PantryContentProductListItem({
       <LeftContent>
         <LeftIcon />
         <LeftText>
-          {item.product.name} x{item.quantity}
+          {item.product.name} x{item.quantity} (id:{item.id})
         </LeftText>
       </LeftContent>
       <RightContent>

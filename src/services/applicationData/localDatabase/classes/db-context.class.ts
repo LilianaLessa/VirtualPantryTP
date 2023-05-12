@@ -3,8 +3,13 @@ import * as SQLite from "expo-sqlite";
 import Product from "../../../../features/products/classes/product.class";
 import { TableNames } from "../tables";
 import Pantry from "../../../../features/pantries/classes/pantry.class";
+import StoredProduct from "../../../../features/products/classes/stored.product";
 
-const tables = [Product.GetTableStructor(), Pantry.GetTableStructor()];
+const tables = [
+  Product.GetTableStructor(),
+  Pantry.GetTableStructor(),
+  StoredProduct.GetTableStructor(),
+];
 export default class DbContext {
   private static instance: DbContext;
 

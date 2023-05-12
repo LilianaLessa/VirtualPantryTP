@@ -1,6 +1,9 @@
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { StoredProductActions } from "../actions";
 import { StoredProductActionType } from "../action-types";
+import DbContext from "../../services/applicationData/localDatabase/classes/db-context.class";
+import StoredProduct from "../../features/products/classes/stored.product";
+import { LocalTable } from "../../services/applicationData/localDatabase/tables";
 
 interface StoredProductsState {
   storedProductsByUuid: Map<string, IStoredProduct>;
@@ -22,44 +25,72 @@ const StoredProductsReducer = (
   // eslint-disable-next-line comma-dangle
   action: StoredProductActions
 ): StoredProductsState => {
+  function insertStoredProductOnState(
+    currentState: StoredProductsState,
+    productToStore: IStoredProduct
+  ) {
+    currentState.storedProductsByUuid.set(productToStore.uuid, productToStore);
+    currentState.storedProductsByPantryUuid.set(
+      productToStore.pantry.uuid,
+      (
+        currentState.storedProductsByPantryUuid.get(
+          productToStore.pantry.uuid
+        ) ?? new Map<string, IStoredProduct>()
+      ).set(productToStore.uuid, productToStore)
+    );
+    currentState.storedProductsByProductUuid.set(
+      productToStore.product.uuid,
+      (
+        currentState.storedProductsByProductUuid.get(
+          productToStore.product.uuid
+        ) ?? new Map<string, IStoredProduct>()
+      ).set(productToStore.uuid, productToStore)
+    );
+    currentState.storedProductsByCompositeKey.set(
+      `${productToStore.pantry.uuid ?? ""},${
+        productToStore.product.uuid ?? ""
+      }`,
+      productToStore
+    );
+    return {
+      ...currentState,
+      storedProductsByUuid: new Map(currentState.storedProductsByUuid),
+      storedProductsByPantryUuid: new Map(
+        currentState.storedProductsByPantryUuid
+      ),
+      storedProductsByProductUuid: new Map(
+        currentState.storedProductsByProductUuid
+      ),
+      storedProductsByCompositeKey: new Map(
+        currentState.storedProductsByCompositeKey
+      ),
+    };
+  }
+
   switch (action.type) {
     case StoredProductActionType.STORE_PRODUCT:
-      state.storedProductsByUuid.set(
-        action.productToStore.uuid,
-        action.productToStore
-      );
-      state.storedProductsByPantryUuid.set(
-        action.productToStore.pantry.uuid,
-        (
-          state.storedProductsByPantryUuid.get(
-            action.productToStore.pantry.uuid
-          ) ?? new Map<string, IStoredProduct>()
-        ).set(action.productToStore.uuid, action.productToStore)
-      );
-      state.storedProductsByProductUuid.set(
-        action.productToStore.product.uuid,
-        (
-          state.storedProductsByProductUuid.get(
-            action.productToStore.product.uuid
-          ) ?? new Map<string, IStoredProduct>()
-        ).set(action.productToStore.uuid, action.productToStore)
-      );
-      state.storedProductsByCompositeKey.set(
-        `${action.productToStore.pantry.uuid ?? ""},${
-          action.productToStore.product.uuid ?? ""
-        }`,
-        action.productToStore
-      );
-      return {
-        ...state,
-        storedProductsByUuid: new Map(state.storedProductsByUuid),
-        storedProductsByPantryUuid: new Map(state.storedProductsByPantryUuid),
-        storedProductsByProductUuid: new Map(state.storedProductsByProductUuid),
-        storedProductsByCompositeKey: new Map(
-          state.storedProductsByCompositeKey
-        ),
-      };
+      DbContext.getInstance()
+        .database.save(action.productToStore as StoredProduct)
+        .then(() => {
+          console.log("StoredProduct Persisted. Id:", action.productToStore.id);
+        })
+        .catch(() => {
+          console.log("StoredProduct persisting error");
+        });
+
+      return insertStoredProductOnState(state, action.productToStore);
     case StoredProductActionType.DELETE_STORED_PRODUCT:
+      DbContext.getInstance()
+        .database.delete(
+          action.storedProductToDelete as StoredProduct,
+          LocalTable.STORED_PRODUCT
+        )
+        .then(() => {
+          console.log("StoredProduct deleted", action.storedProductToDelete.id);
+        })
+        .catch(() => {
+          console.log("StoredProduct deletion error");
+        });
       state.storedProductsByUuid.delete(action.storedProductToDelete.uuid);
 
       state.storedProductsByPantryUuid
@@ -83,6 +114,17 @@ const StoredProductsReducer = (
           state.storedProductsByCompositeKey
         ),
       };
+    case StoredProductActionType.INIT_STORED_PRODUCT_COLLECTION:
+      console.log("init stored product collection");
+      let newState = state;
+      action.storedProductCollection.forEach((p) => {
+        newState = {
+          ...newState,
+          ...insertStoredProductOnState(newState, p),
+        };
+      });
+
+      return newState;
     default:
       return state;
   }

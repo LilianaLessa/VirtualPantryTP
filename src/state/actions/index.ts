@@ -41,9 +41,14 @@ interface DeleteStoredProductAction {
   type: StoredProductActionType.DELETE_STORED_PRODUCT;
   storedProductToDelete: IStoredProduct;
 }
+interface InitStoredProductCollectionAction {
+  type: StoredProductActionType.INIT_STORED_PRODUCT_COLLECTION;
+  storedProductCollection: IStoredProduct[];
+}
 
 export type StoredProductActions =
   | StoreProductAction
+  | InitStoredProductCollectionAction
   | DeleteStoredProductAction;
 
 interface SavePantryAction {

@@ -2,7 +2,6 @@ import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { PantriesActionType } from "../action-types";
 import { PantriesActions } from "../actions";
 import DbContext from "../../services/applicationData/localDatabase/classes/db-context.class";
-import { LocalTable } from "../../services/applicationData/localDatabase/tables";
 import Pantry from "../../features/pantries/classes/pantry.class";
 
 interface PantriesState {
@@ -23,7 +22,7 @@ const pantriesReducer = (
   switch (action.type) {
     case PantriesActionType.SAVE_PANTRY:
       DbContext.getInstance()
-        .database.save(action.newPantry as Pantry, false, LocalTable.PANTRY)
+        .database.save(action.newPantry as Pantry)
         .then(() => {
           console.log("Pantry Persisted");
         })
@@ -34,7 +33,7 @@ const pantriesReducer = (
       return { ...state, pantries: new Map(state.pantries) };
     case PantriesActionType.DELETE_PANTRY:
       DbContext.getInstance()
-        .database.delete(action.pantryToDelete as Pantry, LocalTable.PANTRY)
+        .database.delete(action.pantryToDelete as Pantry)
         .then(() => {
           console.log("Pantry deleted");
         })

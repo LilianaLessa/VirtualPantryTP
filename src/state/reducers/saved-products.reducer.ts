@@ -31,9 +31,9 @@ const savedProductsReducer = (
   switch (action.type) {
     case SavedProductsActionType.SAVE_PRODUCT:
       DbContext.getInstance()
-        .database.save(action.newProduct as Product, false, LocalTable.PRODUCT)
+        .database.save(action.newProduct as Product)
         .then(() => {
-          console.log("Product Persisted");
+          console.log("Product Persisted. Id:", action.newProduct.id);
         })
         .catch(() => {
           console.log("Product persisting error");
@@ -42,7 +42,7 @@ const savedProductsReducer = (
       return { ...state, savedProducts: new Map(state.savedProducts) };
     case SavedProductsActionType.DELETE_PRODUCT:
       DbContext.getInstance()
-        .database.delete(action.productToDelete as Product, LocalTable.PRODUCT)
+        .database.delete(action.productToDelete as Product)
         .then(() => {
           console.log("Product deleted");
         })

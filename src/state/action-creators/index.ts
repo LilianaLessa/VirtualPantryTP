@@ -159,6 +159,15 @@ export const deleteStoredProduct =
     });
   };
 
+export const initStoredProductCollection =
+  (storedProductCollection: IStoredProduct[]) =>
+  (dispatch: Dispatch<StoredProductActions>) => {
+    dispatch({
+      type: StoredProductActionType.INIT_STORED_PRODUCT_COLLECTION,
+      storedProductCollection,
+    });
+  };
+
 export const deleteNotification =
   (notificationToRemove: INotification) =>
   (dispatch: Dispatch<NotificationsActions>) => {

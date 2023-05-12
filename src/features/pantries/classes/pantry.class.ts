@@ -10,10 +10,13 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
 
   name: string;
 
-  constructor(uuid: string, name?: string) {
+  constructor(uuid: string, name?: string, id?: number) {
     super(LocalTable.PANTRY);
     this.uuid = uuid;
     this.name = name ?? "";
+    if (typeof id !== "undefined") {
+      this.id = id;
+    }
   }
 
   getKey(): string {
