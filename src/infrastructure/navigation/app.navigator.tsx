@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   ProductSearchResultScreen,
@@ -52,6 +52,7 @@ import UseShoppingListScreen from "../../features/shoppingList/screens/use-shopp
 import AccountScreen from "../../features/account/screens/account.screen";
 import AccountCreateScreen from "../../features/account/screens/account-create.screen";
 import GroupsScreen from "../../features/group/screens/groups.screen";
+import { DependencyInjectionContext } from "../../services/dependencyInjection/dependency-injection.context";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -69,6 +70,10 @@ type RootStackParamList =
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
+  const { groupService, authGuardService, navigationService } = useContext(
+    DependencyInjectionContext
+  );
+
   return (
     <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
       <Stack.Screen
@@ -170,6 +175,7 @@ function AppNavigator() {
       <Stack.Screen
         name={GroupsRouteName as never}
         component={GroupsScreen}
+        initialParams={{ groupService, authGuardService } as never}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,

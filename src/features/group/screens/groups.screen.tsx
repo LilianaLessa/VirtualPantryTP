@@ -1,29 +1,42 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import { v4 as uuidv4 } from "uuid";
-import { AuthenticationContext } from "../../../services/firebase/authentication.context";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import { AccountScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import Group from "../classes/group.class";
 import GroupListItem from "../components/group-list-item.component";
+import GroupService from "../services/group.service";
+import AuthGuardService from "../../../services/firebase/auth-guard.service";
+import NavigationService from "../../../infrastructure/navigation/services/navigation.service";
 
-function GroupsScreen() {
-  const { user } = useContext(AuthenticationContext);
+export type GroupScreenParams = {
+  GroupScreen: {
+    groupService: GroupService;
+    authGuardService: AuthGuardService;
+    navigationService: NavigationService;
+  };
+};
+type Props = RouteProp<GroupScreenParams, "GroupScreen">;
+
+function GroupsScreen({
+  route: {
+    params: { groupService, authGuardService },
+  },
+}: {
+  route: Props;
+}) {
   const navigation = useNavigation();
 
-  const [currentGroups, setCurrentGroups] = useState<Group[]>();
+  const [currentGroups, setCurrentGroups] = useState(
+    groupService.getGroupsForCurrentUser()
+  );
 
   useEffect(() => {
-    if (user !== null && typeof user !== "undefined") {
-      const mockGroups = [
-        new Group(uuidv4(), "group 1", user.uid),
-        new Group(uuidv4(), "group 2", user.uid),
-        new Group(uuidv4(), "group 3", user.uid),
-      ];
-      setCurrentGroups(mockGroups);
-    }
-  }, []); // relying on user here to trigger this effect will make the touchable opacity on list item stop working..
+    setCurrentGroups(groupService.getGroupsForCurrentUser());
+
+    // relying on user here to trigger this effect will make
+    // the touchable opacity on list item stop working.
+  }, [groupService]);
 
   const renderItem = ({ item }: { item: Group }) => (
     <GroupListItem group={item} />
@@ -32,11 +45,11 @@ function GroupsScreen() {
   const keyExtractor = (item: Group) => item.getKey();
 
   const handleAddGroup = () => {
-    console.log("todo");
+    // navigationService.navigateToGroupEditScreen(groupService.createNewGroup());
   };
 
-  if (user !== null) {
-    return (
+  return authGuardService.guard(
+    () => (
       <View>
         <TouchableOpacity onPress={handleAddGroup}>
           <Button mode="contained">AddGroup</Button>
@@ -47,20 +60,19 @@ function GroupsScreen() {
           keyExtractor={keyExtractor}
         />
       </View>
-    );
-  }
-
-  return (
-    <View>
-      <Text>To use this feature, please log in.</Text>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate(AccountScreenRouteName as never);
-        }}
-      >
-        <Button mode="contained">Go to Account Screen</Button>
-      </TouchableOpacity>
-    </View>
+    ),
+    () => (
+      <View>
+        <Text>To use this feature, please log in.</Text>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate(AccountScreenRouteName as never);
+          }}
+        >
+          <Button mode="contained">Go to Account Screen</Button>
+        </TouchableOpacity>
+      </View>
+    )
   );
 }
 
