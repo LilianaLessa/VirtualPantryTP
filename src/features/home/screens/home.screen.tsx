@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigation } from "@react-navigation/native";
 
 import {
-  GroupsRouteName,
+  GroupsScreenRouteName,
   PantriesScreenRouteName,
   ProductScreenRouteName,
   ShoppingListsRouteName,
@@ -43,7 +43,7 @@ function HomeScreen() {
           <HomeScreenButtonLabel>Shopping Lists</HomeScreenButtonLabel>
         </HomeScreenButton>
         <HomeScreenButton
-          onPress={() => navigation.navigate(GroupsRouteName as never)}
+          onPress={() => navigation.navigate(GroupsScreenRouteName as never)}
         >
           <HomeScreenButtonIcon name="account-group" />
           <HomeScreenButtonLabel>Groups</HomeScreenButtonLabel>

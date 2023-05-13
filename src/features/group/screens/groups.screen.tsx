@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { AccountScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import {
+  AccountScreenRouteName,
+  EditGroupScreenRouteName,
+} from "../../../infrastructure/navigation/route-names";
 import Group from "../classes/group.class";
 import GroupListItem from "../components/group-list-item.component";
 import GroupService from "../services/group.service";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import NavigationService from "../../../infrastructure/navigation/services/navigation.service";
+import EditGroupScreen from "./edit-group.screen";
 
 export type GroupScreenParams = {
   GroupScreen: {
@@ -45,7 +49,12 @@ function GroupsScreen({
   const keyExtractor = (item: Group) => item.getKey();
 
   const handleAddGroup = () => {
-    // navigationService.navigateToGroupEditScreen(groupService.createNewGroup());
+    navigation.navigate(
+      EditGroupScreenRouteName as never,
+      {
+        group: groupService.createNewGroup(),
+      } as never
+    );
   };
 
   return authGuardService.guard(

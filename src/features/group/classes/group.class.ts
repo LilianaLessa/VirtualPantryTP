@@ -38,7 +38,10 @@ export default class Group extends IBaseModule<TableNames> {
     }
   }
 
-  getKey = (): string => `group_${this.uuid}`;
+  // arrow functions cause unserializable value exception during navigation.
+  public getKey(): string {
+    return `group_${this.uuid}`;
+  }
 
   static GetTableStructor() {
     return TableBuilder<Group, TableNames>(LocalTable.GROUP)

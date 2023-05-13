@@ -14,10 +14,11 @@ import {
   BarCodeScanScreenRouteName,
   ConfigurationsScreenRouteName,
   CreateAccountScreenRouteName,
+  EditGroupScreenRouteName,
   EditPantryScreenRouteName,
   EditProductScreenRouteName,
   EditShoppingListScreenRouteName,
-  GroupsRouteName,
+  GroupsScreenRouteName,
   HomeScreenRouteName,
   NotificationsScreenRouteName,
   PantriesScreenRouteName,
@@ -53,6 +54,7 @@ import AccountScreen from "../../features/account/screens/account.screen";
 import AccountCreateScreen from "../../features/account/screens/account-create.screen";
 import GroupsScreen from "../../features/group/screens/groups.screen";
 import { DependencyInjectionContext } from "../../services/dependencyInjection/dependency-injection.context";
+import EditGroupScreen from "../../features/group/screens/edit-group.screen";
 
 type RootStackParamList =
   | { Home: undefined }
@@ -173,9 +175,18 @@ function AppNavigator() {
         }}
       />
       <Stack.Screen
-        name={GroupsRouteName as never}
+        name={GroupsScreenRouteName as never}
         component={GroupsScreen}
         initialParams={{ groupService, authGuardService } as never}
+        options={{
+          headerLeft: HeaderLeftActions,
+          headerRight: HeaderRightActions,
+        }}
+      />
+      <Stack.Screen
+        name={EditGroupScreenRouteName as never}
+        component={EditGroupScreen}
+        initialParams={{ groupService } as never}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
