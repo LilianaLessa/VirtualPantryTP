@@ -16,6 +16,20 @@ export default class GroupService {
     );
   }
 
+  public saveGroup(
+    group: Group,
+    overrideProperties: Partial<Group>,
+    successCallback?: () => any,
+    errorCallback?: () => any
+  ): void {
+    console.log("implement GroupService.saveGroup");
+
+    const callback = successCallback;
+    if (callback) {
+      return callback();
+    }
+  }
+
   public getGroupsForCurrentUser(): Group[] {
     return this.authGuardService.guard(
       () => [

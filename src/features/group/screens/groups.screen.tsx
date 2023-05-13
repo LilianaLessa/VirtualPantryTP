@@ -1,35 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import {
   AccountScreenRouteName,
   EditGroupScreenRouteName,
 } from "../../../infrastructure/navigation/route-names";
 import Group from "../classes/group.class";
 import GroupListItem from "../components/group-list-item.component";
-import GroupService from "../services/group.service";
-import AuthGuardService from "../../../services/firebase/auth-guard.service";
-import NavigationService from "../../../infrastructure/navigation/services/navigation.service";
-import EditGroupScreen from "./edit-group.screen";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
-export type GroupScreenParams = {
-  GroupScreen: {
-    groupService: GroupService;
-    authGuardService: AuthGuardService;
-    navigationService: NavigationService;
-  };
-};
-type Props = RouteProp<GroupScreenParams, "GroupScreen">;
-
-function GroupsScreen({
-  route: {
-    params: { groupService, authGuardService },
-  },
-}: {
-  route: Props;
-}) {
+function GroupsScreen() {
   const navigation = useNavigation();
+  const { groupService, authGuardService } = useContext(
+    DependencyInjectionContext
+  );
 
   const [currentGroups, setCurrentGroups] = useState(
     groupService.getGroupsForCurrentUser()
@@ -37,10 +22,11 @@ function GroupsScreen({
 
   useEffect(() => {
     setCurrentGroups(groupService.getGroupsForCurrentUser());
+    // console.log("user changed on group screen", user?.uid);
 
     // relying on user here to trigger this effect will make
     // the touchable opacity on list item stop working.
-  }, [groupService]);
+  }, [authGuardService]);
 
   const renderItem = ({ item }: { item: Group }) => (
     <GroupListItem group={item} />
@@ -57,6 +43,7 @@ function GroupsScreen({
     );
   };
 
+  // console.log("group screen redraw", new Date());
   return authGuardService.guard(
     () => (
       <View>

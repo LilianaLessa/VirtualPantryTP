@@ -51,7 +51,7 @@ export function FirestoreContextProvider({
   );
 
   useEffect(() => {
-    console.log("setting up firestore", firebaseApp?.name);
+    //console.log("setting up firestore", firebaseApp?.name);
     setFirestore(firebaseApp ? getFirestore(firebaseApp) : null);
   }, [firebaseApp]);
 
@@ -97,7 +97,7 @@ export function FirestoreContextProvider({
     successCallback: (result: any) => void
   ) => {
     if (firestore) {
-      console.log("filterDeletedProductsUuids", uuids);
+      //console.log("filterDeletedProductsUuids", uuids);
       const deletedProducts = collection(firestore, "deletedProducts");
       const q = query(deletedProducts, where("uuid", "in", uuids));
 
@@ -111,7 +111,7 @@ export function FirestoreContextProvider({
           successCallback(products);
         })
         .catch((e) => {
-          console.log("failed to fetch deleted products");
+          // console.log("failed to fetch deleted products");
           successCallback(Array<IProduct>());
         });
     }
@@ -124,19 +124,19 @@ export function FirestoreContextProvider({
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
       if (storedUser === null) {
-        console.log("Skipping firestore save: No logged user");
+        //console.log("Skipping firestore save: No logged user");
         return;
       }
       if (firestore) {
         const collectionRef = collection(firestore, "savedProducts");
         const q = query(collectionRef, where("uuid", "==", product.uuid));
-        console.log("pre saving on firestore", product);
+        //console.log("pre saving on firestore", product);
         getDocs(q)
           .then((querySnapshot) => {
             const documentIds = Array<string>([]);
             querySnapshot.forEach((doc) => {
               documentIds.push(doc.id);
-              console.log(` from firebase ${doc.id} =>`, doc.data());
+              //console.log(` from firebase ${doc.id} =>`, doc.data());
             });
             if (documentIds.length > 0) {
               const documentId = documentIds.pop();
@@ -145,9 +145,9 @@ export function FirestoreContextProvider({
                 updatedAt: new Date(),
               })
                 .then(() => {
-                  console.log(
-                    `Product ${product.uuid} updated on Firestore: ${documentId}`
-                  );
+                  // console.log(
+                  //   `Product ${product.uuid} updated on Firestore: ${documentId}`
+                  // );
                 })
                 .catch((e) => {
                   console.log(
@@ -158,17 +158,17 @@ export function FirestoreContextProvider({
             }
           })
           .catch((e) => {
-            console.log("Failed to fetch products from Firestore:", e);
-            console.log("Will try to create");
+            //console.log("Failed to fetch products from Firestore:", e);
+            //console.log("Will try to create");
             addDoc(collectionRef, {
               ...product,
               id: null,
               updatedAt: new Date(),
             })
               .then((doc) => {
-                console.log(
-                  `Product ${product.uuid} saved to Firestore: ${doc.id}`
-                );
+                // console.log(
+                //   `Product ${product.uuid} saved to Firestore: ${doc.id}`
+                // );
               })
               .catch((e) => {
                 console.log(
@@ -201,21 +201,21 @@ export function FirestoreContextProvider({
           productCollectionRef,
           where("uuid", "==", product.uuid)
         );
-        console.log("pre deleting on firestore", product);
+        //console.log("pre deleting on firestore", product);
         getDocs(q)
           .then((querySnapshot) => {
             const documentIds = Array<string>([]);
             querySnapshot.forEach((doc) => {
               documentIds.push(doc.id);
-              console.log(` from firebase ${doc.id} =>`, doc.data());
+              //console.log(` from firebase ${doc.id} =>`, doc.data());
             });
             if (documentIds.length > 0) {
               const documentId = documentIds.pop();
               deleteDoc(doc(firestore, "savedProducts", documentId))
                 .then(() => {
-                  console.log(
-                    `Product ${product.uuid} deleted from Firestore: ${documentId}`
-                  );
+                  // console.log(
+                  //   `Product ${product.uuid} deleted from Firestore: ${documentId}`
+                  // );
                   // add to deleted.
                   addDoc(deletedProductCollectionRef, {
                     uuid: product.uuid,
@@ -223,9 +223,9 @@ export function FirestoreContextProvider({
                     deletedAt: new Date(),
                   })
                     .then((doc) => {
-                      console.log(
-                        `Product ${product.uuid} deletion record saved to Firestore: ${doc.id}`
-                      );
+                      // console.log(
+                      //   `Product ${product.uuid} deletion record saved to Firestore: ${doc.id}`
+                      // );
                     })
                     .catch((e) => {
                       console.log(

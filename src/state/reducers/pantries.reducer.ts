@@ -21,7 +21,7 @@ const pantriesReducer = (
 ): PantriesState => {
   switch (action.type) {
     case PantriesActionType.SAVE_PANTRY:
-      console.log(action.newPantry);
+      //console.log(action.newPantry);
       DbContext.getInstance()
         .database.save(action.newPantry as Pantry)
         .then(() => {

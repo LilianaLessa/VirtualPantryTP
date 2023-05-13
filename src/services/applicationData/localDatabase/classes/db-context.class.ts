@@ -25,8 +25,8 @@ export default class DbContext {
     this.database = createDbContext<TableNames>(
       tables,
       async () => SQLite.openDatabase(this.databaseName),
-      undefined
-      // true
+      undefined,
+      true
     );
     // this.database.dropTables();
   }

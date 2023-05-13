@@ -33,7 +33,7 @@ export const saveProduct =
   (dispatch: Dispatch<SavedProductsActions | MessageSnackbarActions>) => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      console.log(storedUser?.uid, product.ownerUid);
+      //console.log(storedUser?.uid, product.ownerUid);
       if (storedUser !== null && typeof product.ownerUid === "undefined") {
         product.ownerUid = storedUser.uid;
       }
@@ -52,7 +52,7 @@ export const saveProductInSilent =
   (product: IProduct) => (dispatch: Dispatch<SavedProductsActions>) => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      console.log(storedUser?.uid, product.ownerUid);
+      //console.log(storedUser?.uid, product.ownerUid);
       if (storedUser !== null && typeof product.ownerUid === "undefined") {
         product.ownerUid = storedUser.uid;
       }
@@ -101,7 +101,7 @@ export const savePantry =
   (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      console.log(storedUser?.uid, pantry.ownerUid);
+      //console.log(storedUser?.uid, pantry.ownerUid);
       if (storedUser !== null && typeof pantry.ownerUid === "undefined") {
         pantry.ownerUid = storedUser.uid;
       }

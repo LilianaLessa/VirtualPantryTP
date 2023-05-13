@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   ProductSearchResultScreen,
@@ -31,7 +31,6 @@ import {
 } from "./route-names";
 import ProductScreen from "../../features/products/screens/product.screen";
 import BarCodeScanScreen from "../../features/products/screens/barcode-scan.screen";
-import { ScreenPlaceHolder } from "../../dev-utils";
 import HeaderLeftActions from "./components/header-left-actions.component";
 import HeaderRightActions from "./components/header-right-actions.component";
 import PantryScreen from "../../features/pantries/screens/pantry.screen";
@@ -53,7 +52,6 @@ import UseShoppingListScreen from "../../features/shoppingList/screens/use-shopp
 import AccountScreen from "../../features/account/screens/account.screen";
 import AccountCreateScreen from "../../features/account/screens/account-create.screen";
 import GroupsScreen from "../../features/group/screens/groups.screen";
-import { DependencyInjectionContext } from "../../services/dependencyInjection/dependency-injection.context";
 import EditGroupScreen from "../../features/group/screens/edit-group.screen";
 
 type RootStackParamList =
@@ -72,10 +70,6 @@ type RootStackParamList =
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
-  const { groupService, authGuardService, navigationService } = useContext(
-    DependencyInjectionContext
-  );
-
   return (
     <Stack.Navigator initialRouteName={HomeScreenRouteName as never}>
       <Stack.Screen
@@ -177,7 +171,6 @@ function AppNavigator() {
       <Stack.Screen
         name={GroupsScreenRouteName as never}
         component={GroupsScreen}
-        initialParams={{ groupService, authGuardService } as never}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,
@@ -186,7 +179,6 @@ function AppNavigator() {
       <Stack.Screen
         name={EditGroupScreenRouteName as never}
         component={EditGroupScreen}
-        initialParams={{ groupService } as never}
         options={{
           headerLeft: HeaderLeftActions,
           headerRight: HeaderRightActions,

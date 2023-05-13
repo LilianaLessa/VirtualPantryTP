@@ -30,7 +30,11 @@ function HeaderRightActions() {
         onPress={() => navigation.navigate(AccountScreenRouteName as never)}
       >
         <MaterialCommunityIcons
-          name={user ? "account-circle" : "account-circle-outline"}
+          name={
+            typeof user?.uid !== "undefined"
+              ? "account-circle"
+              : "account-circle-outline"
+          }
           size={24}
           color="black"
         />

@@ -67,7 +67,7 @@ export function ApplicationDataContextProvider({
           new Map<number, Product>()
         );
 
-        console.log("loaded from local", user?.uid, localLoadedProducts);
+        //console.log("loaded from local", user?.uid, localLoadedProducts);
         setLoadedProducts(localLoadedProducts);
 
         if (user !== null) {
@@ -93,16 +93,16 @@ export function ApplicationDataContextProvider({
             productsFromFirebase.forEach((fp: IProduct) => {
               if (localProductsByUuid.has(fp.uuid)) {
                 const lp = localProductsByUuid.get(fp.uuid);
-                console.log("product conflict. keep most updated version.");
+                //console.log("product conflict. keep most updated version.");
                 if (new Date(fp.updatedAt) > new Date(lp.updatedAt)) {
-                  console.log("product conflict: save from firebase");
+                  //console.log("product conflict: save from firebase");
                   saveProductInSilent(fp);
                 } else {
-                  console.log("product conflict: save from local");
+                  //console.log("product conflict: save from local");
                   saveProductOnFirestore(lp);
                 }
               } else {
-                console.log("product from firebase not on local: save");
+                //console.log("product from firebase not on local: save");
                 saveProductInSilent(fp);
               }
             });
@@ -114,9 +114,9 @@ export function ApplicationDataContextProvider({
                   filterDeletedProductsUuids(
                     results.map(({ uuid }: { uuid: string }) => uuid),
                     (deletedUuids: string[]) => {
-                      console.log("deleted product uuids found", deletedUuids);
+                      //console.log("deleted product uuids found", deletedUuids);
                       deletedUuids.forEach((uuid) => {
-                        console.log("deleting local version of product", uuid);
+                        //console.log("deleting local version of product", uuid);
                         deleteProductInSilent(localProductsByUuid.get(uuid));
                       });
                     }
@@ -200,8 +200,8 @@ export function ApplicationDataContextProvider({
           initSavedProducts(storedUser).then(() => {
             initPantries(storedUser).then(() => {
               // initStoredProducts();
-              console.log("stored products not initiated.");
-              console.log("Application data loaded.");
+              //console.log("stored products not initiated.");
+              //console.log("Application data loaded.");
             });
           });
         });

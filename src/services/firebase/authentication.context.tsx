@@ -49,13 +49,14 @@ export function AuthenticationContextProvider({
 
   AsyncStorage.getItem("@loggedUser").then((result) => {
     const storedUser = result ? JSON.parse(result) : null;
-    if (storedUser) {
-      setUser(storedUser as User);
-    } else {
-      setUser(null);
+    if (storedUser?.uid !== user?.uid) {
+      if (storedUser) {
+        setUser(storedUser as User);
+      } else {
+        setUser(null);
+      }
     }
   });
-
   // console.log(app);
   useEffect(() => {
     if (firebaseApp) {
@@ -68,7 +69,6 @@ export function AuthenticationContextProvider({
 
       setAuth(newAuth);
       onAuthStateChanged(newAuth, (newUser) => {
-        setIsAuthenticated(newUser !== null);
         if (newUser) {
           AsyncStorage.setItem(
             "@loggedUser",
@@ -76,14 +76,11 @@ export function AuthenticationContextProvider({
           )
             .then(() => {
               setUser(newUser);
-              console.log("User is signed in", newUser);
+              console.log("User is signed in", newUser?.uid);
             })
             .catch((e) => {
               console.warn("failed to store user session", e);
             });
-        } else {
-          // User is signed out
-          console.log("User is signed out");
         }
       });
     }
