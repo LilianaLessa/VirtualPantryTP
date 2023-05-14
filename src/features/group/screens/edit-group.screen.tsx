@@ -70,6 +70,7 @@ export default function EditGroupScreen({
       </TouchableOpacity>
 
       <Text>{`Owner UID: ${group.ownerUid}`}</Text>
+      <Text>{`Firestore DocID: ${group.firestoreId}`}</Text>
     </View>
   );
 }

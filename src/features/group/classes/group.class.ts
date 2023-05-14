@@ -4,26 +4,34 @@ import {
   TableNames,
 } from "../../../services/applicationData/localDatabase/tables";
 import UserInGroup from "./user-in-group.class";
+import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 
-export default class Group extends IBaseModule<TableNames> {
+export default class Group
+  extends IBaseModule<TableNames>
+  implements IFirestoreObject
+{
   uuid: string;
 
   name: string;
 
   ownerUid: string;
 
+  users: UserInGroup[];
+
+  firestoreCollectionName = "group";
+
+  firestoreDeletedCollectionName = "deletedGroup";
+
   updatedAt?: string;
 
-  firebaseDocId?: string;
-
-  users: UserInGroup[];
+  firestoreId?: string;
 
   constructor(
     uuid: string,
     name: string,
     ownerUid: string,
     id?: number,
-    firebaseDocId?: string,
+    firestoreId?: string,
     updatedAt?: string
   ) {
     super(LocalTable.GROUP);
@@ -36,8 +44,8 @@ export default class Group extends IBaseModule<TableNames> {
     if (typeof updatedAt !== "undefined") {
       this.updatedAt = updatedAt;
     }
-    if (typeof firebaseDocId !== "undefined") {
-      this.updatedAt = firebaseDocId;
+    if (typeof firestoreId !== "undefined") {
+      this.firestoreId = firestoreId;
     }
     this.users = [];
   }
@@ -66,7 +74,7 @@ export default class Group extends IBaseModule<TableNames> {
       override?.name ?? this.name,
       override?.ownerUid ?? this.ownerUid,
       override?.id ?? this.id,
-      override?.firebaseDocId ?? this.firebaseDocId,
+      override?.firestoreId ?? this.firestoreId,
       override?.updatedAt ?? this.updatedAt
     );
 
@@ -76,6 +84,19 @@ export default class Group extends IBaseModule<TableNames> {
     return cloned;
   }
 
+  getFirestoreData(): object {
+    const {
+      id,
+      tableName,
+      firestoreCollectionName,
+      firestoreDeletedCollectionName,
+      users,
+      firestoreId,
+      ...data
+    } = this;
+    return data;
+  }
+
   static GetTableStructor() {
     return TableBuilder<Group, TableNames>(LocalTable.GROUP)
       .column("id")
@@ -83,7 +104,7 @@ export default class Group extends IBaseModule<TableNames> {
       .unique.string.column("name")
       .column("ownerUid")
       .column("updatedAt")
-      .string.nullable.column("firebaseDocId")
+      .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(Group.prototype);
   }
 }

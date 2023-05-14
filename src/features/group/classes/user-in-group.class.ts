@@ -4,8 +4,12 @@ import {
   TableNames,
 } from "../../../services/applicationData/localDatabase/tables";
 import Product from "../../products/classes/product.class";
+import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 
-export default class UserInGroup extends IBaseModule<TableNames> {
+export default class UserInGroup
+  extends IBaseModule<TableNames>
+  implements IFirestoreObject
+{
   uuid: string;
 
   relationKey: string;
@@ -18,9 +22,13 @@ export default class UserInGroup extends IBaseModule<TableNames> {
 
   isInviter: boolean;
 
+  firestoreCollectionName = "userInGroup";
+
+  firestoreDeletedCollectionName = "deletedUserInGroup";
+
   updatedAt?: string;
 
-  firebaseDocId?: string;
+  firestoreId?: string;
 
   constructor(
     uuid: string,
@@ -29,7 +37,7 @@ export default class UserInGroup extends IBaseModule<TableNames> {
     isAdmin: boolean,
     isInviter: boolean,
     id?: number,
-    firebaseDocId?: string,
+    firestoreId?: string,
     updatedAt?: string
   ) {
     super(LocalTable.USER_IN_GROUP);
@@ -45,8 +53,8 @@ export default class UserInGroup extends IBaseModule<TableNames> {
     if (typeof updatedAt !== "undefined") {
       this.updatedAt = updatedAt;
     }
-    if (typeof firebaseDocId !== "undefined") {
-      this.updatedAt = firebaseDocId;
+    if (typeof firestoreId !== "undefined") {
+      this.firestoreId = firestoreId;
     }
   }
 
@@ -66,7 +74,7 @@ export default class UserInGroup extends IBaseModule<TableNames> {
       userInGroup.isAdmin,
       userInGroup.isInviter,
       userInGroup.id,
-      userInGroup.firebaseDocId,
+      userInGroup.firestoreId,
       userInGroup.updatedAt
     );
   }
@@ -82,7 +90,20 @@ export default class UserInGroup extends IBaseModule<TableNames> {
       .column("isAdmin")
       .boolean.column("isInviter")
       .boolean.column("updatedAt")
-      .string.nullable.column("firebaseDocId")
+      .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(UserInGroup.prototype);
+  }
+
+  getFirestoreData(): object {
+    const {
+      id,
+      tableName,
+      firestoreCollectionName,
+      firestoreDeletedCollectionName,
+      users,
+      firestoreId,
+      ...data
+    } = this;
+    return data;
   }
 }

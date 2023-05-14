@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
-  getFirestore,
-  getDocs,
-  collection,
-  setDoc,
-  doc,
   addDoc,
-  query,
-  where,
-  updateDoc,
+  collection,
   deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  setDoc,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { Firestore } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,6 +17,7 @@ import { User } from "firebase/auth";
 import { FirebaseContext } from "./firebase.context";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import Product from "../../features/products/classes/product.class";
+import IFirestoreObject from "./interfaces/firestore-object.interface";
 
 type FirestoreContextType = {
   getAllProductsFromUser: (
@@ -35,6 +36,7 @@ type FirestoreContextType = {
     uuids: string[],
     successCallback: (result: any) => void
   ) => void;
+  saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -51,7 +53,7 @@ export function FirestoreContextProvider({
   );
 
   useEffect(() => {
-    //console.log("setting up firestore", firebaseApp?.name);
+    // console.log("setting up firestore", firebaseApp?.name);
     setFirestore(firebaseApp ? getFirestore(firebaseApp) : null);
   }, [firebaseApp]);
 
@@ -97,7 +99,7 @@ export function FirestoreContextProvider({
     successCallback: (result: any) => void
   ) => {
     if (firestore) {
-      //console.log("filterDeletedProductsUuids", uuids);
+      // console.log("filterDeletedProductsUuids", uuids);
       const deletedProducts = collection(firestore, "deletedProducts");
       const q = query(deletedProducts, where("uuid", "in", uuids));
 
@@ -124,19 +126,19 @@ export function FirestoreContextProvider({
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
       if (storedUser === null) {
-        //console.log("Skipping firestore save: No logged user");
+        // console.log("Skipping firestore save: No logged user");
         return;
       }
       if (firestore) {
         const collectionRef = collection(firestore, "savedProducts");
         const q = query(collectionRef, where("uuid", "==", product.uuid));
-        //console.log("pre saving on firestore", product);
+        // console.log("pre saving on firestore", product);
         getDocs(q)
           .then((querySnapshot) => {
             const documentIds = Array<string>([]);
             querySnapshot.forEach((doc) => {
               documentIds.push(doc.id);
-              //console.log(` from firebase ${doc.id} =>`, doc.data());
+              // console.log(` from firebase ${doc.id} =>`, doc.data());
             });
             if (documentIds.length > 0) {
               const documentId = documentIds.pop();
@@ -158,8 +160,8 @@ export function FirestoreContextProvider({
             }
           })
           .catch((e) => {
-            //console.log("Failed to fetch products from Firestore:", e);
-            //console.log("Will try to create");
+            // console.log("Failed to fetch products from Firestore:", e);
+            // console.log("Will try to create");
             addDoc(collectionRef, {
               ...product,
               id: null,
@@ -201,13 +203,13 @@ export function FirestoreContextProvider({
           productCollectionRef,
           where("uuid", "==", product.uuid)
         );
-        //console.log("pre deleting on firestore", product);
+        // console.log("pre deleting on firestore", product);
         getDocs(q)
           .then((querySnapshot) => {
             const documentIds = Array<string>([]);
             querySnapshot.forEach((doc) => {
               documentIds.push(doc.id);
-              //console.log(` from firebase ${doc.id} =>`, doc.data());
+              // console.log(` from firebase ${doc.id} =>`, doc.data());
             });
             if (documentIds.length > 0) {
               const documentId = documentIds.pop();
@@ -250,6 +252,31 @@ export function FirestoreContextProvider({
     });
   };
 
+  const saveObject = (firestoreObject: IFirestoreObject) => {
+    if (!firestore) {
+      return Promise.resolve(new Error("firestore not initiated."));
+    }
+
+    const collectionRef = collection(
+      firestore,
+      firestoreObject.firestoreCollectionName
+    );
+    const data = firestoreObject.getFirestoreData();
+    return firestoreObject.firestoreId
+      ? setDoc(
+          doc(
+            firestore,
+            firestoreObject.firestoreCollectionName,
+            firestoreObject.firestoreId ?? ""
+          ),
+          data
+        ).then(() => firestoreObject)
+      : addDoc(collectionRef, data).then((docRef) => {
+          firestoreObject.firestoreId = docRef.id;
+          return firestoreObject;
+        });
+  };
+
   return (
     <FirestoreContext.Provider
       value={{
@@ -257,6 +284,7 @@ export function FirestoreContextProvider({
         saveProductOnFirestore,
         deleteProductOnFirestore,
         filterDeletedProductsUuids,
+        saveObject,
       }}
     >
       {children}

@@ -218,13 +218,12 @@ export function ApplicationDataContextProvider({
                       r.name,
                       r.ownerUid,
                       r.id,
-                      r.firebaseDocId,
+                      r.firestoreId,
                       r.updatedAt
                     )
                   ),
                 new Map<string, Group>()
               );
-
               users.forEach((usersInGroupResult) => {
                 usersInGroupResult.forEach((uig) => {
                   // console.log("adding user", uig.groupUuid, uig);
@@ -238,7 +237,7 @@ export function ApplicationDataContextProvider({
                         uig.isAdmin,
                         uig.isInviter,
                         uig.id,
-                        uig.firebaseDocId,
+                        uig.firestoreId,
                         uig.updatedAt
                       )
                     );

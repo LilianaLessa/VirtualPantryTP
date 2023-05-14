@@ -7,6 +7,7 @@ import NavigationService from "../../infrastructure/navigation/services/navigati
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import SnackBarService from "../information/snack-bar.service";
+import { FirestoreContext } from "../firebase/firestore.context";
 
 type DependencyInjectionContextType = {
   authGuardService: AuthGuardService;
@@ -31,6 +32,7 @@ export function DependencyInjectionContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const stateActions = useActions();
+  const firestoreContext = useContext(FirestoreContext);
   const { user } = useContext(AuthenticationContext);
   const navigation = useNavigation();
   const { groups } = useTypedSelector((state) => state.groups);
@@ -53,7 +55,9 @@ export function DependencyInjectionContextProvider({
 
   useEffect(() => {
     // console.log("instantiating group service", groups);
-    setGroupService(new GroupService(authGuardService, groups, stateActions));
+    setGroupService(
+      new GroupService(authGuardService, groups, stateActions, firestoreContext)
+    );
   }, [authGuardService, groups]);
 
   useEffect(() => {

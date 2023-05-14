@@ -3,8 +3,12 @@ import Group from "../classes/group.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import UserInGroup from "../classes/user-in-group.class";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
+import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 
 type GroupStateActions = { saveGroup: (group: Group) => any };
+type FirestoreContext = {
+  saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+};
 
 export default class GroupService {
   private readonly authGuardService: AuthGuardService;
@@ -13,14 +17,20 @@ export default class GroupService {
 
   private readonly stateActions: GroupStateActions;
 
+  private readonly firestoreContext: FirestoreContext;
+
   constructor(
     authGuardService: AuthGuardService,
     groups?: Map<string, Group>,
-    stateActions?: GroupStateActions
+    stateActions?: GroupStateActions,
+    firestoreContext?: FirestoreContext
   ) {
     this.authGuardService = authGuardService;
     this.groups = groups ?? new Map<string, Group>();
     this.stateActions = stateActions ?? { saveGroup: (group: Group) => {} };
+    this.firestoreContext = firestoreContext ?? {
+      saveObject: (firestoreObject: IFirestoreObject) => Promise.resolve(null),
+    };
   }
 
   public createNewGroup(name?: string): Group | never {
@@ -45,13 +55,29 @@ export default class GroupService {
         )
           .then(() => {
             console.log("todo save at firebase");
-            // save at firebase.
-            // after, save at state.
-            console.log("save at state");
-            this.stateActions.saveGroup(group);
-            if (successCallback) {
-              return successCallback();
-            }
+            this.firestoreContext.saveObject(group).then((savedGroup) => {
+              Promise.all(
+                group.users.map((userInGroup) =>
+                  this.firestoreContext.saveObject(userInGroup)
+                )
+              ).then((savedUsers) => {
+                savedUsers.forEach((savedUser: UserInGroup) => {
+                  group.setUser(savedUser);
+                });
+                Promise.all([
+                  db.save(group as Group),
+                  ...group.users.map((userInGroup) =>
+                    db.save(userInGroup as UserInGroup)
+                  ),
+                ]).then(() => {
+                  this.stateActions.saveGroup(group);
+
+                  if (successCallback) {
+                    return successCallback();
+                  }
+                });
+              });
+            });
           })
           .catch((e) => {
             console.log(`error on saving group ${group.uuid} locally`, e);
