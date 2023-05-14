@@ -1,8 +1,8 @@
 import { Dispatch } from "redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "firebase/auth";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
+  GroupsActionType,
   MessageSnackbarActionType,
   NotificationsActionType,
   PantriesActionType,
@@ -11,6 +11,7 @@ import {
   StoredProductActionType,
 } from "../action-types";
 import {
+  GroupsActions,
   MessageSnackbarActions,
   NotificationsActions,
   PantriesActions,
@@ -22,6 +23,7 @@ import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
 import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
+import Group from "../../features/group/classes/group.class";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -33,7 +35,7 @@ export const saveProduct =
   (dispatch: Dispatch<SavedProductsActions | MessageSnackbarActions>) => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      //console.log(storedUser?.uid, product.ownerUid);
+      // console.log(storedUser?.uid, product.ownerUid);
       if (storedUser !== null && typeof product.ownerUid === "undefined") {
         product.ownerUid = storedUser.uid;
       }
@@ -52,7 +54,7 @@ export const saveProductInSilent =
   (product: IProduct) => (dispatch: Dispatch<SavedProductsActions>) => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      //console.log(storedUser?.uid, product.ownerUid);
+      // console.log(storedUser?.uid, product.ownerUid);
       if (storedUser !== null && typeof product.ownerUid === "undefined") {
         product.ownerUid = storedUser.uid;
       }
@@ -101,7 +103,7 @@ export const savePantry =
   (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-      //console.log(storedUser?.uid, pantry.ownerUid);
+      // console.log(storedUser?.uid, pantry.ownerUid);
       if (storedUser !== null && typeof pantry.ownerUid === "undefined") {
         pantry.ownerUid = storedUser.uid;
       }
@@ -239,5 +241,21 @@ export const deleteShoppingList =
     dispatch({
       type: ShoppingListsActionType.DELETE_SHOPPING_LIST,
       shoppingListToDelete,
+    });
+  };
+
+export const saveGroup =
+  (group: Group) => (dispatch: Dispatch<GroupsActions>) => {
+    dispatch({
+      type: GroupsActionType.SAVE_GROUP,
+      group,
+    });
+  };
+
+export const showSnack =
+  (infoMessage: string) => (dispatch: Dispatch<MessageSnackbarActions>) => {
+    dispatch({
+      type: MessageSnackbarActionType.SHOW_INFO,
+      infoMessage,
     });
   };

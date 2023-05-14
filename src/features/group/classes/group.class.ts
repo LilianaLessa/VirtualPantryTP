@@ -3,6 +3,7 @@ import {
   LocalTable,
   TableNames,
 } from "../../../services/applicationData/localDatabase/tables";
+import UserInGroup from "./user-in-group.class";
 
 export default class Group extends IBaseModule<TableNames> {
   uuid: string;
@@ -14,6 +15,8 @@ export default class Group extends IBaseModule<TableNames> {
   updatedAt?: string;
 
   firebaseDocId?: string;
+
+  users: UserInGroup[];
 
   constructor(
     uuid: string,
@@ -36,11 +39,41 @@ export default class Group extends IBaseModule<TableNames> {
     if (typeof firebaseDocId !== "undefined") {
       this.updatedAt = firebaseDocId;
     }
+    this.users = [];
   }
 
   // arrow functions cause unserializable value exception during navigation.
   public getKey(): string {
     return `group_${this.uuid}`;
+  }
+
+  public setUser(userInGroup: UserInGroup): void {
+    const currentUser = this.users.find((u) => u.email === userInGroup.email);
+    if (currentUser) {
+      console.log("update current");
+      currentUser.isAdmin = userInGroup.isAdmin;
+      currentUser.isInviter = userInGroup.isInviter;
+      currentUser.updatedAt = userInGroup.updatedAt;
+      return;
+    }
+    console.log("add new");
+    this.users.push(userInGroup);
+  }
+
+  public clone(override?: Partial<Group>) {
+    const cloned = new Group(
+      override?.uuid ?? this.uuid,
+      override?.name ?? this.name,
+      override?.ownerUid ?? this.ownerUid,
+      override?.id ?? this.id,
+      override?.firebaseDocId ?? this.firebaseDocId,
+      override?.updatedAt ?? this.updatedAt
+    );
+
+    cloned.users = (override?.users ?? this.users).map((u) =>
+      UserInGroup.clone(u)
+    );
+    return cloned;
   }
 
   static GetTableStructor() {

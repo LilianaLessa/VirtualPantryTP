@@ -6,6 +6,7 @@ import pantriesReducer from "./pantries.reducer";
 import storedProductsReducer from "./stored-products.reducer";
 import notificationsReducer from "./notifications.reducer";
 import shoppingListsReducer from "./shopping-lists.reducer";
+import groupsReducer from "./group.reducer";
 
 const reducers = combineReducers({
   savedProducts: savedProductsReducer,
@@ -18,6 +19,7 @@ const reducers = combineReducers({
   messageSnackbar: messageSnackbarReducer,
   notifications: notificationsReducer,
   shoppingLists: shoppingListsReducer,
+  groups: groupsReducer,
 });
 
 export default reducers;

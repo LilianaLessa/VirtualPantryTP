@@ -44,3 +44,9 @@ export enum ShoppingListsActionType {
   SAVE_SHOPPING_LIST = "save_shopping_list",
   DELETE_SHOPPING_LIST = "delete_shopping_list",
 }
+
+export enum GroupsActionType {
+  SAVE_GROUP = "save_group",
+  DELETE_GROUP = "delete_group",
+  INIT_GROUP_COLLECTION = "init_group_collection",
+}

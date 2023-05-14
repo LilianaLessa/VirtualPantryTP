@@ -3,7 +3,6 @@ import {
   LocalTable,
   TableNames,
 } from "../../../services/applicationData/localDatabase/tables";
-import Group from "./group.class";
 import Product from "../../products/classes/product.class";
 
 export default class UserInGroup extends IBaseModule<TableNames> {
@@ -13,9 +12,7 @@ export default class UserInGroup extends IBaseModule<TableNames> {
 
   email: string;
 
-  groupId: number;
-
-  group: Group;
+  groupUuid: string;
 
   isAdmin: boolean;
 
@@ -27,8 +24,8 @@ export default class UserInGroup extends IBaseModule<TableNames> {
 
   constructor(
     uuid: string,
+    groupUuid: string,
     email: string,
-    group: Group,
     isAdmin: boolean,
     isInviter: boolean,
     id?: number,
@@ -37,9 +34,8 @@ export default class UserInGroup extends IBaseModule<TableNames> {
   ) {
     super(LocalTable.USER_IN_GROUP);
     this.uuid = uuid;
+    this.groupUuid = groupUuid;
     this.email = email;
-    this.group = group;
-    this.groupId = group.id;
     this.isAdmin = isAdmin;
     this.isInviter = isInviter;
     this.relationKey = UserInGroup.calculateRelationKey(this);
@@ -54,10 +50,25 @@ export default class UserInGroup extends IBaseModule<TableNames> {
     }
   }
 
-  getKey = (): string => `user_in_group_${this.uuid}`;
+  getKey(): string {
+    return `user_in_group_${this.uuid}`;
+  }
 
   private static calculateRelationKey(userInGroup: UserInGroup): string {
-    return `${userInGroup.email.toLowerCase()}_${userInGroup.group.uuid}`;
+    return `${userInGroup.email.toLowerCase()}_${userInGroup.groupUuid}`;
+  }
+
+  public static clone(userInGroup: UserInGroup): UserInGroup {
+    return new UserInGroup(
+      userInGroup.uuid,
+      userInGroup.groupUuid,
+      userInGroup.email,
+      userInGroup.isAdmin,
+      userInGroup.isInviter,
+      userInGroup.id,
+      userInGroup.firebaseDocId,
+      userInGroup.updatedAt
+    );
   }
 
   static GetTableStructor() {
@@ -66,8 +77,8 @@ export default class UserInGroup extends IBaseModule<TableNames> {
       .primary.autoIncrement.number.column("uuid")
       .unique.string.column("relationKey")
       .unique.string.column("email")
-      .column("groupId")
-      .number.constrain<Product>("groupId", LocalTable.GROUP, "id")
+      .column("groupUuid")
+      .number.constrain<Product>("groupUuid", LocalTable.GROUP, "uuid")
       .column("isAdmin")
       .boolean.column("isInviter")
       .boolean.column("updatedAt")

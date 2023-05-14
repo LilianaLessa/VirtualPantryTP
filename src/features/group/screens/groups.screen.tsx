@@ -1,18 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import {
-  AccountScreenRouteName,
-  EditGroupScreenRouteName,
-} from "../../../infrastructure/navigation/route-names";
 import Group from "../classes/group.class";
 import GroupListItem from "../components/group-list-item.component";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function GroupsScreen() {
-  const navigation = useNavigation();
-  const { groupService, authGuardService } = useContext(
+  const { groupService, authGuardService, navigationService } = useContext(
     DependencyInjectionContext
   );
 
@@ -22,11 +16,7 @@ function GroupsScreen() {
 
   useEffect(() => {
     setCurrentGroups(groupService.getGroupsForCurrentUser());
-    // console.log("user changed on group screen", user?.uid);
-
-    // relying on user here to trigger this effect will make
-    // the touchable opacity on list item stop working.
-  }, [authGuardService]);
+  }, [groupService]);
 
   const renderItem = ({ item }: { item: Group }) => (
     <GroupListItem group={item} />
@@ -35,12 +25,7 @@ function GroupsScreen() {
   const keyExtractor = (item: Group) => item.getKey();
 
   const handleAddGroup = () => {
-    navigation.navigate(
-      EditGroupScreenRouteName as never,
-      {
-        group: groupService.createNewGroup(),
-      } as never
-    );
+    navigationService.showGroupEditScreen(groupService.createNewGroup());
   };
 
   // console.log("group screen redraw", new Date());
@@ -62,7 +47,7 @@ function GroupsScreen() {
         <Text>To use this feature, please log in.</Text>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate(AccountScreenRouteName as never);
+            navigationService.showAccountScreen();
           }}
         >
           <Button mode="contained">Go to Account Screen</Button>

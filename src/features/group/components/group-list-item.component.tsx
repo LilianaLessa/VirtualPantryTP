@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import styled from "styled-components";
@@ -11,6 +11,7 @@ import {
   ProductListItemContainer,
   RightContent,
 } from "../../products/components/product-list-item.styles";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export const GroupLeftIcon = styled(MaterialCommunityIcons).attrs({
   name: "account-group",
@@ -28,8 +29,10 @@ export const LeaveGroupIcon = styled(Entypo).attrs({
 `;
 
 function GroupListItem({ group }: { group: Group }) {
+  const { navigationService } = useContext(DependencyInjectionContext);
+
   const handleEdit = () => {
-    console.log("handleEdit todo");
+    navigationService.showGroupEditScreen(group);
   };
   const showConfirmDeletionModal = () => {
     console.log("showConfirmDeletionModal todo");

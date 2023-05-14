@@ -1,5 +1,6 @@
 import {
   ApiActivityActionType,
+  GroupsActionType,
   NotificationsActionType,
   PantriesActionType,
   SavedProductsActionType,
@@ -11,6 +12,7 @@ import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
 import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
+import Group from "../../features/group/classes/group.class";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -141,3 +143,23 @@ interface DeleteShoppingList {
 }
 
 export type ShoppingListsActions = SaveShoppingList | DeleteShoppingList;
+
+interface SaveGroupAction {
+  type: GroupsActionType.SAVE_GROUP;
+  group: Group;
+}
+
+interface DeleteGroupAction {
+  type: GroupsActionType.DELETE_GROUP;
+  group: Group;
+}
+
+interface InitGroupCollectionAction {
+  type: GroupsActionType.INIT_GROUP_COLLECTION;
+  groupCollection: Group[];
+}
+
+export type GroupsActions =
+  | SaveGroupAction
+  | DeleteGroupAction
+  | InitGroupCollectionAction;
