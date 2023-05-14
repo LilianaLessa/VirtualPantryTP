@@ -13,4 +13,8 @@ export default class SnackBarService {
   showGroupSavedInfo(group: Group) {
     this.stateActions?.showSnack(`Group '${group.name}' was saved.`);
   }
+
+  showGroupDeletedInfo(group: Group) {
+    this.stateActions?.showSnack(`Group '${group.name}' was deleted.`);
+  }
 }

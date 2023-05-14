@@ -10,6 +10,10 @@ export default class UserInGroup
   extends IBaseModule<TableNames>
   implements IFirestoreObject
 {
+  firestoreCollectionName = "userInGroup";
+
+  firestoreDeletedCollectionName = "deletedUserInGroup";
+
   uuid: string;
 
   relationKey: string;
@@ -21,10 +25,6 @@ export default class UserInGroup
   isAdmin: boolean;
 
   isInviter: boolean;
-
-  firestoreCollectionName = "userInGroup";
-
-  firestoreDeletedCollectionName = "deletedUserInGroup";
 
   updatedAt?: string;
 
@@ -100,7 +100,6 @@ export default class UserInGroup
       tableName,
       firestoreCollectionName,
       firestoreDeletedCollectionName,
-      users,
       firestoreId,
       ...data
     } = this;

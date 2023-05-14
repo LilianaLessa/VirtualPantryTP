@@ -37,6 +37,7 @@ type FirestoreContextType = {
     successCallback: (result: any) => void
   ) => void;
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+  deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -277,6 +278,34 @@ export function FirestoreContextProvider({
         });
   };
 
+  const deleteObject = (firestoreObject: IFirestoreObject) => {
+    if (!firestore) {
+      return Promise.resolve(new Error("firestore not initiated."));
+    }
+
+    return firestoreObject.firestoreId
+      ? deleteDoc(
+          doc(
+            firestore,
+            firestoreObject.firestoreCollectionName,
+            firestoreObject.firestoreId ?? ""
+          )
+        ).then(() =>
+          addDoc(
+            collection(
+              firestore,
+              firestoreObject.firestoreDeletedCollectionName
+            ),
+            {
+              uuid: firestoreObject.uuid,
+              docId: firestoreObject.firestoreId,
+              deletedAt: new Date(),
+            }
+          )
+        )
+      : Promise.resolve();
+  };
+
   return (
     <FirestoreContext.Provider
       value={{
@@ -285,6 +314,7 @@ export function FirestoreContextProvider({
         deleteProductOnFirestore,
         filterDeletedProductsUuids,
         saveObject,
+        deleteObject,
       }}
     >
       {children}

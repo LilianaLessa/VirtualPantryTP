@@ -12,6 +12,8 @@ import {
   RightContent,
 } from "../../products/components/product-list-item.styles";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
+import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
 
 export const GroupLeftIcon = styled(MaterialCommunityIcons).attrs({
   name: "account-group",
@@ -29,13 +31,33 @@ export const LeaveGroupIcon = styled(Entypo).attrs({
 `;
 
 function GroupListItem({ group }: { group: Group }) {
-  const { navigationService } = useContext(DependencyInjectionContext);
+  const { navigationService, groupService, snackBarService } = useContext(
+    DependencyInjectionContext
+  );
+  const { showModal, hideModal } = useContext(DialogModalContext);
 
   const handleEdit = () => {
     navigationService.showGroupEditScreen(group);
   };
+
+  const handleSelfDelete = () => {
+    hideModal();
+    groupService.deleteGroup(group, () => {
+      snackBarService.showGroupDeletedInfo(group);
+    });
+  };
+
   const showConfirmDeletionModal = () => {
-    console.log("showConfirmDeletionModal todo");
+    showModal(
+      <ConfirmDialog
+        confirm="Remove"
+        cancel="Cancel"
+        dialogContent={`Do you want to delete the group '${group.name}'?`}
+        dialogTitle="Remove Group"
+        cancelHandler={hideModal}
+        confirmHandler={handleSelfDelete}
+      />
+    );
   };
   const showConfirmLeaveModal = () => {
     console.log("showConfirmLeaveModal todo");

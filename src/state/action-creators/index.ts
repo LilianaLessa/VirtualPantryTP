@@ -252,6 +252,14 @@ export const saveGroup =
     });
   };
 
+export const deleteGroup =
+  (group: Group) => (dispatch: Dispatch<GroupsActions>) => {
+    dispatch({
+      type: GroupsActionType.DELETE_GROUP,
+      group,
+    });
+  };
+
 export const initGroupsCollection =
   (groupCollection: Group[]) => (dispatch: Dispatch<GroupsActions>) => {
     dispatch({
