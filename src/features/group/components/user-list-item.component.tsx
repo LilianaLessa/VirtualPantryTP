@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { Switch } from "react-native-paper";
@@ -57,8 +57,10 @@ const styles = StyleSheet.create({
 
 export default function UserListItem({
   userInGroup,
+  deleteUserInGroupCallback,
 }: {
   userInGroup: UserInGroup;
+  deleteUserInGroupCallback: (userInGroupToDelete: UserInGroup) => void;
 }) {
   const [isAdmin, setIsAdmin] = useState(userInGroup.isAdmin);
   const [isInviter, setIsInviter] = useState(userInGroup.isInviter);
@@ -68,6 +70,10 @@ export default function UserListItem({
     userInGroup.isAdmin = isAdmin;
     userInGroup.isInviter = isInviter;
   }, [isAdmin, isInviter]);
+
+  const handleSelfDelete = () => {
+    deleteUserInGroupCallback(userInGroup);
+  };
 
   return (
     <View style={styles.container}>
@@ -79,12 +85,14 @@ export default function UserListItem({
           color="black"
         />
         <Text style={styles.label}>{userInGroup.email}</Text>
-        <MaterialCommunityIcons
-          style={styles.icon}
-          name="trash-can"
-          size={24}
-          color="black"
-        />
+        <TouchableOpacity onPress={handleSelfDelete}>
+          <MaterialCommunityIcons
+            style={styles.icon}
+            name="trash-can"
+            size={24}
+            color="black"
+          />
+        </TouchableOpacity>
       </View>
       <View style={styles.switchesContainer}>
         <View style={styles.switchContainer}>

@@ -6,6 +6,7 @@ import Group from "../classes/group.class";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import UserListItem from "../components/user-list-item.component";
 import AddUserInput from "../components/add-user-input.component";
+import UserInGroup from "../classes/user-in-group.class";
 
 // todo when rendering this screen, make sure that the logged user is the owner of the group.
 //      this will avoid unauthorized group edition.
@@ -30,10 +31,20 @@ export default function EditGroupScreen({
   const [updatedGroup, setUpdateGroup] = useState(group.clone());
 
   const handleSave = () => {
-    groupService.saveGroup(updatedGroup, () => {
+    groupService.saveGroup(group, updatedGroup, () => {
       navigationService.showGroupsScreen();
       snackBarService.showGroupSavedInfo(updatedGroup);
     });
+  };
+
+  const handleUserDeletion = (userInGroupToDelete: UserInGroup) => {
+    setUpdateGroup(
+      updatedGroup.clone({
+        users: updatedGroup.users.filter(
+          (uig) => uig.uuid !== userInGroupToDelete.uuid
+        ),
+      })
+    );
   };
 
   return (
@@ -62,7 +73,12 @@ export default function EditGroupScreen({
 
       <FlatList
         data={updatedGroup.users}
-        renderItem={({ item }) => <UserListItem userInGroup={item} />}
+        renderItem={({ item }) => (
+          <UserListItem
+            userInGroup={item}
+            deleteUserInGroupCallback={handleUserDeletion}
+          />
+        )}
         keyExtractor={(u) => u.getKey()}
       />
       <TouchableOpacity onPress={handleSave}>

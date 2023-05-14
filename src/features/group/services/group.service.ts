@@ -51,44 +51,60 @@ export default class GroupService {
 
   public saveGroup(
     group: Group,
+    updatedGroup: Group,
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
     const db = DbContext.getInstance().database;
-    console.log("saving group");
-    db.save(group as Group)
-      .then(() => {
-        console.log("saving users");
-        Promise.all(
-          group.users.map((userInGroup) => db.save(userInGroup as UserInGroup))
-        ).then(() => {
-          console.log("todo save at firebase");
-          this.firestoreContext.saveObject(group).then((savedGroup) => {
-            Promise.all(
-              group.users.map((userInGroup) =>
-                this.firestoreContext.saveObject(userInGroup)
-              )
-            ).then((savedUsers) => {
-              savedUsers.forEach((savedUser: UserInGroup) => {
-                group.setUser(savedUser);
-              });
-              Promise.all([
-                db.save(group as Group),
-                ...group.users.map((userInGroup) =>
-                  db.save(userInGroup as UserInGroup)
-                ),
-              ]).then(() => {
-                this.stateActions.saveGroup(group);
-                if (successCallback) {
-                  return successCallback();
-                }
-              });
+
+    const updatedGroupUserUuids = updatedGroup.users.map((u) => u.uuid);
+    const removedUsers = group.users.filter(
+      (x) => !updatedGroupUserUuids.includes(x.uuid)
+    );
+
+    const saveGroup = db.save(updatedGroup as Group).then(() => {
+      Promise.all(
+        updatedGroup.users.map((userInGroup) =>
+          db.save(userInGroup as UserInGroup)
+        )
+      ).then(() => {
+        this.firestoreContext.saveObject(updatedGroup).then((savedGroup) => {
+          Promise.all(
+            updatedGroup.users.map((userInGroup) =>
+              this.firestoreContext.saveObject(userInGroup)
+            )
+          ).then((savedUsers) => {
+            savedUsers.forEach((savedUser: UserInGroup) => {
+              updatedGroup.setUser(savedUser);
             });
+            Promise.all([
+              db.save(updatedGroup as Group),
+              ...updatedGroup.users.map((userInGroup) =>
+                db.save(userInGroup as UserInGroup)
+              ),
+            ]);
           });
         });
+      });
+    });
+
+    const deleteUsersOnFirestore = Promise.all(
+      removedUsers.map((u) => this.firestoreContext.deleteObject(u))
+    );
+
+    const deleteUsersOnLocalStorage = Promise.all(
+      removedUsers.map((u) => db.delete(u as UserInGroup))
+    );
+
+    Promise.all([saveGroup, deleteUsersOnFirestore, deleteUsersOnLocalStorage])
+      .then(() => {
+        this.stateActions.saveGroup(updatedGroup);
+        if (successCallback) {
+          return successCallback();
+        }
       })
       .catch((e) => {
-        console.log(`error on saving group ${group.uuid}`, e);
+        console.log(`error on saving group ${updatedGroup.uuid}`, e);
         if (errorCallback) {
           return errorCallback();
         }
