@@ -2,6 +2,7 @@ import { Dispatch } from "redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
+  ApiActivityActionType,
   GroupsActionType,
   MessageSnackbarActionType,
   NotificationsActionType,
@@ -11,6 +12,7 @@ import {
   StoredProductActionType,
 } from "../action-types";
 import {
+  ApiActivityActions,
   GroupsActions,
   MessageSnackbarActions,
   NotificationsActions,
@@ -273,5 +275,19 @@ export const showSnack =
     dispatch({
       type: MessageSnackbarActionType.SHOW_INFO,
       infoMessage,
+    });
+  };
+
+export const showLoadingActivityIndicator =
+  () => (dispatch: Dispatch<ApiActivityActions>) => {
+    dispatch({
+      type: ApiActivityActionType.DATA_FETCHING_STARTED,
+    });
+  };
+
+export const hideLoadingActivityIndicator =
+  () => (dispatch: Dispatch<ApiActivityActions>) => {
+    dispatch({
+      type: ApiActivityActionType.DATA_FETCHING_FINISHED,
     });
   };

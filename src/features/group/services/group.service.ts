@@ -4,10 +4,16 @@ import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import UserInGroup from "../classes/user-in-group.class";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
+import {
+  hideLoadingActivityIndicator,
+  showLoadingActivityIndicator,
+} from "../../../state/action-creators";
 
 type GroupStateActions = {
   saveGroup: (group: Group) => any;
   deleteGroup: (group: Group) => any;
+  showLoadingActivityIndicator: () => any;
+  hideLoadingActivityIndicator: () => any;
 };
 type FirestoreContext = {
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
@@ -34,6 +40,8 @@ export default class GroupService {
     this.stateActions = stateActions ?? {
       saveGroup: (group: Group) => {},
       deleteGroup: (group: Group) => {},
+      showLoadingActivityIndicator: () => {},
+      hideLoadingActivityIndicator: () => {},
     };
     this.firestoreContext = firestoreContext ?? {
       saveObject: (firestoreObject: IFirestoreObject) => Promise.resolve(null),
@@ -55,6 +63,7 @@ export default class GroupService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
+    this.stateActions.showLoadingActivityIndicator();
     const db = DbContext.getInstance().database;
 
     const updatedGroupUserUuids = updatedGroup.users.map((u) => u.uuid);
@@ -99,11 +108,13 @@ export default class GroupService {
     Promise.all([saveGroup, deleteUsersOnFirestore, deleteUsersOnLocalStorage])
       .then(() => {
         this.stateActions.saveGroup(updatedGroup);
+        this.stateActions.hideLoadingActivityIndicator();
         if (successCallback) {
           return successCallback();
         }
       })
       .catch((e) => {
+        this.stateActions.hideLoadingActivityIndicator();
         console.log(`error on saving group ${updatedGroup.uuid}`, e);
         if (errorCallback) {
           return errorCallback();
@@ -116,6 +127,7 @@ export default class GroupService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
+    this.stateActions.showLoadingActivityIndicator();
     const db = DbContext.getInstance().database;
     db.delete(group as Group)
       .then(() => {
@@ -139,6 +151,7 @@ export default class GroupService {
             });
           })
           .catch((e) => {
+            this.stateActions.hideLoadingActivityIndicator();
             console.log(`1 error on deleting group ${group.uuid}`, e);
             if (errorCallback) {
               return errorCallback();
@@ -146,6 +159,7 @@ export default class GroupService {
           });
       })
       .catch((e) => {
+        this.stateActions.hideLoadingActivityIndicator();
         console.log(`2 error on deleting group ${group.uuid}`, e);
         if (errorCallback) {
           return errorCallback();
