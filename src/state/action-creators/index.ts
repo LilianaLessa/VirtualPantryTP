@@ -252,6 +252,14 @@ export const saveGroup =
     });
   };
 
+export const initGroupsCollection =
+  (groupCollection: Group[]) => (dispatch: Dispatch<GroupsActions>) => {
+    dispatch({
+      type: GroupsActionType.INIT_GROUP_COLLECTION,
+      groupCollection,
+    });
+  };
+
 export const showSnack =
   (infoMessage: string) => (dispatch: Dispatch<MessageSnackbarActions>) => {
     dispatch({

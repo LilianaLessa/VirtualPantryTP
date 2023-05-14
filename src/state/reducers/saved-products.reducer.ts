@@ -4,7 +4,6 @@ import { SavedProductsActions } from "../actions";
 import { createMockProduct } from "../../dev-utils";
 
 import Product from "../../features/products/classes/product.class";
-import { LocalTable } from "../../services/applicationData/localDatabase/tables";
 import DbContext from "../../services/applicationData/localDatabase/classes/db-context.class";
 
 interface SavedProductsState {

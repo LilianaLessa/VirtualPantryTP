@@ -82,7 +82,7 @@ export default class Group extends IBaseModule<TableNames> {
       .primary.autoIncrement.number.column("uuid")
       .unique.string.column("name")
       .column("ownerUid")
-      .string.nullable.column("updatedAt")
+      .column("updatedAt")
       .string.nullable.column("firebaseDocId")
       .string.nullable.objectPrototype(Group.prototype);
   }

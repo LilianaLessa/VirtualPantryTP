@@ -2,7 +2,7 @@ export enum LocalTable {
   PRODUCT = "product",
   PANTRY = "pantry",
   STORED_PRODUCT = "stored_product",
-  GROUP = "group",
+  GROUP = "group_table", // as group is a reserved word in sql, the suffix _table was needed.
   USER_IN_GROUP = "user_in_group",
 }
 

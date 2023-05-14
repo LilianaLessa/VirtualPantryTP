@@ -10,6 +10,8 @@ import StoredProduct from "../../features/products/classes/stored.product";
 import { AuthenticationContext } from "../firebase/authentication.context";
 import { FirestoreContext } from "../firebase/firestore.context";
 import { IProduct } from "../../features/products/interfaces/product.interface";
+import Group from "../../features/group/classes/group.class";
+import UserInGroup from "../../features/group/classes/user-in-group.class";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -24,7 +26,7 @@ export function ApplicationDataContextProvider({
 }: {
   children: React.ReactNode[] | React.ReactNode;
 }) {
-  const { isAuthenticated } = useContext(AuthenticationContext);
+  const { isAuthenticated, user } = useContext(AuthenticationContext);
   const {
     getAllProductsFromUser,
     saveProductOnFirestore,
@@ -189,6 +191,66 @@ export function ApplicationDataContextProvider({
       });
   };
 
+  const { initGroupsCollection } = useActions();
+  const initGroups = (user: User | null) => {
+    const userUid = user?.uid;
+    const db = DbContext.getInstance().database;
+    return userUid
+      ? db
+          .find(`SELECT * FROM ${LocalTable.GROUP} WHERE ownerUid = ?`, [
+            userUid,
+          ])
+          .then((groups: Group[]) => {
+            Promise.all(
+              groups.map((group) =>
+                db.find(
+                  `SELECT * FROM ${LocalTable.USER_IN_GROUP} WHERE groupUuid = ?`,
+                  [group.uuid]
+                )
+              )
+            ).then((users) => {
+              const groupsByUuid = groups.reduce(
+                (map: Map<string, Group>, r: Group) =>
+                  map.set(
+                    r.uuid,
+                    new Group(
+                      r.uuid,
+                      r.name,
+                      r.ownerUid,
+                      r.id,
+                      r.firebaseDocId,
+                      r.updatedAt
+                    )
+                  ),
+                new Map<string, Group>()
+              );
+
+              users.forEach((usersInGroupResult) => {
+                usersInGroupResult.forEach((uig) => {
+                  // console.log("adding user", uig.groupUuid, uig);
+                  groupsByUuid
+                    .get(uig.groupUuid)
+                    ?.setUser(
+                      new UserInGroup(
+                        uig.uuid,
+                        uig.groupUuid,
+                        uig.email,
+                        uig.isAdmin,
+                        uig.isInviter,
+                        uig.id,
+                        uig.firebaseDocId,
+                        uig.updatedAt
+                      )
+                    );
+                });
+              });
+
+              initGroupsCollection(Array.from(groupsByUuid.values()));
+            });
+          })
+      : Promise.resolve([]);
+  };
+
   useEffect(() => {
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
@@ -196,16 +258,18 @@ export function ApplicationDataContextProvider({
       DbContext.getInstance()
         .database.setUpDataBase()
         .then(() => {
-          initSavedProducts(storedUser).then(() => {
-            initPantries(storedUser).then(() => {
-              // initStoredProducts();
-              // console.log("stored products not initiated.");
-              // console.log("Application data loaded.");
+          initGroups(storedUser).then(() => {
+            initSavedProducts(storedUser).then(() => {
+              initPantries(storedUser).then(() => {
+                // initStoredProducts();
+                // console.log("stored products not initiated.");
+                // console.log("Application data loaded.");
+              });
             });
           });
         });
     });
-  }, [isAuthenticated]);
+  }, [user]);
 
   return (
     <ApplicationDataContext.Provider value={{}}>

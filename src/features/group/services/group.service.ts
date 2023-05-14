@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import Group from "../classes/group.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import UserInGroup from "../classes/user-in-group.class";
+import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
 
 type GroupStateActions = { saveGroup: (group: Group) => any };
 
@@ -34,15 +35,37 @@ export default class GroupService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
-    // save locally
-    // then save to firebase
-    // then save to state
-    this.stateActions.saveGroup(group);
-
-    const callback = successCallback;
-    if (callback) {
-      return callback();
-    }
+    const db = DbContext.getInstance().database;
+    console.log("saving group");
+    db.save(group as Group)
+      .then(() => {
+        console.log("saving users");
+        Promise.all(
+          group.users.map((userInGroup) => db.save(userInGroup as UserInGroup))
+        )
+          .then(() => {
+            console.log("todo save at firebase");
+            // save at firebase.
+            // after, save at state.
+            console.log("save at state");
+            this.stateActions.saveGroup(group);
+            if (successCallback) {
+              return successCallback();
+            }
+          })
+          .catch((e) => {
+            console.log(`error on saving group ${group.uuid} locally`, e);
+            if (errorCallback) {
+              return errorCallback();
+            }
+          });
+      })
+      .catch((e) => {
+        console.log(`error on saving group ${group.uuid} locally`, e);
+        if (errorCallback) {
+          return errorCallback();
+        }
+      });
   }
 
   public getGroupsForCurrentUser(): Group[] {

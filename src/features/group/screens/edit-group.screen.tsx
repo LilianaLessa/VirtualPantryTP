@@ -7,6 +7,9 @@ import { DependencyInjectionContext } from "../../../services/dependencyInjectio
 import UserListItem from "../components/user-list-item.component";
 import AddUserInput from "../components/add-user-input.component";
 
+// todo when rendering this screen, make sure that the logged user is the owner of the group.
+//      this will avoid unauthorized group edition.
+
 export type EditGroupScreenParams = {
   EditGroup: {
     group: Group;
