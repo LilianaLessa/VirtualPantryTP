@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { IProduct } from "../interfaces/product.interface";
 import { StoreProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import {
   AddToPantryIcon,
@@ -17,22 +16,21 @@ import {
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import Product from "../classes/product.class";
 
-function ProductListItem({
-  item,
-  deleteProductCallback,
-}: {
-  item: IProduct;
-  deleteProductCallback: (productToDelete: IProduct) => void;
-}) {
-  const { navigationService } = useContext(DependencyInjectionContext);
+function ProductListItem({ item }: { item: Product }) {
+  const { productService, navigationService, snackBarService } = useContext(
+    DependencyInjectionContext
+  );
 
   const navigation = useNavigation();
   const { showModal, hideModal } = useContext(DialogModalContext);
 
   const handleSelfDelete = () => {
     hideModal();
-    deleteProductCallback(item);
+    productService.deleteProduct(item, () => {
+      snackBarService.showProductDeletedInfo(item);
+    });
   };
 
   const showConfirmDeletionModal = () => {
@@ -83,5 +81,5 @@ function ProductListItem({
   );
 }
 
-export const ProductListItemKeyExtractor = (p: IProduct) => p.getKey();
+export const ProductListItemKeyExtractor = (p: Product) => p.getKey();
 export default ProductListItem;

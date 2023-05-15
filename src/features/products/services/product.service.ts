@@ -5,6 +5,7 @@ import DbContext from "../../../services/applicationData/localDatabase/classes/d
 
 type StateActions = {
   saveProduct: (product: Product) => any;
+  deleteProduct: (product: Product) => any;
 };
 export default class ProductService {
   private readonly products: Product[];
@@ -48,6 +49,7 @@ export default class ProductService {
     db.save(product as Product)
       .then(() => {
         // save on firebase;
+        // save on state
         this.stateActions.saveProduct(product);
         // console.log("saved", product);
         if (successCallback) {
@@ -66,7 +68,32 @@ export default class ProductService {
     product: Product,
     successCallback?: () => any,
     errorCallback?: () => any
-  ): void {}
+  ): void {
+    const db = DbContext.getInstance().database;
+    db.delete(product as Product)
+      .then(() => {
+        // delete from firebase;
+        // delete from state
+        this.stateActions.deleteProduct(product);
+        if (successCallback) {
+          return successCallback();
+        }
+      })
+      .catch((e) => {
+        console.log(
+          `Failed to delete product ${product.uuid}`,
+          e,
+          e.stack
+            .split("\n")
+            .slice(2)
+            .map((line) => line.replace(/\s+at\s+/, ""))
+            .join("\n")
+        );
+        if (errorCallback) {
+          return errorCallback();
+        }
+      });
+  }
 
   getProducts(): Product[] {
     return this.products;
