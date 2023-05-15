@@ -126,6 +126,7 @@ export function EditProductScreen({
         Save
       </Button>
       <Text>{`Owner UID: ${product?.ownerUid}`}</Text>
+      <Text>{`Firestore Id: ${product?.firestoreId}`}</Text>
     </View>
   );
 }

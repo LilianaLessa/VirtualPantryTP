@@ -84,10 +84,11 @@ export function DependencyInjectionContextProvider({
       new ProductService(
         Array.from(savedProducts.values()),
         authGuardService,
-        stateActions
+        stateActions,
+        firestoreContext
       )
     );
-  }, [authGuardService, savedProducts]);
+  }, [authGuardService, savedProducts, firestoreContext]);
 
   useEffect(() => {
     setNavigationService(new NavigationService(navigation));

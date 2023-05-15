@@ -2,16 +2,23 @@ import { v4 as uuidv4 } from "uuid";
 import Product from "../classes/product.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
+import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
+
+type StateActions = {
+  saveProduct: (product: Product) => any;
+  deleteProduct: (product: Product) => any;
+};
+
+type FirestoreActions = {
+  saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+  deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+};
 
 export type ProductSearchQuery = {
   term: string;
   barCode: string;
 };
 
-type StateActions = {
-  saveProduct: (product: Product) => any;
-  deleteProduct: (product: Product) => any;
-};
 export default class ProductService {
   private readonly products: Product[];
 
@@ -19,14 +26,18 @@ export default class ProductService {
 
   private readonly stateActions: StateActions;
 
+  private readonly firestoreActions: FirestoreActions;
+
   constructor(
     products: Product[],
     authGuardService: AuthGuardService,
-    stateActions: StateActions
+    stateActions: StateActions,
+    firestoreActions: FirestoreActions
   ) {
     this.products = products;
     this.authGuardService = authGuardService;
     this.stateActions = stateActions;
+    this.firestoreActions = firestoreActions;
   }
 
   createNewProduct(data?: Partial<Product>): Product {
@@ -50,13 +61,24 @@ export default class ProductService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
+    const updatedProduct = product.clone({
+      updatedAt: new Date().toString(),
+    });
     const db = DbContext.getInstance().database;
-    db.save(product as Product)
+    db.save(updatedProduct as Product)
       .then(() => {
-        // save on firebase;
-        // save on state
-        this.stateActions.saveProduct(product);
-        // console.log("saved", product);
+        // save on firebase, but only when there is a logged user;
+        this.firestoreActions
+          .saveObject(updatedProduct)
+          .then((savedProduct: Product) => {
+            // update local copy with firebase id
+            db.save(savedProduct as Product).then(() => {
+              // save on state
+              this.stateActions.saveProduct(savedProduct);
+            });
+          });
+      })
+      .then(() => {
         if (successCallback) {
           return successCallback();
         }
@@ -78,8 +100,12 @@ export default class ProductService {
     db.delete(product as Product)
       .then(() => {
         // delete from firebase;
-        // delete from state
-        this.stateActions.deleteProduct(product);
+        this.firestoreActions.deleteObject(product).then(() => {
+          // delete from state
+          this.stateActions.deleteProduct(product);
+        });
+      })
+      .then(() => {
         if (successCallback) {
           return successCallback();
         }

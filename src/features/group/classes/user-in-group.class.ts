@@ -13,7 +13,7 @@ export default class UserInGroup
 {
   firestoreCollectionName = "userInGroup";
 
-  firestoreDeletedCollectionName = "deletedUserInGroup";
+  firestoreDeletedCollectionName = "deleted_userInGroup";
 
   uuid: string;
 

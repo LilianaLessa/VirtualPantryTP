@@ -68,7 +68,8 @@ export function ApplicationDataContextProvider({
                 r.packageWeight,
                 r.id,
                 r.ownerUid,
-                r.updatedAt
+                r.updatedAt,
+                r.firestoreId
               )
             ),
           new Map<number, Product>()
@@ -91,7 +92,8 @@ export function ApplicationDataContextProvider({
                     r.packageWeight,
                     r.id,
                     r.ownerUid,
-                    r.updatedAt
+                    r.updatedAt,
+                    r.firestoreId
                   )
                 ),
               new Map<number, Product>()

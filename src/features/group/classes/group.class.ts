@@ -86,19 +86,6 @@ export default class Group
     return cloned;
   }
 
-  getFirestoreData(): object {
-    const {
-      id,
-      tableName,
-      firestoreCollectionName,
-      firestoreDeletedCollectionName,
-      users,
-      firestoreId,
-      ...data
-    } = this;
-    return data;
-  }
-
   static GetTableStructor() {
     return TableBuilder<Group, TableNames>(LocalTable.GROUP)
       .column("id")
@@ -115,7 +102,7 @@ export default class Group
   }
 
   static getFirestoreDeletedCollectionName(): string {
-    return "deletedGroup";
+    return "deleted_group";
   }
 
   static buildFromFirestoreData(doc: DocumentData): Group {
@@ -127,5 +114,18 @@ export default class Group
       doc.id,
       doc.data().updatedAt
     );
+  }
+
+  getFirestoreData(): object {
+    const {
+      id,
+      tableName,
+      firestoreCollectionName,
+      firestoreDeletedCollectionName,
+      users,
+      firestoreId,
+      ...data
+    } = this;
+    return data;
   }
 }

@@ -1,4 +1,5 @@
 import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
+import { DocumentData } from "firebase/firestore";
 import { IProduct } from "../interfaces/product.interface";
 import {
   LocalTable,
@@ -21,6 +22,12 @@ export default class Product
 
   ownerUid?: string;
 
+  firestoreCollectionName = Product.getFirestoreCollectionName();
+
+  firestoreDeletedCollectionName = Product.getFirestoreDeletedCollectionName();
+
+  firestoreId?: string;
+
   updatedAt?: string;
 
   constructor(
@@ -31,7 +38,8 @@ export default class Product
     packageWeight?: number,
     id?: number,
     ownerUid?: string,
-    updatedAt?: string
+    updatedAt?: string,
+    firestoreId?: string
   ) {
     super(LocalTable.PRODUCT);
     this.uuid = uuid;
@@ -48,6 +56,9 @@ export default class Product
     if (typeof updatedAt !== "undefined") {
       this.updatedAt = updatedAt;
     }
+    if (typeof firestoreId !== "undefined") {
+      this.firestoreId = firestoreId;
+    }
   }
 
   clone(override?: Partial<Product>): Product {
@@ -59,7 +70,8 @@ export default class Product
       override?.packageWeight ?? this.packageWeight,
       override?.id ?? this.id,
       override?.ownerUid ?? this.ownerUid,
-      override?.updatedAt ?? this.updatedAt
+      override?.updatedAt ?? this.updatedAt,
+      override?.firestoreId ?? this.firestoreId
     );
   }
 
@@ -67,7 +79,6 @@ export default class Product
     return `product_${this.uuid}`;
   }
 
-  // This method will return the table setup that we will be using later on in `repository`
   static GetTableStructor() {
     return TableBuilder<Product, TableNames>(LocalTable.PRODUCT)
       .column("id")
@@ -78,6 +89,41 @@ export default class Product
       .column("packageWeight")
       .column("ownerUid")
       .string.nullable.column("updatedAt")
+      .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(Product.prototype);
+  }
+
+  static buildFromFirestoreData(doc: DocumentData): Product {
+    return new Product(
+      doc.data().uuid,
+      doc.data().barCode,
+      doc.data().name,
+      doc.data().measureUnit,
+      doc.data().packageWeight,
+      undefined,
+      doc.data().ownerUid,
+      doc.data().updatedAt,
+      doc.id
+    );
+  }
+
+  getFirestoreData(): object {
+    const {
+      id,
+      tableName,
+      firestoreCollectionName,
+      firestoreDeletedCollectionName,
+      firestoreId,
+      ...data
+    } = this;
+    return data;
+  }
+
+  static getFirestoreCollectionName(): string {
+    return "product";
+  }
+
+  static getFirestoreDeletedCollectionName(): string {
+    return "deleted_product";
   }
 }

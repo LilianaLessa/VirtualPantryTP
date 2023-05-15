@@ -1,12 +1,11 @@
-export interface IProduct {
+import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
+
+export interface IProduct extends IFirestoreObject {
   id: number;
   name: string;
   measureUnit: string;
   packageWeight: number;
   barCode: string;
-  uuid: string;
-  ownerUid?: string;
-  updatedAt?: string;
 
   getKey: () => string;
 
