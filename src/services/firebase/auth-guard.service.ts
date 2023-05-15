@@ -19,11 +19,11 @@ export default class AuthGuardService {
     return callback ? callback() : undefined;
   }
 
-  public getAuthUserUid(): string {
-    if (typeof this.user?.uid === "undefined") {
+  public getAuthUserUid(allowAnonymous = true): string | undefined {
+    if (!allowAnonymous && typeof this.user?.uid === "undefined") {
       throw new Error("Authentication not initialized.");
     }
 
-    return this.user.uid;
+    return this.user?.uid;
   }
 }

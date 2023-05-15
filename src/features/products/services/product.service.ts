@@ -7,6 +7,8 @@ import IFirestoreObject from "../../../services/firebase/interfaces/firestore-ob
 type StateActions = {
   saveProduct: (product: Product) => any;
   deleteProduct: (product: Product) => any;
+  showLoadingActivityIndicator: () => any;
+  hideLoadingActivityIndicator: () => any;
 };
 
 type FirestoreActions = {
@@ -49,10 +51,7 @@ export default class ProductService {
       data?.packageWeight ?? 1
     );
 
-    newProduct.ownerUid = this.authGuardService.getAuthUserUid();
-
-    // console.log("created", newProduct);
-
+    newProduct.ownerUid = this.authGuardService.getAuthUserUid(true);
     return newProduct;
   }
 
@@ -61,29 +60,37 @@ export default class ProductService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
+    this.stateActions.showLoadingActivityIndicator();
     const updatedProduct = product.clone({
       updatedAt: new Date().toString(),
     });
     const db = DbContext.getInstance().database;
     db.save(updatedProduct as Product)
       .then(() => {
-        // save on firebase, but only when there is a logged user;
-        this.firestoreActions
-          .saveObject(updatedProduct)
-          .then((savedProduct: Product) => {
-            // update local copy with firebase id
-            db.save(savedProduct as Product).then(() => {
-              // save on state
-              this.stateActions.saveProduct(savedProduct);
-            });
+        this.authGuardService
+          .guard(
+            () =>
+              this.firestoreActions
+                .saveObject(updatedProduct)
+                .then((savedProduct: Product) =>
+                  // update local copy with firebase id
+                  db.save(savedProduct as Product).then(() => savedProduct)
+                ),
+            () => Promise.resolve(updatedProduct)
+          )
+          .then((savedProduct) => {
+            // save on state
+            this.stateActions.saveProduct(savedProduct);
           });
       })
       .then(() => {
+        this.stateActions.hideLoadingActivityIndicator();
         if (successCallback) {
           return successCallback();
         }
       })
       .catch((e) => {
+        this.stateActions.hideLoadingActivityIndicator();
         console.log(`Failed to save product ${product.uuid}`, e);
         if (errorCallback) {
           return errorCallback();
@@ -96,21 +103,29 @@ export default class ProductService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
+    this.stateActions.showLoadingActivityIndicator();
     const db = DbContext.getInstance().database;
     db.delete(product as Product)
       .then(() => {
-        // delete from firebase;
-        this.firestoreActions.deleteObject(product).then(() => {
-          // delete from state
-          this.stateActions.deleteProduct(product);
-        });
+        // delete from firestore
+        this.authGuardService
+          .guard(
+            () => this.firestoreActions.deleteObject(product),
+            () => Promise.resolve(null)
+          )
+          .then(() => {
+            // delete on state
+            this.stateActions.deleteProduct(product);
+          });
       })
       .then(() => {
+        this.stateActions.hideLoadingActivityIndicator();
         if (successCallback) {
           return successCallback();
         }
       })
       .catch((e) => {
+        this.stateActions.hideLoadingActivityIndicator();
         console.log(
           `Failed to delete product ${product.uuid}`,
           e,
