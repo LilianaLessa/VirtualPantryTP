@@ -4,10 +4,6 @@ import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import UserInGroup from "../classes/user-in-group.class";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
-import {
-  hideLoadingActivityIndicator,
-  showLoadingActivityIndicator,
-} from "../../../state/action-creators";
 
 type GroupStateActions = {
   saveGroup: (group: Group) => any;
@@ -18,6 +14,7 @@ type GroupStateActions = {
 type FirestoreContext = {
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
   deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+  syncCollection: any;
 };
 
 export default class GroupService {
@@ -130,33 +127,34 @@ export default class GroupService {
     this.stateActions.showLoadingActivityIndicator();
     const db = DbContext.getInstance().database;
     db.delete(group as Group)
-      .then(() => {
+      .then(() =>
         Promise.all(
           group.users.map((userInGroup) =>
             db.delete(userInGroup as UserInGroup)
           )
         )
-          .then(() => {
+          .then(() =>
             Promise.all([
               this.firestoreContext.deleteObject(group),
               ...group.users.map((userInGroup) =>
                 this.firestoreContext.deleteObject(userInGroup)
               ),
-            ]).then(() => {
-              this.stateActions.deleteGroup(group);
-
-              if (successCallback) {
-                return successCallback();
-              }
-            });
-          })
+            ])
+          )
           .catch((e) => {
             this.stateActions.hideLoadingActivityIndicator();
             console.log(`1 error on deleting group ${group.uuid}`, e);
             if (errorCallback) {
               return errorCallback();
             }
-          });
+          })
+      )
+      .then(() => {
+        this.stateActions.deleteGroup(group);
+        this.stateActions.hideLoadingActivityIndicator();
+        if (successCallback) {
+          return successCallback();
+        }
       })
       .catch((e) => {
         this.stateActions.hideLoadingActivityIndicator();
@@ -191,6 +189,12 @@ export default class GroupService {
         )
       );
     }
+  }
+
+  dropDb() {
+    const db = DbContext.getInstance().database;
+
+    db.dropTables().then(() => db.setUpDataBase());
   }
 
   private instantiateGroup(name: string) {

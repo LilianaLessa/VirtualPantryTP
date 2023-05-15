@@ -40,6 +40,9 @@ function GroupsScreen() {
           renderItem={renderItem}
           keyExtractor={keyExtractor}
         />
+        <TouchableOpacity onPress={groupService.dropDb}>
+          <Button mode="contained">debug: drop db</Button>
+        </TouchableOpacity>
       </View>
     ),
     () => (

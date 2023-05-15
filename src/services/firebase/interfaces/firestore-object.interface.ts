@@ -1,3 +1,5 @@
+import { DocumentData } from "firebase/firestore";
+
 export default interface IFirestoreObject {
   uuid: string;
   firestoreCollectionName: string;
@@ -6,4 +8,7 @@ export default interface IFirestoreObject {
   updatedAt?: string;
 
   getFirestoreData(): object;
+  buildFromFirestoreData(doc: DocumentData): any;
+  getFirestoreCollectionName(): string;
+  getFirestoreDeletedCollectionName(): string;
 }

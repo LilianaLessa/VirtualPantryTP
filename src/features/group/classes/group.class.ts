@@ -1,10 +1,12 @@
 import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
+import firebase from "firebase/compat";
 import {
   LocalTable,
   TableNames,
 } from "../../../services/applicationData/localDatabase/tables";
 import UserInGroup from "./user-in-group.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
+import DocumentData = firebase.firestore.DocumentData;
 
 export default class Group
   extends IBaseModule<TableNames>
@@ -18,9 +20,9 @@ export default class Group
 
   users: UserInGroup[];
 
-  firestoreCollectionName = "group";
+  firestoreCollectionName = Group.getFirestoreCollectionName();
 
-  firestoreDeletedCollectionName = "deletedGroup";
+  firestoreDeletedCollectionName = Group.getFirestoreDeletedCollectionName();
 
   updatedAt?: string;
 
@@ -106,5 +108,24 @@ export default class Group
       .column("updatedAt")
       .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(Group.prototype);
+  }
+
+  static getFirestoreCollectionName(): string {
+    return "group";
+  }
+
+  static getFirestoreDeletedCollectionName(): string {
+    return "deletedGroup";
+  }
+
+  static buildFromFirestoreData(doc: DocumentData): Group {
+    return new Group(
+      doc.data().uuid,
+      doc.data().name,
+      doc.data().ownerUid,
+      undefined,
+      doc.id,
+      doc.data().updatedAt
+    );
   }
 }

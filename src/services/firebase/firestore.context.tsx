@@ -14,10 +14,12 @@ import {
 import { Firestore } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "firebase/auth";
+import firebase from "firebase/compat";
 import { FirebaseContext } from "./firebase.context";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import Product from "../../features/products/classes/product.class";
 import IFirestoreObject from "./interfaces/firestore-object.interface";
+import DocumentData = firebase.firestore.DocumentData;
 
 type FirestoreContextType = {
   getAllProductsFromUser: (
@@ -38,6 +40,11 @@ type FirestoreContextType = {
   ) => void;
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
   deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+  syncCollection: (
+    ownerUid: string,
+    collectionType: any,
+    localCollection: IFirestoreObject[]
+  ) => Promise<any>;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -306,6 +313,115 @@ export function FirestoreContextProvider({
       : Promise.resolve();
   };
 
+  // todo check if there is a way to type hint collectionType here.
+  function syncCollection(
+    ownerUid: string,
+    collectionType: any,
+    localCollection: IFirestoreObject[]
+  ): Promise<{ saved: IFirestoreObject[]; deleted: IFirestoreObject[] }> {
+    if (!firestore) {
+      return Promise.resolve({ saved: [], deleted: [] });
+    }
+    console.log(`Firebase syncing collection '${collectionType.name}'`);
+
+    const getDeletedObjects =
+      localCollection.length > 0
+        ? getDocs(
+            query(
+              collection(
+                firestore,
+                collectionType.getFirestoreDeletedCollectionName()
+              ),
+              where(
+                "uuid",
+                "in",
+                localCollection.map((o) => o.uuid)
+              )
+            )
+          ).catch((e) => {
+            console.log("eita", e);
+          })
+        : Promise.resolve({ docs: [] });
+
+    return Promise.all([
+      getDocs(
+        query(
+          collection(firestore, collectionType.getFirestoreCollectionName()),
+          where("ownerUid", "==", ownerUid)
+        )
+      ),
+      getDeletedObjects,
+    ]).then((result) => {
+      const [currentObjectsSnapshot, deletedObjectsSnapshot] = result;
+      const saved: IFirestoreObject[] = [];
+      const deleted: IFirestoreObject[] = [];
+      const toSync: Promise<any>[] = [];
+
+      const deletedObjectsUuids = deletedObjectsSnapshot.docs.map(
+        (d) => d.data().uuid
+      );
+
+      const localCollectionMappedByUuid = localCollection.reduce(
+        (m: Map<string, IFirestoreObject>, localObject: IFirestoreObject) => {
+          // filtering deleted
+          if (deletedObjectsUuids.includes(localObject.uuid)) {
+            deleted.push(localObject);
+          }
+          // mapping
+          return m.set(localObject.uuid, localObject);
+        },
+        new Map<string, IFirestoreObject>()
+      );
+
+      const remoteCollection = currentObjectsSnapshot.docs.map((d) =>
+        collectionType.buildFromFirestoreData(d)
+      );
+
+      const remoteCollectionMappedByUuid = remoteCollection.reduce(
+        (m: Map<string, IFirestoreObject>, remoteObject: IFirestoreObject) => {
+          // do the updates
+          const localObject = localCollectionMappedByUuid.get(
+            remoteObject.uuid
+          );
+          if (localObject) {
+            if (
+              new Date(remoteObject.updatedAt) > new Date(localObject.updatedAt)
+            ) {
+              saved.push(remoteObject);
+            } else {
+              toSync.push(saveObject(localObject));
+            }
+          } else {
+            saved.push(remoteObject);
+          }
+          // do the mapping
+          return m.set(remoteObject.uuid, remoteObject);
+        },
+        new Map<string, IFirestoreObject>()
+      );
+
+      localCollection.forEach((localObject: IFirestoreObject) => {
+        const remoteObject = remoteCollectionMappedByUuid.get(localObject.uuid);
+
+        if (
+          remoteObject &&
+          new Date(remoteObject.updatedAt) > new Date(localObject.updatedAt)
+        ) {
+          saved.push(remoteObject);
+        } else {
+          toSync.push(saveObject(localObject));
+        }
+      });
+
+      return Promise.all(toSync).then(() =>
+        Promise.resolve({
+          saved,
+          deleted,
+        })
+      );
+    });
+  }
+
   return (
     <FirestoreContext.Provider
       value={{
@@ -315,6 +431,7 @@ export function FirestoreContextProvider({
         filterDeletedProductsUuids,
         saveObject,
         deleteObject,
+        syncCollection,
       }}
     >
       {children}

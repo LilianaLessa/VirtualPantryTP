@@ -26,11 +26,12 @@ export function ApplicationDataContextProvider({
 }: {
   children: React.ReactNode[] | React.ReactNode;
 }) {
-  const { isAuthenticated, user } = useContext(AuthenticationContext);
+  const { user } = useContext(AuthenticationContext);
   const {
     getAllProductsFromUser,
     saveProductOnFirestore,
     filterDeletedProductsUuids,
+    syncCollection,
   } = useContext(FirestoreContext);
   const { initProductCollection, saveProductInSilent, deleteProductInSilent } =
     useActions();
@@ -244,7 +245,17 @@ export function ApplicationDataContextProvider({
                 });
               });
 
-              initGroupsCollection(Array.from(groupsByUuid.values()));
+              syncCollection(
+                userUid,
+                Group,
+                Array.from(groupsByUuid.values())
+              ).then((result) => {
+                initGroupsCollection(result.saved);
+                const db = DbContext.getInstance().database;
+                return Promise.all(
+                  result.deleted.map((o) => db.delete(o as Group))
+                );
+              });
             });
           })
       : Promise.resolve([]);
