@@ -60,13 +60,13 @@ export default class Group
   public setUser(userInGroup: UserInGroup): void {
     const currentUser = this.users.find((u) => u.email === userInGroup.email);
     if (currentUser) {
-      console.log("update current");
+      // console.log("update current");
       currentUser.isAdmin = userInGroup.isAdmin;
       currentUser.isInviter = userInGroup.isInviter;
       currentUser.updatedAt = userInGroup.updatedAt;
       return;
     }
-    console.log("add new");
+    // console.log("add new");
     this.users.push(userInGroup);
   }
 

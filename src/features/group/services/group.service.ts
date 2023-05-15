@@ -179,6 +179,7 @@ export default class GroupService {
       group.setUser(
         new UserInGroup(
           uuidv4(),
+          group.ownerUid,
           group.uuid,
           email,
           isAdmin,

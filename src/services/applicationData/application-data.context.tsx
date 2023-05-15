@@ -33,8 +33,13 @@ export function ApplicationDataContextProvider({
     filterDeletedProductsUuids,
     syncCollection,
   } = useContext(FirestoreContext);
-  const { initProductCollection, saveProductInSilent, deleteProductInSilent } =
-    useActions();
+  const {
+    initProductCollection,
+    saveProductInSilent,
+    deleteProductInSilent,
+    showLoadingActivityIndicator,
+    hideLoadingActivityIndicator,
+  } = useActions();
   const [loadedProducts, setLoadedProducts] = useState<Map<number, Product>>(
     new Map<number, Product>()
   );
@@ -193,75 +198,102 @@ export function ApplicationDataContextProvider({
   };
 
   const { initGroupsCollection } = useActions();
+
   const initGroups = (user: User | null) => {
     const userUid = user?.uid;
-    const db = DbContext.getInstance().database;
-    return userUid
-      ? db
-          .find(`SELECT * FROM ${LocalTable.GROUP} WHERE ownerUid = ?`, [
-            userUid,
-          ])
-          .then((groups: Group[]) => {
-            Promise.all(
-              groups.map((group) =>
-                db.find(
-                  `SELECT * FROM ${LocalTable.USER_IN_GROUP} WHERE groupUuid = ?`,
-                  [group.uuid]
-                )
-              )
-            ).then((users) => {
-              const groupsByUuid = groups.reduce(
-                (map: Map<string, Group>, r: Group) =>
-                  map.set(
-                    r.uuid,
-                    new Group(
-                      r.uuid,
-                      r.name,
-                      r.ownerUid,
-                      r.id,
-                      r.firestoreId,
-                      r.updatedAt
-                    )
-                  ),
-                new Map<string, Group>()
-              );
-              users.forEach((usersInGroupResult) => {
-                usersInGroupResult.forEach((uig) => {
-                  // console.log("adding user", uig.groupUuid, uig);
-                  groupsByUuid
-                    .get(uig.groupUuid)
-                    ?.setUser(
-                      new UserInGroup(
-                        uig.uuid,
-                        uig.groupUuid,
-                        uig.email,
-                        uig.isAdmin,
-                        uig.isInviter,
-                        uig.id,
-                        uig.firestoreId,
-                        uig.updatedAt
-                      )
-                    );
-                });
-              });
 
-              syncCollection(
+    if (!userUid) {
+      return Promise.resolve();
+    }
+
+    const db = DbContext.getInstance().database;
+    return Promise.all([
+      db.find(`SELECT * FROM ${LocalTable.GROUP} WHERE ownerUid = ?`, [
+        userUid,
+      ]),
+      db.find(`SELECT * FROM ${LocalTable.USER_IN_GROUP} WHERE ownerUid = ?`, [
+        userUid,
+      ]),
+    ])
+      .then(([localGroups, localUsersInGroup]) => {
+        const localGroupsByUuid = localGroups.reduce(
+          (map: Map<string, Group>, r: Group) =>
+            map.set(
+              r.uuid,
+              new Group(
+                r.uuid,
+                r.name,
+                r.ownerUid,
+                r.id,
+                r.firestoreId,
+                r.updatedAt
+              )
+            ),
+          new Map<string, Group>()
+        );
+
+        const localUsersInGroupByUuid = localUsersInGroup.reduce(
+          (map: Map<string, Group>, r: Group) =>
+            map.set(
+              r.uuid,
+              new UserInGroup(
+                r.uuid,
                 userUid,
-                Group,
-                Array.from(groupsByUuid.values())
-              ).then((result) => {
-                initGroupsCollection(result.saved);
-                const db = DbContext.getInstance().database;
-                return Promise.all(
-                  result.deleted.map((o) => db.delete(o as Group))
-                );
-              });
+                r.groupUuid,
+                r.email,
+                r.isAdmin,
+                r.isInviter,
+                r.id,
+                r.firestoreId,
+                r.updatedAt
+              )
+            ),
+          new Map<string, Group>()
+        );
+
+        Promise.all([
+          syncCollection(
+            userUid,
+            Group,
+            Array.from(localGroupsByUuid.values())
+          ),
+          syncCollection(
+            userUid,
+            UserInGroup,
+            Array.from(localUsersInGroupByUuid.values())
+          ),
+        ]).then(
+          ([
+            { saved: savedGroups, deleted: deletedGroups },
+            { saved: savedUsersInGroup, deleted: deletedUsersInGroup },
+          ]) => {
+            const savedGroupsByUuid = savedGroups.reduce(
+              (m: Map<string, Group>, o) => m.set(o.uuid, o),
+              new Map<string, Group>()
+            );
+            Promise.all([
+              ...savedGroups.map((s) => db.save(s as Group)),
+              ...savedUsersInGroup.map((s) => {
+                savedGroupsByUuid.get(s.groupUuid)?.setUser(s);
+                return db.save(s as UserInGroup);
+              }),
+              ...deletedGroups.map((d) =>
+                db.delete(localGroupsByUuid.get(d.uuid) as Group)
+              ),
+              ...deletedUsersInGroup.map((d) =>
+                db.delete(localUsersInGroupByUuid.get(d.uuid) as UserInGroup)
+              ),
+            ]).then(() => {
+              initGroupsCollection(Array.from(savedGroupsByUuid.values()));
             });
-          })
-      : Promise.resolve([]);
+          }
+        );
+      })
+      .catch((e) => console.log("failed to init groups", e));
   };
 
   useEffect(() => {
+    showLoadingActivityIndicator();
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
 
@@ -271,6 +303,7 @@ export function ApplicationDataContextProvider({
           initGroups(storedUser).then(() => {
             initSavedProducts(storedUser).then(() => {
               initPantries(storedUser).then(() => {
+                hideLoadingActivityIndicator();
                 // initStoredProducts();
                 // console.log("stored products not initiated.");
                 // console.log("Application data loaded.");

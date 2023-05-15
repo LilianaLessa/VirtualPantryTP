@@ -14,12 +14,10 @@ import {
 import { Firestore } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "firebase/auth";
-import firebase from "firebase/compat";
 import { FirebaseContext } from "./firebase.context";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import Product from "../../features/products/classes/product.class";
 import IFirestoreObject from "./interfaces/firestore-object.interface";
-import DocumentData = firebase.firestore.DocumentData;
 
 type FirestoreContextType = {
   getAllProductsFromUser: (
@@ -314,6 +312,8 @@ export function FirestoreContextProvider({
   };
 
   // todo check if there is a way to type hint collectionType here.
+  // todo it would be better if instead of ownerUid,
+  //  the collection parent id field was configurable, and the value could be even an array.
   function syncCollection(
     ownerUid: string,
     collectionType: any,
@@ -384,16 +384,33 @@ export function FirestoreContextProvider({
             remoteObject.uuid
           );
           if (localObject) {
-            if (
-              new Date(remoteObject.updatedAt) > new Date(localObject.updatedAt)
-            ) {
-              saved.push(remoteObject);
+            // conflict
+            const localUpdatedAt = new Date(localObject.updatedAt);
+            const remoteUpdatedAt = new Date(remoteObject.updatedAt);
+            if (localUpdatedAt != remoteUpdatedAt) {
+              if (localUpdatedAt > remoteUpdatedAt) {
+                // local most updated
+                if (!deletedObjectsUuids.includes(localObject.uuid)) {
+                  // local not deleted
+                  saved.push(localObject);
+                  toSync.push(saveObject(localObject));
+                }
+              } else {
+                // remote most updated;
+                saved.push(remoteObject);
+              }
             } else {
-              toSync.push(saveObject(localObject));
+              // conflict, but same data.
+              if (!deletedObjectsUuids.includes(localObject.uuid)) {
+                // local not deleted
+                saved.push(localObject);
+              }
             }
           } else {
+            // only remote
             saved.push(remoteObject);
           }
+
           // do the mapping
           return m.set(remoteObject.uuid, remoteObject);
         },
@@ -402,14 +419,35 @@ export function FirestoreContextProvider({
 
       localCollection.forEach((localObject: IFirestoreObject) => {
         const remoteObject = remoteCollectionMappedByUuid.get(localObject.uuid);
-
-        if (
-          remoteObject &&
-          new Date(remoteObject.updatedAt) > new Date(localObject.updatedAt)
-        ) {
-          saved.push(remoteObject);
+        if (remoteObject) {
+          // conflict
+          const localUpdatedAt = new Date(localObject.updatedAt);
+          const remoteUpdatedAt = new Date(remoteObject.updatedAt);
+          if (localUpdatedAt != remoteUpdatedAt) {
+            if (localUpdatedAt > remoteUpdatedAt) {
+              if (!deletedObjectsUuids.includes(localObject.uuid)) {
+                // local not deleted
+                saved.push(localObject);
+                toSync.push(saveObject(localObject));
+              }
+            } else {
+              // remote most updated;
+              saved.push(remoteObject);
+            }
+          } else {
+            // conflict, but same data.
+            if (!deletedObjectsUuids.includes(localObject.uuid)) {
+              // local not deleted
+              saved.push(localObject);
+            }
+          }
         } else {
-          toSync.push(saveObject(localObject));
+          // only local
+          if (!deletedObjectsUuids.includes(localObject.uuid)) {
+            // local not deleted
+            saved.push(localObject);
+            toSync.push(saveObject(localObject));
+          }
         }
       });
 

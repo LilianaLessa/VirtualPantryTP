@@ -1,4 +1,5 @@
 import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
+import { DocumentData } from "firebase/firestore";
 import {
   LocalTable,
   TableNames,
@@ -30,8 +31,11 @@ export default class UserInGroup
 
   firestoreId?: string;
 
+  ownerUid: string;
+
   constructor(
     uuid: string,
+    ownerUid: string,
     groupUuid: string,
     email: string,
     isAdmin: boolean,
@@ -42,6 +46,7 @@ export default class UserInGroup
   ) {
     super(LocalTable.USER_IN_GROUP);
     this.uuid = uuid;
+    this.ownerUid = ownerUid;
     this.groupUuid = groupUuid;
     this.email = email;
     this.isAdmin = isAdmin;
@@ -69,6 +74,7 @@ export default class UserInGroup
   public static clone(userInGroup: UserInGroup): UserInGroup {
     return new UserInGroup(
       userInGroup.uuid,
+      userInGroup.ownerUid,
       userInGroup.groupUuid,
       userInGroup.email,
       userInGroup.isAdmin,
@@ -83,10 +89,11 @@ export default class UserInGroup
     return TableBuilder<UserInGroup, TableNames>(LocalTable.USER_IN_GROUP)
       .column("id")
       .primary.autoIncrement.number.column("uuid")
-      .unique.string.column("relationKey")
+      .unique.string.column("ownerUid")
+      .column("relationKey")
       .unique.string.column("email")
       .column("groupUuid")
-      .number.constrain<Product>("groupUuid", LocalTable.GROUP, "uuid")
+      .constrain<Product>("groupUuid", LocalTable.GROUP, "uuid")
       .column("isAdmin")
       .boolean.column("isInviter")
       .boolean.column("updatedAt")
@@ -104,5 +111,27 @@ export default class UserInGroup
       ...data
     } = this;
     return data;
+  }
+
+  static getFirestoreCollectionName(): string {
+    return "userInGroup";
+  }
+
+  static getFirestoreDeletedCollectionName(): string {
+    return "deletedUserInGroup";
+  }
+
+  static buildFromFirestoreData(doc: DocumentData): UserInGroup {
+    return new UserInGroup(
+      doc.data().uuid,
+      doc.data().ownerUid,
+      doc.data().groupUuid,
+      doc.data().email,
+      doc.data().isAdmin,
+      doc.data().isInviter,
+      undefined,
+      doc.id,
+      doc.data().updatedAt
+    );
   }
 }
