@@ -6,7 +6,6 @@ import {
   AddToPantryIcon,
   DeleteIcon,
   DragHandler,
-  EditIcon,
   LeftContent,
   LeftIcon,
   LeftText,
@@ -60,24 +59,23 @@ function ProductListItem({ item }: { item: Product }) {
   };
 
   return (
-    <ProductListItemContainer>
-      <LeftContent>
-        <LeftIcon />
-        <LeftText>{item.name}</LeftText>
-      </LeftContent>
-      <RightContent>
-        <TouchableOpacity onPress={handleEdit}>
-          <EditIcon />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={showConfirmDeletionModal}>
-          <DeleteIcon />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleStoreProduct}>
-          <AddToPantryIcon />
-        </TouchableOpacity>
-        <DragHandler />
-      </RightContent>
-    </ProductListItemContainer>
+    <TouchableOpacity onPress={handleEdit}>
+      <ProductListItemContainer>
+        <LeftContent>
+          <LeftIcon />
+          <LeftText>{item.name}</LeftText>
+        </LeftContent>
+        <RightContent>
+          <TouchableOpacity onPress={showConfirmDeletionModal}>
+            <DeleteIcon />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleStoreProduct}>
+            <AddToPantryIcon />
+          </TouchableOpacity>
+          <DragHandler />
+        </RightContent>
+      </ProductListItemContainer>
+    </TouchableOpacity>
   );
 }
 
