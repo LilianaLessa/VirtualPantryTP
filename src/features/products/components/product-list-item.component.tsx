@@ -2,10 +2,7 @@ import React, { useContext } from "react";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { IProduct } from "../interfaces/product.interface";
-import {
-  EditProductScreenRouteName,
-  StoreProductScreenRouteName,
-} from "../../../infrastructure/navigation/route-names";
+import { StoreProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import {
   AddToPantryIcon,
   DeleteIcon,
@@ -19,6 +16,7 @@ import {
 } from "./product-list-item.styles";
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function ProductListItem({
   item,
@@ -27,6 +25,8 @@ function ProductListItem({
   item: IProduct;
   deleteProductCallback: (productToDelete: IProduct) => void;
 }) {
+  const { navigationService } = useContext(DependencyInjectionContext);
+
   const navigation = useNavigation();
   const { showModal, hideModal } = useContext(DialogModalContext);
 
@@ -49,14 +49,7 @@ function ProductListItem({
   };
 
   const handleEdit = () => {
-    navigation.navigate(
-      EditProductScreenRouteName as never,
-      {
-        product: item,
-        isEdit: true,
-        // eslint-disable-next-line comma-dangle
-      } as never
-    );
+    navigationService.showEditProductScreen(item);
   };
 
   const handleStoreProduct = () => {

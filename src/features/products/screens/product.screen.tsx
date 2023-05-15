@@ -1,24 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import ProductList from "../components/product-list.component";
 import ProductSearchBar from "../components/product-search-bar.component";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
-import { EditProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function ProductScreen() {
-  const navigation = useNavigation();
-  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
-  const [products, setProducts] = useState(Array.from(savedProducts.values()));
+  const { productService, navigationService } = useContext(
+    DependencyInjectionContext
+  );
+
+  const [currentProducts, setCurrentProducts] = useState(
+    productService.getProducts()
+  );
 
   useEffect(() => {
-    setProducts(Array.from(savedProducts.values()));
-  }, [savedProducts]);
+    // console.log(productService.products);
+    setCurrentProducts(productService.getProducts());
+  }, [productService]);
 
   const handleAddProduct = () => {
-    navigation.navigate(EditProductScreenRouteName as never);
+    navigationService.showEditProductScreen(productService.createNewProduct());
   };
 
   return (
@@ -30,7 +33,7 @@ function ProductScreen() {
           Add product
         </Button>
       </TouchableOpacity>
-      <ProductList products={products} />
+      <ProductList products={currentProducts} />
     </View>
   );
 }

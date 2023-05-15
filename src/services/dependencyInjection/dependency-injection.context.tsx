@@ -8,12 +8,14 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import SnackBarService from "../information/snack-bar.service";
 import { FirestoreContext } from "../firebase/firestore.context";
+import ProductService from "../../features/products/services/product.service";
 
 type DependencyInjectionContextType = {
   authGuardService: AuthGuardService;
   groupService: GroupService;
   navigationService: NavigationService;
   snackBarService: SnackBarService;
+  productService: ProductService;
 };
 
 const defaultValue = {
@@ -21,6 +23,7 @@ const defaultValue = {
   groupService: new GroupService(new AuthGuardService(null)),
   navigationService: new NavigationService(),
   snackBarService: new SnackBarService(),
+  productService: new ProductService([], new AuthGuardService(null), {}),
 };
 
 export const DependencyInjectionContext =
@@ -36,6 +39,7 @@ export function DependencyInjectionContextProvider({
   const { user } = useContext(AuthenticationContext);
   const navigation = useNavigation();
   const { groups } = useTypedSelector((state) => state.groups);
+  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
 
   const [authGuardService, setAuthGuardService] = useState(
     defaultValue.authGuardService
@@ -46,6 +50,14 @@ export function DependencyInjectionContextProvider({
   );
 
   const [snackBarService] = useState(new SnackBarService(stateActions));
+
+  const [productService, setProductService] = useState(
+    new ProductService(
+      Array.from(savedProducts.values()),
+      authGuardService,
+      stateActions
+    )
+  );
 
   useEffect(() => {
     setAuthGuardService(new AuthGuardService(user));
@@ -61,6 +73,17 @@ export function DependencyInjectionContextProvider({
   }, [authGuardService, groups]);
 
   useEffect(() => {
+    // console.log("init product service", Array.from(savedProducts.values()));
+    setProductService(
+      new ProductService(
+        Array.from(savedProducts.values()),
+        authGuardService,
+        stateActions
+      )
+    );
+  }, [authGuardService, savedProducts]);
+
+  useEffect(() => {
     setNavigationService(new NavigationService(navigation));
   }, [navigation]);
 
@@ -71,6 +94,7 @@ export function DependencyInjectionContextProvider({
         groupService,
         navigationService,
         snackBarService,
+        productService,
       }}
     >
       {children}

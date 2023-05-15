@@ -33,22 +33,10 @@ import Group from "../../features/group/classes/group.class";
  */
 
 export const saveProduct =
-  (product: IProduct) =>
-  (dispatch: Dispatch<SavedProductsActions | MessageSnackbarActions>) => {
-    AsyncStorage.getItem("@loggedUser").then((result) => {
-      const storedUser = result ? JSON.parse(result) : null;
-      // console.log(storedUser?.uid, product.ownerUid);
-      if (storedUser !== null && typeof product.ownerUid === "undefined") {
-        product.ownerUid = storedUser.uid;
-      }
-      dispatch({
-        type: MessageSnackbarActionType.SHOW_INFO,
-        infoMessage: `Product '${product.name}' saved.`,
-      });
-      dispatch({
-        type: SavedProductsActionType.SAVE_PRODUCT,
-        newProduct: product,
-      });
+  (product: IProduct) => (dispatch: Dispatch<SavedProductsActions>) => {
+    dispatch({
+      type: SavedProductsActionType.SAVE_PRODUCT,
+      newProduct: product,
     });
   };
 

@@ -42,7 +42,7 @@ export default class Product
     if (typeof id !== "undefined") {
       this.id = id;
     }
-    if (typeof id !== "undefined") {
+    if (typeof ownerUid !== "undefined") {
       this.ownerUid = ownerUid;
     }
     if (typeof updatedAt !== "undefined") {
@@ -50,14 +50,16 @@ export default class Product
     }
   }
 
-  clone(override: Partial<IProduct>): IProduct {
+  clone(override?: Partial<Product>): Product {
     return new Product(
-      override.uuid ?? this.uuid,
-      override.barCode ?? this.barCode,
-      override.name ?? this.name,
-      override.measureUnit ?? this.measureUnit,
-      // eslint-disable-next-line comma-dangle
-      override.packageWeight ?? this.packageWeight
+      override?.uuid ?? this.uuid,
+      override?.barCode ?? this.barCode,
+      override?.name ?? this.name,
+      override?.measureUnit ?? this.measureUnit,
+      override?.packageWeight ?? this.packageWeight,
+      override?.id ?? this.id,
+      override?.ownerUid ?? this.ownerUid,
+      override?.updatedAt ?? this.updatedAt
     );
   }
 

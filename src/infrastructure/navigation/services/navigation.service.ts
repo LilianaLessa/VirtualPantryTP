@@ -3,8 +3,11 @@ import Group from "../../../features/group/classes/group.class";
 import {
   AccountScreenRouteName,
   EditGroupScreenRouteName,
+  EditProductScreenRouteName,
   GroupsScreenRouteName,
+  ProductScreenRouteName,
 } from "../route-names";
+import Product from "../../../features/products/classes/product.class";
 
 export default class NavigationService {
   private readonly navigation?: NavigationProp<ReactNavigation.RootParamList>;
@@ -21,6 +24,19 @@ export default class NavigationService {
         group,
       } as never
     );
+  }
+
+  public showEditProductScreen(product: Product) {
+    this.navigation?.navigate(
+      EditProductScreenRouteName as never,
+      {
+        product,
+      } as never
+    );
+  }
+
+  public showProductsScreen() {
+    this.navigation?.navigate(ProductScreenRouteName as never);
   }
 
   public showAccountScreen(): void {

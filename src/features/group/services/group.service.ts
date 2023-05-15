@@ -14,7 +14,6 @@ type GroupStateActions = {
 type FirestoreContext = {
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
   deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
-  syncCollection: any;
 };
 
 export default class GroupService {
@@ -193,6 +192,7 @@ export default class GroupService {
   }
 
   dropDb() {
+    // todo remove debug method
     const db = DbContext.getInstance().database;
 
     db.dropTables().then(() => db.setUpDataBase());

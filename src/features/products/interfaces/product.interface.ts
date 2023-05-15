@@ -10,5 +10,5 @@ export interface IProduct {
 
   getKey: () => string;
 
-  clone: (override: Partial<IProduct>) => IProduct;
+  clone: (override?: Partial<IProduct>) => IProduct;
 }

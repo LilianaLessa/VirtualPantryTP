@@ -1,68 +1,55 @@
 import { Text, View } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { v4 as uuidv4 } from "uuid";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { IProduct } from "../interfaces/product.interface";
-import { useActions } from "../../../hooks/useActions";
 import Product from "../classes/product.class";
 import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
 import { BarCodeScanScreenRouteName } from "../../../infrastructure/navigation/route-names";
-import { FirestoreContext } from "../../../services/firebase/firestore.context";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export type EditProductScreenParams = {
   EditProduct: {
-    // todo it's possible to edit another person product if login
-    //  on the product edit screen and go back., and the same happens on pantries. fix it.
-    product?: IProduct;
-    isEdit?: boolean;
-    routeToNavigateOnSave?: string | null;
+    product: Product; // todo prevent unauthorized edition on switching accounts in this screen.
   };
 };
 type Props = RouteProp<EditProductScreenParams, "EditProduct">;
 
-export function EditProductScreen({ route }: { route: Props }) {
-  let { product } = route.params ?? {};
-  const { isEdit, routeToNavigateOnSave } = route.params ?? {
-    isEdit: false,
-    routeToNavigateOnSave: null,
+export function EditProductScreen({
+  route: {
+    params: { product },
+  },
+}: {
+  route: Props;
+}) {
+  const { productService, navigationService, snackBarService } = useContext(
+    DependencyInjectionContext
+  );
+
+  const [name, setName] = useState(product.name);
+  const [measureUnit, setMeasureUnit] = useState(product.measureUnit);
+  const [barCode, setBarcode] = useState(product.barCode);
+  const [packageWeight, setPackageWeight] = useState(product.packageWeight);
+
+  const handleSave = () => {
+    const updatedProduct = product.clone({
+      name,
+      measureUnit,
+      barCode,
+      packageWeight,
+    });
+
+    // console.log("saving", product, updatedProduct);
+
+    productService.saveProduct(updatedProduct, () => {
+      navigationService.showProductsScreen();
+      snackBarService.showProductSavedInfo(updatedProduct);
+    });
   };
+
+  // todo fix this
   const navigation = useNavigation();
   const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
-
-  useEffect(() => {
-    const screenTitle = isEdit ? "Edit Product" : "Create Product";
-    navigation.setOptions({
-      title: screenTitle,
-    });
-  }, [isEdit, navigation]);
-  const [name, setName] = useState(product?.name ?? "");
-  const [measureUnit, setMeasureUnit] = useState(product?.measureUnit ?? "");
-  const [barCode, setBarcode] = useState(product?.barCode ?? "");
-  const [packageWeight, setPackageWeight] = useState(
-    product?.packageWeight ?? 1
-  );
-  const { saveProduct } = useActions();
-  const { saveProductOnFirestore } = useContext(FirestoreContext);
-
-  const handleProductSave = () => {
-    product = product ?? new Product(uuidv4());
-    product.name = name;
-    product.measureUnit = measureUnit;
-    product.packageWeight = packageWeight;
-    product.barCode = barCode;
-    product.updatedAt = new Date().toString();
-
-    saveProduct(product);
-    saveProductOnFirestore(product);
-    if (typeof routeToNavigateOnSave === "string") {
-      navigation.navigate(routeToNavigateOnSave as never);
-    } else {
-      navigation.goBack();
-    }
-  };
 
   const onBarCodeScanned = (scannedBarCode: string) => {
     setBarcode(scannedBarCode);
@@ -74,6 +61,7 @@ export function EditProductScreen({ route }: { route: Props }) {
     setOnBarCodeScannedCallback(onBarCodeScanned);
     navigation.navigate(BarCodeScanScreenRouteName as never);
   };
+  // todo ----
 
   return (
     <View>
@@ -134,7 +122,7 @@ export function EditProductScreen({ route }: { route: Props }) {
       <HelperText visible type="info" padding="none">
         Type or scan the bar code for the product
       </HelperText>
-      <Button mode="contained" onPress={handleProductSave}>
+      <Button mode="contained" onPress={handleSave}>
         Save
       </Button>
       <Text>{`Owner UID: ${product?.ownerUid}`}</Text>
