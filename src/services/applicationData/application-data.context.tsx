@@ -98,30 +98,48 @@ export function ApplicationDataContextProvider({
   }, [loadedPantries]);
 
   const initPantries = (user: User | null) => {
-    const args = user ? [user.uid] : [];
+    const db = DbContext.getInstance().database;
+    const userUid = user?.uid;
+    const args = userUid ? [userUid] : [];
     let query = `Select * from ${LocalTable.PANTRY}`;
     query = `${query} WHERE ownerUid ${user === null ? "IS NULL" : " = ?"}`;
     return DbContext.getInstance()
       .database.find(query, args)
       .then((results: any) => {
-        setLoadedPantries(
-          results.reduce(
-            (map: Map<number, Pantry>, r: Pantry) =>
-              map.set(
+        const localLoadedPantries = results.reduce(
+          (map: Map<number, Pantry>, r: Pantry) =>
+            map.set(
+              r.id,
+              new Pantry(
+                r.uuid,
+                r.name,
                 r.id,
-                new Pantry(
-                  r.uuid,
-                  r.name,
-                  r.id,
-                  r.ownerUid,
-
-                  r.updatedAt,
-                  r.firestoreId
-                )
-              ),
-            new Map<number, Pantry>()
-          )
+                r.ownerUid,
+                r.updatedAt,
+                r.firestoreId
+              )
+            ),
+          new Map<number, Pantry>()
         );
+
+        (userUid
+          ? syncCollection(
+              userUid,
+              Pantry,
+              Array.from(localLoadedPantries.values())
+            )
+          : Promise.resolve({
+              saved: Array.from(localLoadedPantries.values()),
+              deleted: [],
+            })
+        ).then(({ saved, deleted }) => {
+          Promise.all([
+            ...saved.map((s) => db.save(s as Pantry)),
+            ...deleted.map((d) => db.delete(d)),
+          ]).then(() => {
+            setLoadedPantries(saved);
+          });
+        });
       });
   };
 
