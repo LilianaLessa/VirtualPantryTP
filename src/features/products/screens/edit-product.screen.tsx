@@ -1,11 +1,9 @@
 import { Text, View } from "react-native";
 import React, { useContext, useState } from "react";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { RouteProp } from "@react-navigation/native";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Product from "../classes/product.class";
-import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
-import { BarCodeScanScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export type EditProductScreenParams = {
@@ -22,13 +20,16 @@ export function EditProductScreen({
 }: {
   route: Props;
 }) {
-  const { productService, navigationService, snackBarService } = useContext(
-    DependencyInjectionContext
-  );
+  const {
+    productService,
+    navigationService,
+    snackBarService,
+    barCodeScanService,
+  } = useContext(DependencyInjectionContext);
 
   const [name, setName] = useState(product.name);
   const [measureUnit, setMeasureUnit] = useState(product.measureUnit);
-  const [barCode, setBarcode] = useState(product.barCode);
+  const [barCode, setBarCode] = useState(product.barCode);
   const [packageWeight, setPackageWeight] = useState(product.packageWeight);
 
   const handleSave = () => {
@@ -39,29 +40,17 @@ export function EditProductScreen({
       packageWeight,
     });
 
-    // console.log("saving", product, updatedProduct);
-
     productService.saveProduct(updatedProduct, () => {
       navigationService.showProductsScreen();
       snackBarService.showProductSavedInfo(updatedProduct);
     });
   };
 
-  // todo fix this
-  const navigation = useNavigation();
-  const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
-
-  const onBarCodeScanned = (scannedBarCode: string) => {
-    setBarcode(scannedBarCode);
-    // the previous route should be personalized, as
-    navigation.goBack();
+  const handleBarcodeScan = () => {
+    barCodeScanService.scanBarCode((scannedBarCode: string) => {
+      setBarCode(scannedBarCode);
+    });
   };
-
-  const barcodeButtonCallback = () => {
-    setOnBarCodeScannedCallback(onBarCodeScanned);
-    navigation.navigate(BarCodeScanScreenRouteName as never);
-  };
-  // todo ----
 
   return (
     <View>
@@ -105,7 +94,7 @@ export function EditProductScreen({
         placeholder="Ex.: 123456789"
         value={barCode}
         keyboardType="numeric"
-        onChangeText={(text) => setBarcode(text)}
+        onChangeText={(text) => setBarCode(text)}
         style={{ width: "100%" }}
         right={
           <TextInput.Icon
@@ -115,7 +104,7 @@ export function EditProductScreen({
                 style={{ fontSize: 20 }}
               />
             )}
-            onPress={barcodeButtonCallback}
+            onPress={handleBarcodeScan}
           />
         }
       />
