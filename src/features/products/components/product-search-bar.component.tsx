@@ -1,11 +1,5 @@
 import React, { useContext, useState } from "react";
 import { TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
-import {
-  BarCodeScanScreenRouteName,
-  ProductSearchResultScreenRouteName,
-} from "../../../infrastructure/navigation/route-names";
 import {
   BarCodeScanIcon,
   MagnifyingGlassIcon,
@@ -13,46 +7,30 @@ import {
   SearchBarInput,
   SearchBarInputContainer,
 } from "./product-search-bar.styles";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 // eslint-disable-next-line react/function-component-definition
 const ProductSearchBar = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const navigation = useNavigation();
+  const { productService, navigationService, barCodeScanService } = useContext(
+    DependencyInjectionContext
+  );
 
-  const { setOnBarCodeScannedCallback } = useContext(BarCodeScannerContext);
+  const [term, setTerm] = useState("");
 
-  const searchProductByBarCode = (barCode: string) => {
-    navigation.navigate(
-      ProductSearchResultScreenRouteName as never,
-      {
-        barCode,
-        // eslint-disable-next-line comma-dangle
-      } as never
-    );
-  };
-
-  const onBarCodeScanned = (barCode: string) => {
-    searchProductByBarCode(barCode);
-  };
   const navigateToBarcodeScanScreen = () => {
-    setOnBarCodeScannedCallback(onBarCodeScanned);
-    navigation.navigate(BarCodeScanScreenRouteName as never);
+    barCodeScanService.scanBarCode((barCode: string) => {
+      navigationService.showProductSearchResultScreen(
+        productService.searchProducts({ barCode }),
+        { barCode }
+      );
+    });
   };
 
-  const searchProductByTerm = (term: string) => {
-    navigation.navigate(
-      ProductSearchResultScreenRouteName as never,
-      {
-        term,
-        // eslint-disable-next-line comma-dangle
-      } as never
+  const searchProductByTerm = () => {
+    navigationService.showProductSearchResultScreen(
+      productService.searchProducts({ term }),
+      { term }
     );
-  };
-
-  const searchProduct = () => {
-    const term = searchQuery;
-    setSearchQuery("");
-    searchProductByTerm(term);
   };
 
   return (
@@ -61,9 +39,9 @@ const ProductSearchBar = () => {
         <MagnifyingGlassIcon />
         <SearchBarInput
           placeholder="Search"
-          value={searchQuery}
-          onChangeText={(v) => setSearchQuery(v)}
-          onSubmitEditing={searchProduct}
+          value={term}
+          onChangeText={(v) => setTerm(v)}
+          onSubmitEditing={searchProductByTerm}
         />
         <TouchableOpacity onPress={navigateToBarcodeScanScreen}>
           <BarCodeScanIcon />

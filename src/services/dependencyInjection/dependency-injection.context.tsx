@@ -9,6 +9,7 @@ import { useActions } from "../../hooks/useActions";
 import SnackBarService from "../information/snack-bar.service";
 import { FirestoreContext } from "../firebase/firestore.context";
 import ProductService from "../../features/products/services/product.service";
+import BarCodeScanService from "../barCodeScanner/bar-code-scan.service";
 
 type DependencyInjectionContextType = {
   authGuardService: AuthGuardService;
@@ -16,6 +17,7 @@ type DependencyInjectionContextType = {
   navigationService: NavigationService;
   snackBarService: SnackBarService;
   productService: ProductService;
+  barCodeScanService: BarCodeScanService;
 };
 
 const defaultValue = {
@@ -24,6 +26,7 @@ const defaultValue = {
   navigationService: new NavigationService(),
   snackBarService: new SnackBarService(),
   productService: new ProductService([], new AuthGuardService(null), {}),
+  barCodeScanService: new BarCodeScanService(new NavigationService()),
 };
 
 export const DependencyInjectionContext =
@@ -50,6 +53,9 @@ export function DependencyInjectionContextProvider({
   );
 
   const [snackBarService] = useState(new SnackBarService(stateActions));
+  const [barCodeScanService, setBarCodeScanService] = useState(
+    new BarCodeScanService(navigationService)
+  );
 
   const [productService, setProductService] = useState(
     new ProductService(
@@ -87,6 +93,10 @@ export function DependencyInjectionContextProvider({
     setNavigationService(new NavigationService(navigation));
   }, [navigation]);
 
+  useEffect(() => {
+    setBarCodeScanService(new BarCodeScanService(navigationService));
+  }, [navigationService]);
+
   return (
     <DependencyInjectionContext.Provider
       value={{
@@ -95,6 +105,7 @@ export function DependencyInjectionContextProvider({
         navigationService,
         snackBarService,
         productService,
+        barCodeScanService,
       }}
     >
       {children}

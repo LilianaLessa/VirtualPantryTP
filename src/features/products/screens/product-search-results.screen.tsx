@@ -1,113 +1,90 @@
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { RouteProp } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Button } from "react-native-paper";
-
-import { HeaderBackButton } from "@react-navigation/elements";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { v4 as uuidv4 } from "uuid";
-import { IProduct } from "../interfaces/product.interface";
 import ProductList from "../components/product-list.component";
 import Product from "../classes/product.class";
 import OpenFoodFacts from "../../../services/productDataProvider/OpenFoodFacts";
-import {
-  EditProductScreenRouteName,
-  ProductScreenRouteName,
-} from "../../../infrastructure/navigation/route-names";
-import { ProductSearchContext } from "../../../services/productSearch/product-search.context";
+import { ProductSearchQuery } from "../services/product.service";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export type ProductSearchResultsScreenParams = {
   ProductSearchResult: {
-    term?: string;
-    barCode?: string;
+    products: Product[];
+    query: Partial<ProductSearchQuery>;
   };
 };
 type Props = RouteProp<ProductSearchResultsScreenParams, "ProductSearchResult">;
 
-export function ProductSearchResultScreen({ route }: { route: Props }) {
-  const navigation = useNavigation();
-  const { searchInSavedProducts, products } = useContext(ProductSearchContext);
-  const [results, setResults] = useState<IProduct[]>([]);
-  const { term, barCode } = route.params ?? {
-    term: "",
-    barCode: "",
-  };
+export function ProductSearchResultScreen({
+  route: {
+    params: { products, query },
+  },
+}: {
+  route: Props;
+}) {
+  const { productService, navigationService } = useContext(
+    DependencyInjectionContext
+  );
+
+  const [searchResults, setSearchResults] = useState(products);
 
   useEffect(() => {
-    setResults(searchInSavedProducts(term, barCode));
-  }, [products]);
+    setSearchResults(productService.searchProducts(query));
+  }, [productService, query]);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <HeaderBackButton
-          onPress={() => {
-            navigation.navigate(ProductScreenRouteName as never);
-          }}
-        />
-      ),
-    });
-  }, [navigation]);
-
-  const navigateToProductCreation = (product: IProduct) => {
-    navigation.navigate(
-      EditProductScreenRouteName as never,
-      {
-        product,
-        routeToNavigateOnSave: ProductScreenRouteName,
-        // eslint-disable-next-line comma-dangle
-      } as never
+  const defaultCreationHandler = () => {
+    console.error(
+      "Unsupported creation handler: Something wrong is not right."
     );
   };
-  const handleCreateFromBarcode = () => {
-    new OpenFoodFacts().getProductByBarCode(
-      barCode ?? "",
-      (product: IProduct) => {
-        navigateToProductCreation(
+
+  const handleCreateFromBarCode = () => {
+    new OpenFoodFacts(productService).getProductByBarCode(
+      query.barCode ?? "",
+      (product: Product) => {
+        navigationService.showEditProductScreen(
           product.clone({
-            barCode: barCode ?? "",
+            barCode: query.barCode ?? "",
           })
         );
       },
       () => {
-        navigateToProductCreation(new Product(uuidv4(), barCode));
+        navigationService.showEditProductScreen(
+          productService.createNewProduct({ barCode: query.barCode ?? "" })
+        );
       }
     );
   };
 
   const handleCreateFromTerm = () => {
-    navigateToProductCreation(new Product(uuidv4(), "", term));
+    navigationService.showEditProductScreen(
+      productService.createNewProduct({ name: query.term ?? "" })
+    );
   };
 
-  if (results.length === 0) {
-    if (typeof term !== "undefined") {
-      return (
-        <View>
-          <Text>
-            No product was found with the name '{term}
-            '.
-          </Text>
-          <Button mode="contained" onPress={handleCreateFromTerm}>
-            Create
-          </Button>
-        </View>
-      );
-    }
+  if (searchResults.length === 0) {
+    let noProductsFoundMessage = "No product was found";
+    let creationHandler = defaultCreationHandler;
 
-    if (typeof barCode !== "undefined") {
-      return (
-        <View>
-          <Text>
-            No product was found with the barcode '{barCode}
-            '.
-          </Text>
-          <Button mode="contained" onPress={handleCreateFromBarcode}>
-            Create
-          </Button>
-        </View>
-      );
+    if (typeof query.barCode !== "undefined") {
+      creationHandler = handleCreateFromBarCode;
+      noProductsFoundMessage += `by the barcode '${query.barCode}'`;
+    } else if (typeof query.term !== "undefined") {
+      creationHandler = handleCreateFromTerm;
+      noProductsFoundMessage += `by the term '${query.term}'`;
     }
+    noProductsFoundMessage += ".";
+
+    return (
+      <View>
+        <Text>{noProductsFoundMessage}</Text>
+        <Button mode="contained" onPress={creationHandler}>
+          Create
+        </Button>
+      </View>
+    );
   }
 
-  return <ProductList products={results} />;
+  return <ProductList products={searchResults} />;
 }

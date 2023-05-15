@@ -1,15 +1,17 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { v4 as uuidv4 } from "uuid";
-
 import { ApiTypes, OpenFoodFactsApi } from "openfoodfac-ts";
 import IProductDataProvider from "./IProductDataProvider";
-import { IProduct } from "../../features/products/interfaces/product.interface";
 import { store } from "../../state";
 import { ApiActivityActionType } from "../../state/action-types";
-import Product from "../../features/products/classes/product.class";
+import ProductService from "../../features/products/services/product.service";
+import { IProduct } from "../../features/products/interfaces/product.interface";
 
 export default class OpenFoodFacts implements IProductDataProvider {
-  // eslint-disable-next-line class-methods-use-this
+  private readonly productService: ProductService;
+
+  constructor(productService: ProductService) {
+    this.productService = productService;
+  }
+
   getProductByBarCode(
     barcode: string,
     successCallback: (product: IProduct) => void,
@@ -25,7 +27,9 @@ export default class OpenFoodFacts implements IProductDataProvider {
         store.dispatch({ type: ApiActivityActionType.DATA_FETCHING_FINISHED });
         if (apiResponse !== null) {
           successCallback(
-            new Product(uuidv4(), apiResponse.code, apiResponse.product_name)
+            this.productService.createNewProduct({
+              name: apiResponse.product_name,
+            })
           );
         } else {
           // console.log("Error from openFoodFactsApi:", apiResponse);

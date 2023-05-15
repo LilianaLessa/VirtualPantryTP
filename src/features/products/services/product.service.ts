@@ -3,6 +3,11 @@ import Product from "../classes/product.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
 
+export type ProductSearchQuery = {
+  term: string;
+  barCode: string;
+};
+
 type StateActions = {
   saveProduct: (product: Product) => any;
   deleteProduct: (product: Product) => any;
@@ -97,5 +102,25 @@ export default class ProductService {
 
   getProducts(): Product[] {
     return this.products;
+  }
+
+  searchProducts(query?: Partial<ProductSearchQuery>): Product[] {
+    if (typeof query === "undefined") {
+      return this.getProducts();
+    }
+
+    if (typeof query.term !== "undefined") {
+      return this.products.filter((product: Product) =>
+        product.name.toLowerCase().includes(query.term.toLowerCase())
+      );
+    }
+
+    if (typeof query.barCode !== "undefined") {
+      return this.products.filter(
+        (product: Product) => product.barCode === query.barCode
+      );
+    }
+
+    return [];
   }
 }

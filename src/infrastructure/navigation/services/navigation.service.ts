@@ -2,12 +2,15 @@ import { NavigationProp } from "@react-navigation/core/src/types";
 import Group from "../../../features/group/classes/group.class";
 import {
   AccountScreenRouteName,
+  BarCodeScanScreenRouteName,
   EditGroupScreenRouteName,
   EditProductScreenRouteName,
   GroupsScreenRouteName,
   ProductScreenRouteName,
+  ProductSearchResultScreenRouteName,
 } from "../route-names";
 import Product from "../../../features/products/classes/product.class";
+import { ProductSearchQuery } from "../../../features/products/services/product.service";
 
 export default class NavigationService {
   private readonly navigation?: NavigationProp<ReactNavigation.RootParamList>;
@@ -35,6 +38,23 @@ export default class NavigationService {
     );
   }
 
+  public showProductSearchResultScreen(
+    products: Product[],
+    query: Partial<ProductSearchQuery>
+  ) {
+    this.navigation?.navigate(
+      ProductSearchResultScreenRouteName as never,
+      {
+        products,
+        query,
+      } as never
+    );
+  }
+
+  public showBarCodeScanScreen() {
+    this.navigation?.navigate(BarCodeScanScreenRouteName as never);
+  }
+
   public showProductsScreen() {
     this.navigation?.navigate(ProductScreenRouteName as never);
   }
@@ -45,5 +65,9 @@ export default class NavigationService {
 
   public showGroupsScreen(): void {
     this.navigation?.navigate(GroupsScreenRouteName as never);
+  }
+
+  public goBack(): void {
+    this.navigation?.goBack();
   }
 }

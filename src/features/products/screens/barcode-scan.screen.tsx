@@ -2,12 +2,14 @@ import { View, Text, Vibration } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Camera } from "expo-camera";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-import { BarCodeScannerContext } from "../../../services/barCodeScanner/barCodeScanner.context";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function BarCodeScanScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const { onBarCodeScanned } = useContext(BarCodeScannerContext);
+  const { barCodeScanService, navigationService } = useContext(
+    DependencyInjectionContext
+  );
 
   const isFocused = useIsFocused();
   useFocusEffect(() => {
@@ -33,8 +35,10 @@ function BarCodeScanScreen() {
   const handleOnBarCodeScanned = ({ data }: { data: string }) => {
     if (!scanned) {
       setScanned(true);
+      // todo eventually, vibration could be a service and, therefore, configurable
       Vibration.vibrate(75);
-      onBarCodeScanned(data);
+      navigationService.goBack();
+      barCodeScanService.onScan(data);
     }
   };
 
