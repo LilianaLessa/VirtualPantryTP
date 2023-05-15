@@ -32,6 +32,8 @@ const defaultValue = {
   pantryService: new PantryService([], new AuthGuardService(null), {}),
 };
 
+// todo this shouldn't depend that much on useEffect.
+//  Better would be to load all the application dependencies via promises, then load the services.
 export const DependencyInjectionContext =
   createContext<DependencyInjectionContextType>(defaultValue);
 
@@ -99,10 +101,11 @@ export function DependencyInjectionContextProvider({
       new PantryService(
         Array.from(pantries.values()),
         authGuardService,
-        stateActions
+        stateActions,
+        firestoreContext
       )
     );
-  }, [authGuardService, pantries]);
+  }, [authGuardService, pantries, firestoreContext]);
 
   useEffect(() => {
     setNavigationService(new NavigationService(navigation));

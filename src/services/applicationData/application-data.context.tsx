@@ -107,7 +107,18 @@ export function ApplicationDataContextProvider({
         setLoadedPantries(
           results.reduce(
             (map: Map<number, Pantry>, r: Pantry) =>
-              map.set(r.id, new Pantry(r.uuid, r.name, r.id, r.ownerUid)),
+              map.set(
+                r.id,
+                new Pantry(
+                  r.uuid,
+                  r.name,
+                  r.id,
+                  r.ownerUid,
+
+                  r.updatedAt,
+                  r.firestoreId
+                )
+              ),
             new Map<number, Pantry>()
           )
         );

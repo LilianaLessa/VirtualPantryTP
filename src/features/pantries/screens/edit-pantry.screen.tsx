@@ -52,6 +52,7 @@ export function EditPantryScreen({
         Save
       </Button>
       <Text>{`Owner UID: ${pantry?.ownerUid}`}</Text>
+      <Text>{`Firestore ID: ${pantry?.firestoreId}`}</Text>
     </View>
   );
 }

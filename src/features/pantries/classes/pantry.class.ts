@@ -1,4 +1,5 @@
 import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
+import { DocumentData } from "firebase/firestore";
 import { IPantry } from "../interfaces/pantry.interface";
 import {
   LocalTable,
@@ -14,12 +15,19 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
 
   updatedAt?: string;
 
+  firestoreCollectionName = Pantry.getFirestoreCollectionName();
+
+  firestoreDeletedCollectionName = Pantry.getFirestoreDeletedCollectionName();
+
+  firestoreId: string;
+
   constructor(
     uuid: string,
     name?: string,
     id?: number,
     ownerUid?: string,
-    updatedAt?: string
+    updatedAt?: string,
+    firestoreId?: string
   ) {
     super(LocalTable.PANTRY);
     this.uuid = uuid;
@@ -33,6 +41,10 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
     if (typeof updatedAt !== "undefined") {
       this.updatedAt = updatedAt;
     }
+
+    if (typeof firestoreId !== "undefined") {
+      this.firestoreId = firestoreId;
+    }
   }
 
   getKey(): string {
@@ -45,7 +57,8 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
       override?.name ?? this.name,
       override?.id ?? this.id,
       override?.ownerUid ?? this.ownerUid,
-      override?.updatedAt ?? this.updatedAt
+      override?.updatedAt ?? this.updatedAt,
+      override?.firestoreId ?? this.firestoreId
     );
   }
 
@@ -56,6 +69,38 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
       .column("name")
       .column("ownerUid")
       .string.nullable.column("updatedAt")
+      .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(Pantry.prototype);
+  }
+
+  static buildFromFirestoreData(doc: DocumentData): Pantry {
+    return new Pantry(
+      doc.data().uuid,
+      doc.data().name,
+      undefined,
+      doc.data().ownerUid,
+      doc.data().updatedAt,
+      doc.id
+    );
+  }
+
+  getFirestoreData(): object {
+    const {
+      id,
+      tableName,
+      firestoreCollectionName,
+      firestoreDeletedCollectionName,
+      firestoreId,
+      ...data
+    } = this;
+    return data;
+  }
+
+  static getFirestoreCollectionName(): string {
+    return "pantry";
+  }
+
+  static getFirestoreDeletedCollectionName(): string {
+    return "deleted_pantry";
   }
 }
