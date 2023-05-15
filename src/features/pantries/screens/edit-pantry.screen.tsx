@@ -1,42 +1,38 @@
 import { Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { RouteProp, useNavigation } from "@react-navigation/native";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { v4 as uuidv4 } from "uuid";
+import React, { useContext, useState } from "react";
+import { RouteProp } from "@react-navigation/native";
 import { Button, HelperText, TextInput } from "react-native-paper";
-import { useActions } from "../../../hooks/useActions";
-import { IPantry } from "../interfaces/pantry.interface";
 import Pantry from "../classes/pantry.class";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export type EditPantryScreenParams = {
   EditPantry: {
-    pantry?: IPantry;
-    isEdit?: boolean;
+    pantry: Pantry;
   };
 };
 type Props = RouteProp<EditPantryScreenParams, "EditPantry">;
 
-export function EditPantryScreen({ route }: { route: Props }) {
-  let { pantry } = route.params ?? {};
-  const { isEdit } = route.params ?? { isEdit: false };
-  const navigation = useNavigation();
-  const [name, setName] = useState(pantry?.name ?? "");
-  const { savePantry } = useActions();
+export function EditPantryScreen({
+  route: {
+    params: { pantry },
+  },
+}: {
+  route: Props;
+}) {
+  const { pantryService, navigationService, snackBarService } = useContext(
+    DependencyInjectionContext
+  );
+  const [name, setName] = useState(pantry.name);
 
-  useEffect(() => {
-    const screenTitle = isEdit ? "Edit Pantry" : "Create Pantry";
-    navigation.setOptions({
-      title: screenTitle,
+  const handleSave = () => {
+    const updatedPantry = pantry.clone({
+      name,
     });
-  }, [isEdit, navigation]);
 
-  const handlePantrySave = () => {
-    pantry = pantry ?? new Pantry(uuidv4());
-    pantry.name = name;
-
-    savePantry(pantry);
-
-    navigation.goBack();
+    pantryService.savePantry(updatedPantry, () => {
+      navigationService.showPantryScreen();
+      snackBarService.showPantrySavedInfo(updatedPantry);
+    });
   };
 
   return (
@@ -52,7 +48,7 @@ export function EditPantryScreen({ route }: { route: Props }) {
       <HelperText visible type="info" padding="none">
         Type a name for your pantry
       </HelperText>
-      <Button mode="contained" onPress={handlePantrySave}>
+      <Button mode="contained" onPress={handleSave}>
         Save
       </Button>
       <Text>{`Owner UID: ${pantry?.ownerUid}`}</Text>

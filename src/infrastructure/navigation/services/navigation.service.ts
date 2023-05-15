@@ -4,13 +4,16 @@ import {
   AccountScreenRouteName,
   BarCodeScanScreenRouteName,
   EditGroupScreenRouteName,
+  EditPantryScreenRouteName,
   EditProductScreenRouteName,
   GroupsScreenRouteName,
+  PantriesScreenRouteName,
   ProductScreenRouteName,
   ProductSearchResultScreenRouteName,
 } from "../route-names";
 import Product from "../../../features/products/classes/product.class";
 import { ProductSearchQuery } from "../../../features/products/services/product.service";
+import Pantry from "../../../features/pantries/classes/pantry.class";
 
 export default class NavigationService {
   private readonly navigation?: NavigationProp<ReactNavigation.RootParamList>;
@@ -65,6 +68,17 @@ export default class NavigationService {
 
   public showGroupsScreen(): void {
     this.navigation?.navigate(GroupsScreenRouteName as never);
+  }
+
+  public showEditPantryScreen(pantry: Pantry): void {
+    this.navigation?.navigate(
+      EditPantryScreenRouteName as never,
+      { pantry } as never
+    );
+  }
+
+  public showPantryScreen(): void {
+    this.navigation?.navigate(PantriesScreenRouteName as never);
   }
 
   public goBack(): void {

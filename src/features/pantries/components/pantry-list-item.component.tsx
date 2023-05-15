@@ -2,11 +2,8 @@ import { TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import styled from "styled-components";
-import { useNavigation } from "@react-navigation/native";
 import { IPantry } from "../interfaces/pantry.interface";
 import {
-  // todo make these more generic
-  AddToPantryIcon,
   DeleteIcon,
   DragHandler,
   EditIcon,
@@ -17,10 +14,7 @@ import {
 } from "../../products/components/product-list-item.styles";
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
-import {
-  EditPantryScreenRouteName,
-  PantryContentScreenRouteName,
-} from "../../../infrastructure/navigation/route-names";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export const PantryLeftIcon = styled(MaterialCommunityIcons).attrs({
   name: "dropbox",
@@ -30,39 +24,26 @@ export const PantryLeftIcon = styled(MaterialCommunityIcons).attrs({
   margin-left: 10px;
 `;
 
-function PantryListItem({
-  item,
-  deletePantryCallback,
-}: {
-  item: IPantry;
-  deletePantryCallback: (pantryToDelete: IPantry) => void;
-}) {
-  const navigation = useNavigation();
+function PantryListItem({ item }: { item: IPantry }) {
+  const { navigationService, pantryService, snackBarService } = useContext(
+    DependencyInjectionContext
+  );
+
   const { showModal, hideModal } = useContext(DialogModalContext);
 
   const handleEdit = () => {
-    navigation.navigate(
-      EditPantryScreenRouteName as never,
-      {
-        pantry: item,
-        isEdit: true,
-        // eslint-disable-next-line comma-dangle
-      } as never
-    );
+    navigationService.showEditPantryScreen(item);
   };
 
   const handleShowContent = () => {
-    navigation.navigate(
-      PantryContentScreenRouteName as never,
-      {
-        pantry: item,
-      } as never
-    );
+    console.log("item");
   };
 
   const handleSelfDelete = () => {
     hideModal();
-    deletePantryCallback(item);
+    pantryService.deletePantry(item, () => {
+      snackBarService.showPantryDeletedInfo(item);
+    });
   };
   const showConfirmDeletionModal = () => {
     showModal(

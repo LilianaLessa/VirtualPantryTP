@@ -10,6 +10,7 @@ import SnackBarService from "../information/snack-bar.service";
 import { FirestoreContext } from "../firebase/firestore.context";
 import ProductService from "../../features/products/services/product.service";
 import BarCodeScanService from "../barCodeScanner/bar-code-scan.service";
+import PantryService from "../../features/pantries/services/pantry.service";
 
 type DependencyInjectionContextType = {
   authGuardService: AuthGuardService;
@@ -18,6 +19,7 @@ type DependencyInjectionContextType = {
   snackBarService: SnackBarService;
   productService: ProductService;
   barCodeScanService: BarCodeScanService;
+  pantryService: PantryService;
 };
 
 const defaultValue = {
@@ -27,6 +29,7 @@ const defaultValue = {
   snackBarService: new SnackBarService(),
   productService: new ProductService([], new AuthGuardService(null), {}),
   barCodeScanService: new BarCodeScanService(new NavigationService()),
+  pantryService: new PantryService([], new AuthGuardService(null), {}),
 };
 
 export const DependencyInjectionContext =
@@ -43,6 +46,7 @@ export function DependencyInjectionContextProvider({
   const navigation = useNavigation();
   const { groups } = useTypedSelector((state) => state.groups);
   const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const { pantries } = useTypedSelector((state) => state.pantries);
 
   const [authGuardService, setAuthGuardService] = useState(
     defaultValue.authGuardService
@@ -54,15 +58,15 @@ export function DependencyInjectionContextProvider({
 
   const [snackBarService] = useState(new SnackBarService(stateActions));
   const [barCodeScanService, setBarCodeScanService] = useState(
-    new BarCodeScanService(navigationService)
+    defaultValue.barCodeScanService
+  );
+
+  const [pantryService, setPantryService] = useState(
+    defaultValue.pantryService
   );
 
   const [productService, setProductService] = useState(
-    new ProductService(
-      Array.from(savedProducts.values()),
-      authGuardService,
-      stateActions
-    )
+    defaultValue.productService
   );
 
   useEffect(() => {
@@ -91,6 +95,16 @@ export function DependencyInjectionContextProvider({
   }, [authGuardService, savedProducts, firestoreContext]);
 
   useEffect(() => {
+    setPantryService(
+      new PantryService(
+        Array.from(pantries.values()),
+        authGuardService,
+        stateActions
+      )
+    );
+  }, [authGuardService, pantries]);
+
+  useEffect(() => {
     setNavigationService(new NavigationService(navigation));
   }, [navigation]);
 
@@ -107,6 +121,7 @@ export function DependencyInjectionContextProvider({
         snackBarService,
         productService,
         barCodeScanService,
+        pantryService,
       }}
     >
       {children}

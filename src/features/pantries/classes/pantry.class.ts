@@ -12,7 +12,15 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
 
   ownerUid?: string;
 
-  constructor(uuid: string, name?: string, id?: number, ownerUid?: string) {
+  updatedAt?: string;
+
+  constructor(
+    uuid: string,
+    name?: string,
+    id?: number,
+    ownerUid?: string,
+    updatedAt?: string
+  ) {
     super(LocalTable.PANTRY);
     this.uuid = uuid;
     this.name = name ?? "";
@@ -22,10 +30,23 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
     if (typeof ownerUid !== "undefined") {
       this.ownerUid = ownerUid;
     }
+    if (typeof updatedAt !== "undefined") {
+      this.updatedAt = updatedAt;
+    }
   }
 
   getKey(): string {
     return `pantry_${this.uuid}`;
+  }
+
+  clone(override?: Partial<Pantry>): Pantry {
+    return new Pantry(
+      override?.uuid ?? this.uuid,
+      override?.name ?? this.name,
+      override?.id ?? this.id,
+      override?.ownerUid ?? this.ownerUid,
+      override?.updatedAt ?? this.updatedAt
+    );
   }
 
   static GetTableStructor() {
@@ -34,6 +55,7 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
       .primary.autoIncrement.number.column("uuid")
       .column("name")
       .column("ownerUid")
+      .string.nullable.column("updatedAt")
       .string.nullable.objectPrototype(Pantry.prototype);
   }
 }

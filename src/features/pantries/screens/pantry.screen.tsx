@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import PantryList from "../components/pantry-list.component";
-import { EditPantryScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function PantryScreen() {
-  const navigation = useNavigation();
-  const { pantries } = useTypedSelector((state) => state.pantries);
-  const [pantriesOnList, setPantriesOnList] = useState(
-    Array.from(pantries.values())
+  const { pantryService, navigationService } = useContext(
+    DependencyInjectionContext
+  );
+
+  const [currentPantries, setCurrentPantries] = useState(
+    pantryService.getPantries()
   );
 
   useEffect(() => {
-    setPantriesOnList(Array.from(pantries.values()));
-  }, [pantries]);
+    setCurrentPantries(pantryService.getPantries());
+  }, [pantryService]);
 
   const handleAddPantry = () => {
-    navigation.navigate(EditPantryScreenRouteName as never);
+    navigationService.showEditPantryScreen(pantryService.createNewPantry());
   };
 
   return (
@@ -30,7 +30,7 @@ function PantryScreen() {
           Add pantry
         </Button>
       </TouchableOpacity>
-      <PantryList pantries={pantriesOnList} />
+      <PantryList pantries={currentPantries} />
     </View>
   );
 }
