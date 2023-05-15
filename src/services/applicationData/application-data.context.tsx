@@ -9,7 +9,6 @@ import Pantry from "../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../features/products/classes/stored.product";
 import { AuthenticationContext } from "../firebase/authentication.context";
 import { FirestoreContext } from "../firebase/firestore.context";
-import { IProduct } from "../../features/products/interfaces/product.interface";
 import Group from "../../features/group/classes/group.class";
 import UserInGroup from "../../features/group/classes/user-in-group.class";
 
@@ -27,16 +26,9 @@ export function ApplicationDataContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const { user } = useContext(AuthenticationContext);
-  const {
-    getAllProductsFromUser,
-    saveProductOnFirestore,
-    filterDeletedProductsUuids,
-    syncCollection,
-  } = useContext(FirestoreContext);
+  const { syncCollection } = useContext(FirestoreContext);
   const {
     initProductCollection,
-    saveProductInSilent,
-    deleteProductInSilent,
     showLoadingActivityIndicator,
     hideLoadingActivityIndicator,
   } = useActions();
@@ -49,92 +41,50 @@ export function ApplicationDataContextProvider({
   }, [loadedProducts]);
 
   const initSavedProducts = (user: User | null) => {
-    const args = user ? [user.uid] : [];
+    const db = DbContext.getInstance().database;
+    const userUid = user?.uid;
+    const args = userUid ? [userUid] : [];
     let query = `Select * from ${LocalTable.PRODUCT}`;
     query = `${query} WHERE ownerUid ${user === null ? "IS NULL" : " = ?"}`;
 
-    return DbContext.getInstance()
-      .database.find(query, args)
-      .then((results: any) => {
-        const localLoadedProducts = results.reduce(
-          (map: Map<number, Product>, r: Product) =>
-            map.set(
+    return db.find(query, args).then((results: any) => {
+      const localLoadedProducts = results.reduce(
+        (map: Map<number, Product>, r: Product) =>
+          map.set(
+            r.id,
+            new Product(
+              r.uuid,
+              r.barCode,
+              r.name,
+              r.measureUnit,
+              r.packageWeight,
               r.id,
-              new Product(
-                r.uuid,
-                r.barCode,
-                r.name,
-                r.measureUnit,
-                r.packageWeight,
-                r.id,
-                r.ownerUid,
-                r.updatedAt,
-                r.firestoreId
-              )
-            ),
-          new Map<number, Product>()
-        );
-
-        // console.log("loaded from local", user?.uid, localLoadedProducts);
-        setLoadedProducts(localLoadedProducts);
-
-        if (user !== null) {
-          getAllProductsFromUser(user, (productsFromFirebase) => {
-            const localProductsByUuid = results.reduce(
-              (map: Map<number, Product>, r: Product) =>
-                map.set(
-                  r.uuid,
-                  new Product(
-                    r.uuid,
-                    r.barCode,
-                    r.name,
-                    r.measureUnit,
-                    r.packageWeight,
-                    r.id,
-                    r.ownerUid,
-                    r.updatedAt,
-                    r.firestoreId
-                  )
-                ),
-              new Map<number, Product>()
-            );
-
-            productsFromFirebase.forEach((fp: IProduct) => {
-              if (localProductsByUuid.has(fp.uuid)) {
-                const lp = localProductsByUuid.get(fp.uuid);
-                // console.log("product conflict. keep most updated version.");
-                if (new Date(fp.updatedAt) > new Date(lp.updatedAt)) {
-                  // console.log("product conflict: save from firebase");
-                  saveProductInSilent(fp);
-                } else {
-                  // console.log("product conflict: save from local");
-                  saveProductOnFirestore(lp);
-                }
-              } else {
-                // console.log("product from firebase not on local: save");
-                saveProductInSilent(fp);
-              }
-            });
-
-            DbContext.getInstance()
-              .database.find(query, args)
-              .then((results: any) => {
-                if (results.length > 0) {
-                  filterDeletedProductsUuids(
-                    results.map(({ uuid }: { uuid: string }) => uuid),
-                    (deletedUuids: string[]) => {
-                      // console.log("deleted product uuids found", deletedUuids);
-                      deletedUuids.forEach((uuid) => {
-                        // console.log("deleting local version of product", uuid);
-                        deleteProductInSilent(localProductsByUuid.get(uuid));
-                      });
-                    }
-                  );
-                }
-              });
-          });
-        }
+              r.ownerUid,
+              r.updatedAt,
+              r.firestoreId
+            )
+          ),
+        new Map<number, Product>()
+      );
+      (userUid
+        ? syncCollection(
+            userUid,
+            Product,
+            Array.from(localLoadedProducts.values())
+          )
+        : Promise.resolve({
+            saved: Array.from(localLoadedProducts.values()),
+            deleted: [],
+          })
+      ).then(({ saved, deleted }) => {
+        Promise.all([
+          ...saved.map((s) => db.save(s as Product)),
+          ...deleted.map((d) => db.delete(d)),
+        ]).then(() => {
+          setLoadedProducts(saved);
+        });
       });
+    });
   };
 
   const { initPantryCollection } = useActions();
