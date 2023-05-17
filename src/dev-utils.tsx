@@ -43,12 +43,12 @@ export function ScreenPlaceHolder({ route }) {
   );
 }
 
-export function printStackTrace() {
-  const error = new Error();
-  const stack = error.stack
+export function getStackTraceAsString(e?: Error): string {
+  const error = e ?? new Error();
+  // console.log(stack);
+  return error.stack
     .split("\n")
     .slice(2)
     .map((line) => line.replace(/\s+at\s+/, ""))
     .join("\n");
-  console.log(stack);
 }

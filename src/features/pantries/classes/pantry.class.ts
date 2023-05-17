@@ -66,7 +66,7 @@ export default class Pantry extends IBaseModule<TableNames> implements IPantry {
     return TableBuilder<Pantry, TableNames>(LocalTable.PANTRY)
       .column("id")
       .primary.autoIncrement.number.column("uuid")
-      .column("name")
+      .unique.column("name")
       .column("ownerUid")
       .string.nullable.column("updatedAt")
       .string.nullable.column("firestoreId")

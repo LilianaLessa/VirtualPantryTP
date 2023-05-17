@@ -10,10 +10,7 @@ import groupsReducer from "./group.reducer";
 
 const reducers = combineReducers({
   savedProducts: savedProductsReducer,
-  storedProductsByUuid: storedProductsReducer,
-  storedProductsByPantryUuid: storedProductsReducer,
-  storedProductsByProductUuid: storedProductsReducer,
-  storedProductsByCompositeKey: storedProductsReducer,
+  storedProducts: storedProductsReducer,
   pantries: pantriesReducer,
   apiActivity: apiActivityReducer,
   messageSnackbar: messageSnackbarReducer,

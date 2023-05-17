@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { StoreProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import {
   AddToPantryIcon,
   DeleteIcon,
@@ -18,9 +17,8 @@ import { DependencyInjectionContext } from "../../../services/dependencyInjectio
 import Product from "../classes/product.class";
 
 function ProductListItem({ item }: { item: Product }) {
-  const { productService, navigationService, snackBarService } = useContext(
-    DependencyInjectionContext
-  );
+  const { productService, navigationService, snackBarService, pantryService } =
+    useContext(DependencyInjectionContext);
 
   const navigation = useNavigation();
   const { showModal, hideModal } = useContext(DialogModalContext);
@@ -50,11 +48,10 @@ function ProductListItem({ item }: { item: Product }) {
   };
 
   const handleStoreProduct = () => {
-    navigation.navigate(
-      StoreProductScreenRouteName as never,
-      {
-        product: item,
-      } as never
+    navigationService.showStoreProductScreen(
+      pantryService.createStoredProduct({
+        productUuid: item.uuid,
+      })
     );
   };
 

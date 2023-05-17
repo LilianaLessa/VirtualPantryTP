@@ -11,9 +11,10 @@ export default class UserInGroup
   extends IBaseModule<TableNames>
   implements IFirestoreObject
 {
-  firestoreCollectionName = "userInGroup";
+  firestoreCollectionName = UserInGroup.getFirestoreCollectionName();
 
-  firestoreDeletedCollectionName = "deleted_userInGroup";
+  firestoreDeletedCollectionName =
+    UserInGroup.getFirestoreDeletedCollectionName();
 
   uuid: string;
 
@@ -28,10 +29,6 @@ export default class UserInGroup
   isInviter: boolean;
 
   updatedAt?: string;
-
-  firestoreId?: string;
-
-  ownerUid: string;
 
   constructor(
     uuid: string,
@@ -118,7 +115,7 @@ export default class UserInGroup
   }
 
   static getFirestoreDeletedCollectionName(): string {
-    return "deletedUserInGroup";
+    return "deleted_UserInGroup";
   }
 
   static buildFromFirestoreData(doc: DocumentData): UserInGroup {

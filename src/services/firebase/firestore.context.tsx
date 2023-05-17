@@ -123,12 +123,16 @@ export function FirestoreContextProvider({
               ),
               where(
                 "uuid",
-                "in",
+                "in", // todo this support up to 30 comparison values. chunk this search.
                 localCollection.map((o) => o.uuid)
               )
             )
           ).catch((e) => {
-            console.log("eita", e);
+            console.log(
+              "failed to fetch data from firestore",
+              e,
+              collectionType.name
+            );
           })
         : Promise.resolve({ docs: [] });
 

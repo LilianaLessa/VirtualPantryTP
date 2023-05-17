@@ -3,10 +3,13 @@ import Pantry from "../classes/pantry.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
+import StoredProduct from "../../products/classes/stored.product";
+import { getStackTraceAsString } from "../../../dev-utils";
 
 type StateActions = {
   savePantry: (pantry: Pantry) => any;
   deletePantry: (pantry: Pantry) => any;
+  storeProduct: (storedProduct: StoredProduct) => any;
   showLoadingActivityIndicator: () => any;
   hideLoadingActivityIndicator: () => any;
 };
@@ -19,6 +22,8 @@ type FirestoreActions = {
 export default class PantryService {
   private readonly pantries: Pantry[];
 
+  private readonly storedProducts: StoredProduct[];
+
   private readonly authGuardService: AuthGuardService;
 
   private readonly stateActions: StateActions;
@@ -27,11 +32,13 @@ export default class PantryService {
 
   constructor(
     pantries: Pantry[],
+    storedProducts: StoredProduct[],
     authGuardService: AuthGuardService,
     stateActions: StateActions,
     firestoreActions: FirestoreActions
   ) {
     this.pantries = pantries;
+    this.storedProducts = storedProducts;
     this.authGuardService = authGuardService;
     this.stateActions = stateActions;
     this.firestoreActions = firestoreActions;
@@ -54,7 +61,6 @@ export default class PantryService {
     const updatedPantry = pantry.clone({
       updatedAt: new Date().toString(),
     });
-
     // save on local;
     db.save(updatedPantry as Pantry)
       .then(() => {
@@ -123,6 +129,66 @@ export default class PantryService {
           errorCallback();
         }
       });
+  }
+
+  storeProduct(
+    storedProduct: StoredProduct,
+    successCallback?: () => any,
+    errorCallback?: () => any
+  ): void {
+    this.stateActions.showLoadingActivityIndicator();
+    const db = DbContext.getInstance().database;
+    const updatedStoredProduct = storedProduct.clone({
+      updatedAt: new Date().toString(),
+    });
+    // save on local;
+    db.save(updatedStoredProduct as StoredProduct)
+      .then(() => {
+        this.authGuardService
+          .guard(
+            () =>
+              this.firestoreActions
+                .saveObject(updatedStoredProduct)
+                .then((savedStoredProduct: StoredProduct) =>
+                  // update local copy with firebase id
+                  db
+                    .save(savedStoredProduct as StoredProduct)
+                    .then(() => savedStoredProduct)
+                ),
+            () => Promise.resolve(updatedStoredProduct)
+          )
+          .then((savedStoredProduct: StoredProduct) => {
+            // save on state
+            this.stateActions.storeProduct(savedStoredProduct);
+          });
+      })
+      .then(() => {
+        this.stateActions.hideLoadingActivityIndicator();
+        if (successCallback) {
+          return successCallback();
+        }
+      })
+      .catch((e) => {
+        this.stateActions.hideLoadingActivityIndicator();
+        console.log(
+          `Error on saving stored product '${storedProduct.uuid}'`,
+          e,
+          getStackTraceAsString(e)
+        );
+        if (errorCallback) {
+          errorCallback();
+        }
+      });
+  }
+
+  createStoredProduct(override?: Partial<StoredProduct>): StoredProduct {
+    return new StoredProduct(uuidv4(), new Date().toString()).clone(override);
+  }
+
+  getPantryByUuid(uuid?: string): Pantry | undefined {
+    return typeof uuid === "undefined"
+      ? undefined
+      : this.pantries.find((p) => p.uuid === uuid);
   }
 
   getPantries() {

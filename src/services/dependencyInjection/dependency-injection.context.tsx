@@ -27,9 +27,9 @@ const defaultValue = {
   groupService: new GroupService(new AuthGuardService(null)),
   navigationService: new NavigationService(),
   snackBarService: new SnackBarService(),
-  productService: new ProductService([], new AuthGuardService(null), {}),
+  productService: new ProductService([], new AuthGuardService(null), {}, {}),
   barCodeScanService: new BarCodeScanService(new NavigationService()),
-  pantryService: new PantryService([], new AuthGuardService(null), {}),
+  pantryService: new PantryService([], [], new AuthGuardService(null), {}, {}),
 };
 
 // todo this shouldn't depend that much on useEffect.
@@ -48,6 +48,7 @@ export function DependencyInjectionContextProvider({
   const navigation = useNavigation();
   const { groups } = useTypedSelector((state) => state.groups);
   const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const { storedProducts } = useTypedSelector((state) => state.storedProducts);
   const { pantries } = useTypedSelector((state) => state.pantries);
 
   const [authGuardService, setAuthGuardService] = useState(
@@ -100,12 +101,13 @@ export function DependencyInjectionContextProvider({
     setPantryService(
       new PantryService(
         Array.from(pantries.values()),
+        Array.from(storedProducts.values()),
         authGuardService,
         stateActions,
         firestoreContext
       )
     );
-  }, [authGuardService, pantries, firestoreContext]);
+  }, [authGuardService, pantries, storedProducts, firestoreContext]);
 
   useEffect(() => {
     setNavigationService(new NavigationService(navigation));

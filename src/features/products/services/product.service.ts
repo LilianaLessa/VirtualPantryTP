@@ -145,6 +145,12 @@ export default class ProductService {
     return this.products;
   }
 
+  getProductByUuid(uuid?: string): Product | undefined {
+    return typeof uuid === "undefined"
+      ? undefined
+      : this.products.find((p) => p.uuid === uuid);
+  }
+
   searchProducts(query?: Partial<ProductSearchQuery>): Product[] {
     if (typeof query === "undefined") {
       return this.getProducts();

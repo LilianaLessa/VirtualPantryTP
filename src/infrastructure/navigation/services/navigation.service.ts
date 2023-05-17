@@ -10,10 +10,12 @@ import {
   PantriesScreenRouteName,
   ProductScreenRouteName,
   ProductSearchResultScreenRouteName,
+  StoreProductScreenRouteName,
 } from "../route-names";
 import Product from "../../../features/products/classes/product.class";
 import { ProductSearchQuery } from "../../../features/products/services/product.service";
 import Pantry from "../../../features/pantries/classes/pantry.class";
+import StoredProduct from "../../../features/products/classes/stored.product";
 
 export default class NavigationService {
   private readonly navigation?: NavigationProp<ReactNavigation.RootParamList>;
@@ -79,6 +81,15 @@ export default class NavigationService {
 
   public showPantryScreen(): void {
     this.navigation?.navigate(PantriesScreenRouteName as never);
+  }
+
+  public showStoreProductScreen(storedProduct: StoredProduct): void {
+    this.navigation?.navigate(
+      StoreProductScreenRouteName as never,
+      {
+        storedProduct,
+      } as never
+    );
   }
 
   public goBack(): void {

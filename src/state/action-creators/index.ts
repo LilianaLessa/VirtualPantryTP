@@ -26,6 +26,7 @@ import { IStoredProduct } from "../../features/products/interfaces/stored-produc
 import { INotification } from "../../features/notification/interfaces/notification.interface";
 import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 import Group from "../../features/group/classes/group.class";
+import StoredProduct from "../../features/products/classes/stored.product";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -161,15 +162,11 @@ export const hideInfoSnack =
   };
 
 export const storeProduct =
-  (productToStore: IStoredProduct) =>
-  (dispatch: Dispatch<StoredProductActions | MessageSnackbarActions>) => {
-    dispatch({
-      type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Product '${productToStore.product.name}' was stored on '${productToStore.pantry.name}.'`,
-    });
+  (storedProduct: StoredProduct) =>
+  (dispatch: Dispatch<StoredProductActions>) => {
     dispatch({
       type: StoredProductActionType.STORE_PRODUCT,
-      productToStore,
+      storedProduct,
     });
   };
 

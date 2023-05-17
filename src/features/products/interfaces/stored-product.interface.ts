@@ -1,21 +1,21 @@
-import { IProduct } from "./product.interface";
-import { IPantry } from "../../pantries/interfaces/pantry.interface";
+import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 
-export interface IStoredProduct {
+export interface IStoredProduct extends  {
   id: number;
-  uuid: string;
 
-  product: Partial<IProduct>; // todo remove this Partial when finishing testing of notification
+  pantryUuid: string;
 
-  pantry: IPantry;
+  storedAt: string;
 
-  quantity: number;
+  name?: string;
 
-  bestBefore?: Date;
+  quantity?: number;
 
-  storedAt: Date;
+  bestBefore?: string;
 
   boughtPrice?: number;
+
+  productUuid: string;
 
   getKey: () => string;
 }

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity } from "react-native";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import React, { useContext, useEffect, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
+import { RouteProp } from "@react-navigation/native";
 
 import { PaperSelect } from "react-native-paper-select";
 
@@ -14,8 +14,6 @@ import { Button, HelperText, TextInput } from "react-native-paper";
 import { SelectedItem } from "react-native-paper-select/lib/typescript/interface/paperSelect.interface";
 
 import {
-  enGB,
-  registerTranslation,
   /**
    * todo on this component, scrolling year list on
    *      the full-screen date picker triggers on cosole the message
@@ -23,31 +21,19 @@ import {
    *      Find a way to fix this.
    */
   DatePickerInput,
+  enGB,
+  registerTranslation,
 } from "react-native-paper-dates";
-import { v4 as uuidv4 } from "uuid";
-import { IProduct } from "../interfaces/product.interface";
-import { IPantry } from "../../pantries/interfaces/pantry.interface";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { BarCodeScanIcon } from "../components/product-search-bar.styles";
 import StoredProduct from "../classes/stored.product";
-import { IStoredProduct } from "../interfaces/stored-product.interface";
-import { useActions } from "../../../hooks/useActions";
-import IShoppingListItem from "../../shoppingList/interfaces/shopping-list-item.interface";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import Product from "../classes/product.class";
+import Pantry from "../../pantries/classes/pantry.class";
 
-export type StoreProductScreenParams = {
-  StoreProduct: {
-    product?: IProduct;
-    pantry?: IPantry;
-    shoppingListItem?: IShoppingListItem;
-  };
-};
-
-type Props = RouteProp<StoreProductScreenParams, "StoreProduct">;
-
-function getEntityArrayToSelect(
+function toList(
   // eslint-disable-next-line comma-dangle
-  entities: Array<{ uuid: string; name: string }>
-): Array<list> {
+  entities: { uuid: string; name: string }[]
+): list[] {
   return entities.map((p: { uuid: string; name: string }) => ({
     _id: p.uuid,
     value: p.name,
@@ -61,148 +47,119 @@ const SelectProductContainer = styled(View)`
   margin-right: 35px;
 `;
 
-export default function StoreProductScreen({ route }: { route: Props }) {
+export type StoreProductScreenParams = {
+  StoreProduct: {
+    storedProduct: StoredProduct;
+  };
+};
+
+type Props = RouteProp<StoreProductScreenParams, "StoreProduct">;
+
+export default function StoreProductScreen({
+  route: {
+    params: { storedProduct },
+  },
+}: {
+  route: Props;
+}) {
   registerTranslation("enGB", enGB);
-  const { product, pantry, shoppingListItem } = route.params ?? {};
-
-  const { savedProducts } = useTypedSelector((state) => state.savedProducts);
-  const { storedProductsByCompositeKey } = useTypedSelector(
-    (state) => state.storedProductsByCompositeKey
-  );
-  const { pantries } = useTypedSelector((state) => state.pantries);
-
-  const [storedProduct, setStoredProduct] = useState(
-    storedProductsByCompositeKey.get(
-      `${pantry?.uuid ?? ""},${product?.uuid ?? ""}`
-    )
-  );
-
-  const [products, setProducts] = useState(
-    getEntityArrayToSelect(Array.from(savedProducts.values()))
-  );
-  const [pantriesOnList, setPantriesOnList] = useState(
-    getEntityArrayToSelect(Array.from(pantries.values()))
-  );
-  const [selectedProduct, setSelectedProduct] = useState<IProduct | undefined>(
-    storedProduct?.product ?? product
-  );
-  const [selectedPantry, setSelectedPantry] = useState<IPantry | undefined>(
-    storedProduct?.pantry ?? pantry
-  );
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    setStoredProduct(
-      storedProductsByCompositeKey.get(
-        `${selectedProduct?.uuid ?? ""},${selectedPantry?.uuid ?? ""}`
-      )
-    );
-  }, [storedProductsByCompositeKey, selectedProduct, selectedPantry]);
-
-  const [quantity, setQuantity] = useState(
-    storedProduct?.quantity ?? shoppingListItem?.quantity ?? 1
-  );
-  const [bestBefore, setBestBefore] = useState(
-    storedProduct?.bestBefore ?? new Date()
-  );
-  const [storedAt, setStoredAt] = useState(
-    storedProduct?.storedAt ?? new Date()
-  );
-  const [boughtPrice, setBoughtPrice] = useState(
-    storedProduct?.boughtPrice ?? shoppingListItem?.boughtPrice ?? 0
-  );
-
-  useEffect(() => {
-    const savedProductsArray = Array.from(savedProducts.values());
-    // todo on no product, offer create product.
-    const firstProduct = savedProductsArray[0] ?? undefined;
-    const selectedProductExists =
-      selectedProduct && savedProducts.has(selectedProduct.uuid);
-    const previouslySelectedProduct = selectedProductExists
-      ? selectedProduct
-      : firstProduct;
-
-    setProducts(getEntityArrayToSelect(savedProductsArray));
-    setSelectedProduct(previouslySelectedProduct);
-  }, [savedProducts, selectedProduct]);
-  useEffect(() => {
-    const pantriesArray = Array.from(pantries.values());
-    // todo on no pantry, offer create pantry.
-    const firstPantry = pantriesArray[0] ?? undefined;
-    const selectedPantryExists =
-      selectedPantry && pantries.has(selectedPantry.uuid);
-    const previouslySelectedPantry = selectedPantryExists
-      ? selectedPantry
-      : firstPantry;
-
-    setPantriesOnList(getEntityArrayToSelect(pantriesArray));
-    setSelectedPantry(previouslySelectedPantry);
-  }, [pantries, selectedPantry]);
-
   const [materialCommunityIconsFontLoaded] = useFonts({
     MaterialCommunityIcons: materialCommunityIconsFont,
   });
 
-  const { storeProduct } = useActions();
+  const {
+    productService,
+    pantryService,
+    barCodeScanService,
+    navigationService,
+    snackBarService,
+  } = useContext(DependencyInjectionContext);
+
+  // select states
+  const [products, setProducts] = useState(productService.getProducts());
+  useEffect(() => {
+    setProducts(productService.getProducts());
+  }, [productService]);
+  const [pantries, setPantries] = useState(pantryService.getPantries());
+  useEffect(() => {
+    setPantries(pantryService.getPantries());
+  }, [pantryService]);
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(
+    productService.getProductByUuid(storedProduct.productUuid)
+  );
+  const [selectedPantry, setSelectedPantry] = useState<Pantry | undefined>(
+    pantryService.getPantryByUuid(storedProduct.pantryUuid)
+  );
+
+  // form states
+  const [name, setName] = useState(storedProduct.name ?? selectedProduct?.name);
+  const [quantity, setQuantity] = useState(storedProduct.quantity);
+  const [bestBefore, setBestBefore] = useState(
+    storedProduct.bestBefore ? new Date(storedProduct.bestBefore) : new Date()
+  );
+  const [storedAt, setStoredAt] = useState(
+    storedProduct.storedAt ? new Date(storedProduct.storedAt) : new Date()
+  );
+  const [boughtPrice, setBoughtPrice] = useState(storedProduct.boughtPrice);
 
   if (!materialCommunityIconsFontLoaded) {
     // console.log("font not loaded"); //todo put an activity indicator here?
     return null;
   }
 
+  const getSelectedPantryOnList = (): list[] =>
+    selectedPantry ? toList([selectedPantry]) : [];
+
   const handlePantrySelect = (item: SelectedItem) => {
-    const firstSelectedItem = item.selectedList[0];
-    if (firstSelectedItem) {
+    setSelectedPantry(
       // eslint-disable-next-line no-underscore-dangle
-      setSelectedPantry(pantries.get(firstSelectedItem._id));
-    }
+      pantryService.getPantryByUuid(item?.selectedList[0]?._id)
+    );
   };
 
-  const getSelectedPantryOnList = (): list[] =>
-    selectedPantry ? getEntityArrayToSelect([selectedPantry]) : [];
-
   const handleProductSelect = (item: SelectedItem) => {
-    const firstSelectedItem = item.selectedList[0];
-    if (firstSelectedItem) {
+    setSelectedProduct(
       // eslint-disable-next-line no-underscore-dangle
-      setSelectedProduct(savedProducts.get(firstSelectedItem._id));
-    }
+      productService.getProductByUuid(item?.selectedList[0]?._id)
+    );
   };
 
   const getSelectedProductOnList = (): list[] =>
-    selectedProduct ? getEntityArrayToSelect([selectedProduct]) : [];
+    selectedProduct ? toList([selectedProduct]) : [];
 
-  const handleProductOnPantrySave = () => {
-    // todo save button should be disabled if selectedProduct or selectedPantry are null
-    if (selectedProduct && selectedPantry) {
-      let productToStore: IStoredProduct;
-      if (storedProduct) {
-        productToStore = storedProduct;
-      } else {
-        productToStore = new StoredProduct(
-          uuidv4(),
-          selectedProduct,
-          selectedPantry
-        );
-      }
-      productToStore.quantity = quantity;
-      productToStore.bestBefore = bestBefore;
-      productToStore.storedAt = storedAt;
-      productToStore.boughtPrice = boughtPrice;
+  const handleStore = () => {
+    const updatedStoredProduct = storedProduct.clone({
+      name,
+      quantity,
+      boughtPrice,
+      bestBefore: bestBefore.toString(),
+      storedAt: storedAt.toString(),
+      productUuid: selectedProduct?.uuid,
+      pantryUuid: selectedPantry?.uuid,
+    });
+    pantryService.storeProduct(updatedStoredProduct, () => {
+      navigationService.goBack();
+      snackBarService.showProductStoredInfo(
+        storedProduct,
+        pantryService.getPantryByUuid(updatedStoredProduct.pantryUuid),
+        productService.getProductByUuid(updatedStoredProduct.productUuid)
+      );
+    });
+  };
 
-      storeProduct(productToStore);
-
-      navigation.goBack();
-    }
+  const handleProductSelectBarcodePress = () => {
+    barCodeScanService.scanBarCode((barCode: string) => {
+      setSelectedProduct(productService.searchProducts({ barCode })[0]);
+    });
   };
 
   return (
     <View>
       <PaperSelect
-        label="Pantry"
+        label="Select a Pantry"
         value={selectedPantry?.name ?? ""}
-        arrayList={[...pantriesOnList]}
+        arrayList={toList(pantries)}
         multiEnable={false}
         errorText=""
         selectedArrayList={getSelectedPantryOnList()}
@@ -210,24 +167,35 @@ export default function StoreProductScreen({ route }: { route: Props }) {
       />
       <SelectProductContainer>
         <PaperSelect
-          label="Product"
+          label="Select a Product"
           value={selectedProduct?.name ?? ""}
-          arrayList={[...products]}
+          arrayList={toList(products)}
           multiEnable={false}
           errorText=""
           selectedArrayList={getSelectedProductOnList()}
           onSelection={handleProductSelect}
         />
-        <TouchableOpacity>
-          <BarCodeScanIcon style={{ color: "red" }} />
+        <TouchableOpacity onPress={handleProductSelectBarcodePress}>
+          <BarCodeScanIcon />
         </TouchableOpacity>
       </SelectProductContainer>
       <TextInput
-        disabled={!selectedProduct}
+        mode="outlined"
+        label="Name"
+        placeholder="Ex.: Cake for party"
+        value={name}
+        onChangeText={(text) => setName(text)}
+        keyboardType="numeric"
+        style={{ width: "100%" }}
+      />
+      <HelperText visible type="info" padding="none">
+        You can choose a different name to this product on the pantry.
+      </HelperText>
+      <TextInput
         mode="outlined"
         label="Quantity"
         placeholder="Ex.: 3"
-        value={quantity.toString()}
+        value={`${quantity}`}
         onChangeText={(text) => setQuantity(text as unknown as number)}
         keyboardType="numeric"
         style={{ width: "100%" }}
@@ -236,7 +204,6 @@ export default function StoreProductScreen({ route }: { route: Props }) {
         Set the product quantity to store
       </HelperText>
       <DatePickerInput
-        disabled={!selectedProduct}
         locale="enGB"
         label="Stored at"
         value={storedAt}
@@ -247,7 +214,6 @@ export default function StoreProductScreen({ route }: { route: Props }) {
         The date when the product was stored in the pantry.
       </HelperText>
       <DatePickerInput
-        disabled={!selectedProduct}
         locale="enGB"
         label="Best before"
         value={bestBefore}
@@ -258,11 +224,10 @@ export default function StoreProductScreen({ route }: { route: Props }) {
         The date until which the product should be consumed.
       </HelperText>
       <TextInput
-        disabled={!selectedProduct}
         mode="outlined"
         label="Bought Price"
         placeholder="Ex.: 10"
-        value={boughtPrice.toString()}
+        value={`${boughtPrice}`}
         onChangeText={(text) => setBoughtPrice(text as unknown as number)}
         keyboardType="numeric"
         style={{ width: "100%" }}
@@ -270,8 +235,8 @@ export default function StoreProductScreen({ route }: { route: Props }) {
       <HelperText visible type="info" padding="none">
         Set the price of the product when you bought it.
       </HelperText>
-      <Button mode="contained" onPress={handleProductOnPantrySave}>
-        Save
+      <Button mode="contained" onPress={handleStore} disabled={!selectedPantry}>
+        {!selectedPantry ? "Please select a pantry" : "Save"}
       </Button>
     </View>
   );

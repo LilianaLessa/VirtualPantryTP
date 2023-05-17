@@ -1,7 +1,6 @@
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { SavedProductsActionType } from "../action-types";
 import { SavedProductsActions } from "../actions";
-import { createMockProduct } from "../../dev-utils";
 
 import Product from "../../features/products/classes/product.class";
 import DbContext from "../../services/applicationData/localDatabase/classes/db-context.class";
@@ -10,15 +9,8 @@ interface SavedProductsState {
   savedProducts: Map<string, IProduct>;
 }
 
-const mockProducts = new Map<string, IProduct>();
-
-for (let i = 0; i < 2; i++) {
-  const product = createMockProduct();
-  mockProducts.set(product.uuid, product);
-}
-
 const initialState: SavedProductsState = {
-  savedProducts: mockProducts,
+  savedProducts: new Map<string, IProduct>(),
 };
 
 const savedProductsReducer = (

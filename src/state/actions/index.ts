@@ -9,10 +9,10 @@ import {
 } from "../action-types";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
-import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
 import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 import Group from "../../features/group/classes/group.class";
+import StoredProduct from "../../features/products/classes/stored.product";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -36,16 +36,16 @@ export type SavedProductsActions =
 
 interface StoreProductAction {
   type: StoredProductActionType.STORE_PRODUCT;
-  productToStore: IStoredProduct;
+  storedProduct: StoredProduct;
 }
 
 interface DeleteStoredProductAction {
   type: StoredProductActionType.DELETE_STORED_PRODUCT;
-  storedProductToDelete: IStoredProduct;
+  storedProduct: StoredProduct;
 }
 interface InitStoredProductCollectionAction {
   type: StoredProductActionType.INIT_STORED_PRODUCT_COLLECTION;
-  storedProductCollection: IStoredProduct[];
+  storedProductCollection: StoredProduct[];
 }
 
 export type StoredProductActions =
