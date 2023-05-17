@@ -1,38 +1,23 @@
 import { FlatList, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { IPantry } from "../interfaces/pantry.interface";
-import { useActions } from "../../../hooks/useActions";
+import React, { useContext, useEffect, useState } from "react";
 import { IStoredProduct } from "../../products/interfaces/stored-product.interface";
-import PantryContentProductListItem, {
-  PantryContentProductListItemKeyExtractor,
-} from "./pantry-content-product-list-item.component";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import PantryContentProductListItem from "./pantry-content-product-list-item.component";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import Pantry from "../classes/pantry.class";
 
-function PantryContentProductList({ pantry }: { pantry: IPantry }) {
-  const { deleteStoredProduct } = useActions();
+function PantryContentProductList({ pantry }: { pantry: Pantry }) {
+  const { pantryService } = useContext(DependencyInjectionContext);
 
-  const { storedProductsByPantryUuid } = useTypedSelector(
-    (state) => state.storedProductsByPantryUuid
-  );
   const [storedProducts, setStoredProducts] = useState(
-    Array.from(storedProductsByPantryUuid.get(pantry.uuid)?.values() ?? [])
+    pantryService.getPantryContent(pantry)
   );
 
   useEffect(() => {
-    setStoredProducts(
-      Array.from(storedProductsByPantryUuid.get(pantry.uuid)?.values() ?? [])
-    );
-  }, [storedProductsByPantryUuid]);
-
-  const deleteProductCallback = (storedProductToDelete: IStoredProduct) => {
-    deleteStoredProduct(storedProductToDelete);
-  };
+    setStoredProducts(pantryService.getPantryContent(pantry));
+  }, [pantry, pantryService]);
 
   const renderItem = ({ item }: { item: IStoredProduct }) => (
-    <PantryContentProductListItem
-      item={item}
-      deleteProductCallback={deleteProductCallback}
-    />
+    <PantryContentProductListItem storedProduct={item} />
   );
 
   return (
@@ -40,7 +25,7 @@ function PantryContentProductList({ pantry }: { pantry: IPantry }) {
       <FlatList
         data={storedProducts}
         renderItem={renderItem}
-        keyExtractor={PantryContentProductListItemKeyExtractor}
+        keyExtractor={(p) => p.getKey()}
       />
     </View>
   );

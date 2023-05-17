@@ -27,6 +27,7 @@ import { INotification } from "../../features/notification/interfaces/notificati
 import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 import Group from "../../features/group/classes/group.class";
 import StoredProduct from "../../features/products/classes/stored.product";
+import { getStackTraceAsString } from "../../dev-utils";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -171,20 +172,16 @@ export const storeProduct =
   };
 
 export const deleteStoredProduct =
-  (storedProductToDelete: IStoredProduct) =>
-  (dispatch: Dispatch<StoredProductActions | MessageSnackbarActions>) => {
-    dispatch({
-      type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Product '${storedProductToDelete.product.name}' was removed from '${storedProductToDelete.pantry.name}.'`,
-    });
+  (storedProduct: StoredProduct) =>
+  (dispatch: Dispatch<StoredProductActions>) => {
     dispatch({
       type: StoredProductActionType.DELETE_STORED_PRODUCT,
-      storedProductToDelete,
+      storedProduct,
     });
   };
 
 export const initStoredProductCollection =
-  (storedProductCollection: IStoredProduct[]) =>
+  (storedProductCollection: StoredProduct[]) =>
   (dispatch: Dispatch<StoredProductActions>) => {
     dispatch({
       type: StoredProductActionType.INIT_STORED_PRODUCT_COLLECTION,

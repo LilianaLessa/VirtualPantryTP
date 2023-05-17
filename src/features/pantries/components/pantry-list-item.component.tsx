@@ -36,7 +36,7 @@ function PantryListItem({ item }: { item: IPantry }) {
   };
 
   const handleShowContent = () => {
-    console.log("item");
+    navigationService.showPantryContentScreen(item);
   };
 
   const handleSelfDelete = () => {

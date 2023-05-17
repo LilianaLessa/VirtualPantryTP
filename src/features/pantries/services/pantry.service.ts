@@ -10,6 +10,7 @@ type StateActions = {
   savePantry: (pantry: Pantry) => any;
   deletePantry: (pantry: Pantry) => any;
   storeProduct: (storedProduct: StoredProduct) => any;
+  deleteStoredProduct: (storedProduct: StoredProduct) => any;
   showLoadingActivityIndicator: () => any;
   hideLoadingActivityIndicator: () => any;
 };
@@ -181,8 +182,54 @@ export default class PantryService {
       });
   }
 
+  deleteStoredProduct(
+    storedProduct: StoredProduct,
+    successCallback?: () => any,
+    errorCallback?: () => any
+  ): void {
+    this.stateActions.showLoadingActivityIndicator();
+    const db = DbContext.getInstance().database;
+    // delete on local;
+    db.delete(storedProduct as StoredProduct)
+      .then(() => {
+        // delete from firestore
+        this.authGuardService
+          .guard(
+            () => this.firestoreActions.deleteObject(storedProduct),
+            () => Promise.resolve(null)
+          )
+          .then(() => {
+            // delete on state
+            this.stateActions.deleteStoredProduct(storedProduct);
+          });
+      })
+      .then(() => {
+        this.stateActions.hideLoadingActivityIndicator();
+        if (successCallback) {
+          successCallback();
+        }
+      })
+      .catch((e) => {
+        this.stateActions.hideLoadingActivityIndicator();
+        console.log(
+          `Error on deleting stored product '${storedProduct.uuid}'`,
+          e
+        );
+        if (errorCallback) {
+          errorCallback();
+        }
+      });
+  }
+
   createStoredProduct(override?: Partial<StoredProduct>): StoredProduct {
-    return new StoredProduct(uuidv4(), new Date().toString()).clone(override);
+    return new StoredProduct(uuidv4(), new Date().toString()).clone({
+      ...override,
+      ownerUid: this.authGuardService.getAuthUserUid(true),
+    });
+  }
+
+  getPantryContent(pantry: Pantry): StoredProduct[] {
+    return this.storedProducts.filter((p) => p.pantryUuid === pantry.uuid);
   }
 
   getPantryByUuid(uuid?: string): Pantry | undefined {

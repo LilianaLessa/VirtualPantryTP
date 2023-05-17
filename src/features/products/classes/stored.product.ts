@@ -100,7 +100,9 @@ export default class StoredProduct
       override?.bestBefore ?? this.bestBefore,
       override?.boughtPrice ?? this.boughtPrice,
       override?.ownerUid ?? this.ownerUid,
-      override?.productUuid ?? this.productUuid,
+      override && override.hasOwnProperty("productUuid")
+        ? override.productUuid
+        : this.productUuid,
       override?.id ?? this.id,
       override?.firestoreId ?? this.firestoreId,
       override?.updatedAt ?? this.updatedAt
@@ -152,8 +154,8 @@ export default class StoredProduct
   static buildFromFirestoreData(doc: DocumentData): StoredProduct {
     return new StoredProduct(
       doc.data().uuid,
-      doc.data().pantryUuid,
       doc.data().storedAt,
+      doc.data().pantryUuid,
       doc.data().name,
       doc.data().quantity,
       doc.data().bestBefore,

@@ -102,7 +102,7 @@ export function FirestoreContextProvider({
 
   // todo check if there is a way to type hint collectionType here.
   // todo it would be better if instead of ownerUid,
-  //  the collection parent id field was configurable, and the value could be even an array.
+  //  the collection parent id field was configurable, and the value could be even an array.currentObjectsSnapshot
   function syncCollection(
     ownerUid: string,
     collectionType: any,

@@ -1,13 +1,10 @@
 import { TouchableOpacity } from "react-native";
-import React, { useContext } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { IStoredProduct } from "../../products/interfaces/stored-product.interface";
+import React, { useContext, useState, useEffect } from "react";
 import {
   CookIcon,
   DeleteIcon,
   DragHandler,
   EatIcon,
-  EditIcon,
   LeftContent,
   LeftIcon,
   LeftText,
@@ -16,21 +13,55 @@ import {
 } from "../../products/components/product-list-item.styles";
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
-import { StoreProductScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import StoredProduct from "../../products/classes/stored.product";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import Product from "../../products/classes/product.class";
+
+function getStoredProductDisplayName(
+  storedProduct: StoredProduct,
+  product?: Product
+): string {
+  const name =
+    storedProduct.name?.length > 0 ? storedProduct.name : product?.name;
+  const productName =
+    product?.name && name !== product?.name ? ` (${product?.name})` : "";
+
+  return `${name}${productName}`;
+}
 
 export default function PantryContentProductListItem({
-  item,
-  deleteProductCallback,
+  storedProduct,
 }: {
-  item: IStoredProduct;
-  deleteProductCallback: (storedProductToDelete: IStoredProduct) => void;
+  storedProduct: StoredProduct;
 }) {
-  const navigation = useNavigation();
+  const { productService, navigationService, pantryService, snackBarService } =
+    useContext(DependencyInjectionContext);
   const { showModal, hideModal } = useContext(DialogModalContext);
+
+  const [product, setProduct] = useState(
+    productService.getProductByUuid(storedProduct.productUuid)
+  );
+  const [pantry, setPantry] = useState(
+    pantryService.getPantryByUuid(storedProduct.productUuid)
+  );
+
+  useEffect(() => {
+    setProduct(productService.getProductByUuid(storedProduct.productUuid));
+  }, [storedProduct, productService]);
+
+  useEffect(() => {
+    setPantry(pantryService.getPantryByUuid(storedProduct.productUuid));
+  }, [storedProduct, pantryService]);
 
   const handleSelfDelete = () => {
     hideModal();
-    deleteProductCallback(item);
+    pantryService.deleteStoredProduct(storedProduct, () => {
+      snackBarService.showStoredProductDeletedInfo(
+        storedProduct,
+        pantryService.getPantryByUuid(storedProduct.pantryUuid),
+        productService.getProductByUuid(storedProduct.productUuid)
+      );
+    });
   };
 
   const showConfirmDeletionModal = () => {
@@ -38,7 +69,7 @@ export default function PantryContentProductListItem({
       <ConfirmDialog
         confirm="Remove"
         cancel="Cancel"
-        dialogContent={`Do you want to delete the product '${item.product.name}' from the pantry '${item.pantry.name}'?`}
+        dialogContent={`Do you want to delete the product '${product?.name}' from the pantry '${pantry?.name}'?`}
         dialogTitle="Remove Product"
         cancelHandler={hideModal}
         confirmHandler={handleSelfDelete}
@@ -47,42 +78,33 @@ export default function PantryContentProductListItem({
   };
 
   const handleEdit = () => {
-    navigation.navigate(
-      StoreProductScreenRouteName as never,
-      {
-        pantry: item.pantry,
-        product: item.product,
-        // eslint-disable-next-line comma-dangle
-      } as never
-    );
+    navigationService.showStoreProductScreen(storedProduct);
   };
 
   return (
-    <ProductListItemContainer>
-      <LeftContent>
-        <LeftIcon />
-        <LeftText>
-          {item.product.name} x{item.quantity} (id:{item.id})
-        </LeftText>
-      </LeftContent>
-      <RightContent>
-        <TouchableOpacity onPress={handleEdit}>
-          <EditIcon />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <CookIcon />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <EatIcon />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={showConfirmDeletionModal}>
-          <DeleteIcon />
-        </TouchableOpacity>
-        <DragHandler />
-      </RightContent>
-    </ProductListItemContainer>
+    <TouchableOpacity onPress={handleEdit}>
+      <ProductListItemContainer>
+        <LeftContent>
+          <LeftIcon />
+          <LeftText>
+            {`${getStoredProductDisplayName(storedProduct, product)} x${
+              storedProduct.quantity
+            }`}
+          </LeftText>
+        </LeftContent>
+        <RightContent>
+          <TouchableOpacity>
+            <CookIcon />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <EatIcon />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={showConfirmDeletionModal}>
+            <DeleteIcon />
+          </TouchableOpacity>
+          <DragHandler />
+        </RightContent>
+      </ProductListItemContainer>
+    </TouchableOpacity>
   );
 }
-
-export const PantryContentProductListItemKeyExtractor = (p: IStoredProduct) =>
-  p.getKey();

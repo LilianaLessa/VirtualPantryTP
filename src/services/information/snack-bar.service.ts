@@ -49,4 +49,20 @@ export default class SnackBarService {
       `'${name}${productName}' was stored at '${pantry?.name ?? "no pantry"}'`
     );
   }
+
+  showStoredProductDeletedInfo(
+    storedProduct: StoredProduct,
+    pantry?: Pantry,
+    product?: Product
+  ) {
+    const name =
+      storedProduct.name?.length > 0 ? storedProduct.name : product?.name;
+    const productName =
+      product?.name && name !== product?.name ? ` (${product?.name})` : "";
+    this.stateActions?.showSnack(
+      `'${name}${productName}' was deleted from '${
+        pantry?.name ?? "no pantry"
+      }'`
+    );
+  }
 }

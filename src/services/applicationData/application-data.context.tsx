@@ -144,38 +144,57 @@ export function ApplicationDataContextProvider({
   };
 
   const { initStoredProductCollection } = useActions();
-  const initStoredProducts = () => {
-    if (loadedProducts.size < 1 || loadedPantries.size < 1) return;
-    // DbContext.getInstance().database.dropTables();
-    DbContext.getInstance()
-      .database.find(`Select * from ${LocalTable.STORED_PRODUCT}`, [])
-      .then((results: any) => {
-        // console.log(results);
+  const initStoredProducts = (user: User | null) => {
+    const db = DbContext.getInstance().database;
+    const userUid = user?.uid;
+    const args = userUid ? [userUid] : [];
+    let query = `Select * from ${LocalTable.STORED_PRODUCT}`;
+    query = `${query} WHERE ownerUid ${user === null ? "IS NULL" : " = ?"}`;
 
-        const mappedResults: StoredProduct[] = [];
+    return db.find(query, args).then((results: any) => {
+      // console.log(results);
+      const localLoadedStoredProducts = results.reduce(
+        (map: Map<number, StoredProduct>, r: StoredProduct) =>
+          map.set(
+            r.id,
+            new StoredProduct(
+              r.uuid,
+              r.storedAt,
+              r.pantryUuid,
+              r.name,
+              r.quantity,
+              r.bestBefore,
+              r.boughtPrice,
+              r.ownerUid,
+              r.productUuid,
+              r.id,
+              r.firestoreId,
+              r.updatedAt
+            )
+          ),
+        new Map<number, StoredProduct>()
+      );
 
-        (results as StoredProduct[]).forEach((r) => {
-          // console.log("mapping", r, loadedProducts, loadedPantries);
-          if (
-            loadedProducts.has(r.productId) &&
-            loadedPantries.has(r.productId)
-          ) {
-            mappedResults.push(
-              new StoredProduct(
-                r.uuid,
-                loadedProducts.get(r.productId),
-                loadedPantries.get(r.pantryId),
-                r.quantity,
-                r.bestBefore ? new Date(r.bestBefore) : new Date(),
-                new Date(r.storedAt),
-                r.boughtPrice,
-                r.id
-              )
-            );
-          }
+      (userUid
+        ? syncCollection(
+            userUid,
+            StoredProduct,
+            Array.from(localLoadedStoredProducts.values())
+          )
+        : Promise.resolve({
+            saved: Array.from(localLoadedStoredProducts.values()),
+            deleted: [],
+          })
+      ).then(({ saved, deleted }) => {
+        Promise.all([
+          ...saved.map((s) => db.save(s as StoredProduct)),
+          ...deleted.map((d) => db.delete(d)),
+        ]).then(() => {
+          // console.log(query);
+          initStoredProductCollection(saved);
         });
-        initStoredProductCollection(mappedResults);
       });
+    });
   };
 
   const { initGroupsCollection } = useActions();
@@ -281,15 +300,14 @@ export function ApplicationDataContextProvider({
       DbContext.getInstance()
         .database.setUpDataBase()
         .then(() => {
-          initGroups(storedUser).then(() => {
-            initSavedProducts(storedUser).then(() => {
-              initPantries(storedUser).then(() => {
-                hideLoadingActivityIndicator();
-                // initStoredProducts();
-                // console.log("stored products not initiated.");
-                // console.log("Application data loaded.");
-              });
-            });
+          Promise.all([
+            initGroups(storedUser),
+            initSavedProducts(storedUser),
+            initPantries(storedUser),
+            initStoredProducts(storedUser),
+          ]).then(() => {
+            hideLoadingActivityIndicator();
+            console.log("applicaton state loaded");
           });
         });
     });

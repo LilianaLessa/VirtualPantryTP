@@ -8,6 +8,7 @@ import {
   EditProductScreenRouteName,
   GroupsScreenRouteName,
   PantriesScreenRouteName,
+  PantryContentScreenRouteName,
   ProductScreenRouteName,
   ProductSearchResultScreenRouteName,
   StoreProductScreenRouteName,
@@ -90,6 +91,19 @@ export default class NavigationService {
         storedProduct,
       } as never
     );
+  }
+
+  public showPantryContentScreen(pantry: Pantry): void {
+    this.navigation?.navigate(
+      PantryContentScreenRouteName as never,
+      {
+        pantry,
+      } as never
+    );
+  }
+
+  setScreenTitle(title: string, screenNavigation: any): void {
+    screenNavigation.setOptions({ title });
   }
 
   public goBack(): void {

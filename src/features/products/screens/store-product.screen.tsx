@@ -185,7 +185,6 @@ export default function StoreProductScreen({
         placeholder="Ex.: Cake for party"
         value={name}
         onChangeText={(text) => setName(text)}
-        keyboardType="numeric"
         style={{ width: "100%" }}
       />
       <HelperText visible type="info" padding="none">
@@ -235,8 +234,16 @@ export default function StoreProductScreen({
       <HelperText visible type="info" padding="none">
         Set the price of the product when you bought it.
       </HelperText>
-      <Button mode="contained" onPress={handleStore} disabled={!selectedPantry}>
-        {!selectedPantry ? "Please select a pantry" : "Save"}
+      <Button
+        mode="contained"
+        onPress={handleStore}
+        disabled={!selectedPantry || (name.length < 1 && !selectedProduct)}
+      >
+        {!selectedPantry
+          ? "Please select a pantry"
+          : name.length < 1 && !selectedProduct
+          ? "Please select a product or type a name"
+          : "save"}
       </Button>
     </View>
   );
