@@ -4,8 +4,10 @@ import {
   collection,
   deleteDoc,
   doc,
+  DocumentData,
   getDocs,
   getFirestore,
+  onSnapshot,
   query,
   setDoc,
   where,
@@ -25,7 +27,8 @@ type FirestoreContextType = {
   syncCollection: (
     ownerUid: string,
     collectionType: any,
-    localCollection: IFirestoreObject[]
+    localCollection: IFirestoreObject[],
+    onSavedDocSnapshot?: (object: IFirestoreObject) => void
   ) => Promise<FirestoreCollectionSyncResult>;
 };
 
@@ -106,7 +109,8 @@ export function FirestoreContextProvider({
   function syncCollection(
     ownerUid: string,
     collectionType: any,
-    localCollection: IFirestoreObject[]
+    localCollection: IFirestoreObject[],
+    onSavedDocSnapshot?: (d: DocumentData) => void
   ): Promise<FirestoreCollectionSyncResult> {
     if (!firestore) {
       return Promise.resolve({ saved: [], deleted: [] });
@@ -243,6 +247,23 @@ export function FirestoreContextProvider({
           }
         }
       });
+
+      // todo fix it to work with deletions and collection update.
+      if (typeof onSavedDocSnapshot !== "undefined" && false) {
+        currentObjectsSnapshot.docs.forEach((document) => {
+          const localObject = saved.find((s) => (s.firestoreId = document.id));
+          if (localObject) {
+            onSnapshot(
+              doc(
+                firestore,
+                collectionType.getFirestoreCollectionName(),
+                localObject.firestoreId
+              ),
+              onSavedDocSnapshot
+            );
+          }
+        });
+      }
 
       return Promise.all(toSync).then(() =>
         Promise.resolve({

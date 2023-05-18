@@ -86,11 +86,16 @@ function UseShoppingListItem({
   const [boughtPrice, setBoughtPrice] = useState(
     shoppingListItem?.boughtPrice ?? 0
   );
-  const [bought, setBought] = React.useState(shoppingListItem.bought);
+  const [bought, setBought] = useState(shoppingListItem.bought);
   const [name, setName] = useState(shoppingListItem.name ?? "");
   const [materialCommunityIconsFontLoaded] = useFonts({
     MaterialCommunityIcons: materialCommunityIconsFont,
   });
+
+  useEffect(() => {
+    setBought(shoppingListItem.bought);
+    setName(shoppingListItem.name ?? "");
+  }, [shoppingListItem]);
 
   if (!materialCommunityIconsFontLoaded) {
     // console.log("font not loaded"); //todo put an activity indicator here?

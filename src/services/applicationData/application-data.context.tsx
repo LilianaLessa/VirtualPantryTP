@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DocumentData } from "firebase/firestore";
 import { useActions } from "../../hooks/useActions";
 import DbContext from "./localDatabase/classes/db-context.class";
 import Product from "../../features/products/classes/product.class";
@@ -298,7 +299,8 @@ export function ApplicationDataContextProvider({
   function initCollection<T>(
     base: T,
     u: User | null,
-    stateInitializer: (c: T[]) => void
+    stateInitializer: (c: T[]) => void,
+    stateUpdater: (updated: T) => void
   ) {
     const db = DbContext.getInstance().database;
     const userUid = u?.uid;
@@ -320,7 +322,12 @@ export function ApplicationDataContextProvider({
           ? syncCollection(
               userUid,
               base.constructor,
-              Array.from(loadedEntities.values())
+              Array.from(loadedEntities.values()),
+              (updatedData: DocumentData) => {
+                stateUpdater(
+                  base.constructor.buildFromFirestoreData(updatedData)
+                );
+              }
             )
           : Promise.resolve({
               saved: Array.from(loadedEntities.values()),
@@ -345,39 +352,61 @@ export function ApplicationDataContextProvider({
       });
   }
 
-  const { initShoppingListCollection, initShoppingListItemCollection } =
-    useActions();
+  const {
+    initShoppingListCollection,
+    initShoppingListItemCollection,
+    saveShoppingList,
+    saveShoppingListItem,
+  } = useActions();
 
   useEffect(() => {
-    showLoadingActivityIndicator();
+    // showLoadingActivityIndicator();
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
-
-      DbContext.getInstance()
-        .database.setUpDataBase()
-        .then(() => {
-          Promise.all([
-            initGroups(storedUser),
-            initSavedProducts(storedUser),
-            initPantries(storedUser),
-            initStoredProducts(storedUser),
-            initCollection(
-              new ShoppingList(),
-              storedUser,
-              initShoppingListCollection
-            ),
-            initCollection(
-              new ShoppingListItem(),
-              storedUser,
-              initShoppingListItemCollection
-            ),
-            // initShoppingLists(storedUser),
-            // initShoppingListItems(storedUser),
-          ]).then(() => {
-            hideLoadingActivityIndicator();
-            console.log("applicaton state loaded");
-          });
+      const db = DbContext.getInstance().database;
+      db.setUpDataBase().then(() => {
+        Promise.all([
+          initGroups(storedUser),
+          initSavedProducts(storedUser),
+          initPantries(storedUser),
+          initStoredProducts(storedUser),
+          initCollection(
+            new ShoppingList(),
+            storedUser,
+            initShoppingListCollection,
+            (updated: ShoppingList) => {
+              console.log(
+                "receiving update for",
+                updated.constructor.name,
+                updated.firestoreId,
+                updated.uuid
+              );
+              db.save(updated);
+              saveShoppingList(updated);
+            }
+          ),
+          initCollection(
+            new ShoppingListItem(),
+            storedUser,
+            initShoppingListItemCollection,
+            (updated: ShoppingListItem) => {
+              console.log(
+                "receiving update for",
+                updated.constructor.name,
+                updated.firestoreId,
+                updated.uuid
+              );
+              db.save(updated);
+              saveShoppingListItem(updated);
+            }
+          ),
+          // initShoppingLists(storedUser),
+          // initShoppingListItems(storedUser),
+        ]).then(() => {
+          hideLoadingActivityIndicator();
+          console.log("applicaton state loaded");
         });
+      });
     });
   }, [user]);
 
