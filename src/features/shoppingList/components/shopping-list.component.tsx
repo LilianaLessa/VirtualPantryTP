@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useState, useEffect } from "react";
+import { TouchableOpacity, Text } from "react-native";
 import styled from "styled-components";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ProgressBar } from "react-native-paper";
-import IShoppingList from "../interfaces/shopping-list.interface";
+import { default as ShoppingListClass } from "../classes/shopping-list.class";
 import {
   DeleteIcon,
   EditIcon,
@@ -15,32 +14,7 @@ import {
 } from "../../products/components/product-list-item.styles";
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
 import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component";
-import {
-  EditShoppingListScreenRouteName,
-  UseShoppingListScreenRouteName,
-} from "../../../infrastructure/navigation/route-names";
-import IShoppingListItem from "../interfaces/shopping-list-item.interface";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
-
-function countBoughtItems(shoppingList: IShoppingList): number {
-  return shoppingList.items.filter((i: IShoppingListItem) => i.bought).length;
-}
-function countItems(shoppingList: IShoppingList): number {
-  return shoppingList.items.length;
-}
-
-export const RightContentModified = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-export const ProductListItemContainerModified = styled(View)`
-  background-color: #e6e6e6;
-  flex-direction: row;
-  align-self: baseline;
-  border-color: #000000;
-`;
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export const LeftIcon = styled(MaterialCommunityIcons).attrs({
   name: "format-list-bulleted",
@@ -49,32 +23,25 @@ export const LeftIcon = styled(MaterialCommunityIcons).attrs({
   font-size: 20px;
   margin-left: 10px;
 `;
-function ShoppingList({
-  shoppingList,
-  deleteShoppingListCallback,
-}: {
-  shoppingList: IShoppingList;
-  deleteShoppingListCallback: (shoppingListToDelete: IShoppingList) => void;
-}) {
-  const { shoppingLists } = useTypedSelector((state) => state.shoppingLists);
-  const navigation = useNavigation();
-  const [boughtItemsAmount, setBoughtItemsAmount] = useState(
-    countBoughtItems(shoppingList)
-  );
-  const [totalItemsAmount, setTotalItemsAmount] = useState(
-    countItems(shoppingList)
+
+function ShoppingList({ shoppingList }: { shoppingList: ShoppingListClass }) {
+  const { showModal, hideModal } = useContext(DialogModalContext);
+  const { shoppingListService, navigationService, snackBarService } =
+    useContext(DependencyInjectionContext);
+
+  const [progressInfo, setProgressInfo] = useState(
+    shoppingListService.getProgressInfo(shoppingList)
   );
 
   useEffect(() => {
-    setBoughtItemsAmount(countBoughtItems(shoppingList));
-    setTotalItemsAmount(countItems(shoppingList));
-  }, [shoppingList, shoppingLists]);
-
-  const { showModal, hideModal } = useContext(DialogModalContext);
+    setProgressInfo(shoppingListService.getProgressInfo(shoppingList));
+  }, [shoppingListService, shoppingList]);
 
   const handleSelfDelete = () => {
     hideModal();
-    deleteShoppingListCallback(shoppingList);
+    shoppingListService.deleteShoppingList(shoppingList).then(() => {
+      snackBarService.showShoppingListDeletedInfo(shoppingList);
+    });
   };
 
   const showConfirmDeletionModal = () => {
@@ -91,29 +58,12 @@ function ShoppingList({
   };
 
   const handleEdit = () => {
-    navigation.navigate(
-      EditShoppingListScreenRouteName as never,
-      {
-        shoppingList,
-        isEdit: true,
-        // eslint-disable-next-line comma-dangle
-      } as never
-    );
+    navigationService.showEditShoppingListScreen(shoppingList);
   };
 
-  function handleShoppingListPress() {
-    navigation.navigate(
-      UseShoppingListScreenRouteName as never,
-      {
-        shoppingList,
-        // eslint-disable-next-line comma-dangle
-      } as never
-    );
-  }
-
-  function calculateProgress(): number {
-    return totalItemsAmount === 0 ? 0 : boughtItemsAmount / totalItemsAmount;
-  }
+  const handleShoppingListPress = () => {
+    navigationService.showUseShoppingListScreen(shoppingList);
+  };
 
   return (
     <TouchableOpacity
@@ -126,7 +76,7 @@ function ShoppingList({
           <LeftText>{shoppingList.name}</LeftText>
         </LeftContent>
         <RightContent>
-          <Text>{`${boughtItemsAmount}/${totalItemsAmount}`}</Text>
+          <Text>{`${progressInfo.boughtItemsAmount}/${progressInfo.totalItemsAmount}`}</Text>
           <TouchableOpacity onPress={handleEdit}>
             <EditIcon />
           </TouchableOpacity>
@@ -135,7 +85,7 @@ function ShoppingList({
           </TouchableOpacity>
         </RightContent>
       </ProductListItemContainer>
-      <ProgressBar progress={calculateProgress()} />
+      <ProgressBar progress={progressInfo.progress} />
     </TouchableOpacity>
   );
 }

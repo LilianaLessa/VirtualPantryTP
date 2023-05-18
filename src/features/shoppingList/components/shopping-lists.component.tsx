@@ -1,30 +1,23 @@
 import { FlatList, Text, View } from "react-native";
 import React from "react";
-import IShoppingList from "../interfaces/shopping-list.interface";
-import ShoppingList from "./shopping-list.component";
+import ShoppingList from "../classes/shopping-list.class";
+import { default as ShoppingListComponent } from "./shopping-list.component";
 
-function ShoppingLists({
+export default function ShoppingLists({
   shoppingLists,
-  deleteShoppingListCallback,
 }: {
-  shoppingLists: IShoppingList[];
-  deleteShoppingListCallback: (shoppingListToDelete: IShoppingList) => void;
+  shoppingLists: ShoppingList[];
 }) {
-  const renderItem = ({ item }: { item: IShoppingList }) => (
-    <ShoppingList
-      shoppingList={item}
-      deleteShoppingListCallback={deleteShoppingListCallback}
-    />
+  const renderItem = ({ item }: { item: ShoppingList }) => (
+    <ShoppingListComponent shoppingList={item} />
   );
-
-  const keyExtractor = (i: IShoppingList) => i.getKey();
 
   return shoppingLists && shoppingLists.length > 0 ? (
     <View>
       <FlatList
         data={shoppingLists}
         renderItem={renderItem}
-        keyExtractor={keyExtractor}
+        keyExtractor={(i: ShoppingList) => i.getKey()}
       />
     </View>
   ) : (
@@ -33,5 +26,3 @@ function ShoppingLists({
     </View>
   );
 }
-
-export default ShoppingLists;

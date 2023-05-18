@@ -11,6 +11,8 @@ import { AuthenticationContext } from "../firebase/authentication.context";
 import { FirestoreContext } from "../firebase/firestore.context";
 import Group from "../../features/group/classes/group.class";
 import UserInGroup from "../../features/group/classes/user-in-group.class";
+import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
+import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -292,6 +294,60 @@ export function ApplicationDataContextProvider({
       .catch((e) => console.log("failed to init groups", e));
   };
 
+  // todo move it to generic class
+  function initCollection<T>(
+    base: T,
+    u: User | null,
+    stateInitializer: (c: T[]) => void
+  ) {
+    const db = DbContext.getInstance().database;
+    const userUid = u?.uid;
+    const args = userUid ? [userUid] : [];
+    let query = `Select * from ${base.constructor.localTableName}`;
+    query = `${query} WHERE ownerUid ${u === null ? "IS NULL" : " = ?"}`;
+
+    return db
+      .find(query, args)
+      .then((results: any) => {
+        // console.log(results);
+        const loadedEntities = results.reduce(
+          (map: Map<number, T>, r: T) =>
+            map.set(r.id, base.constructor.buildFromDatabaseResult(r)),
+          new Map<number, T>()
+        );
+
+        (userUid
+          ? syncCollection(
+              userUid,
+              base.constructor,
+              Array.from(loadedEntities.values())
+            )
+          : Promise.resolve({
+              saved: Array.from(loadedEntities.values()),
+              deleted: [],
+            })
+        )
+          .then(({ saved, deleted }) => {
+            Promise.all([
+              ...saved.map((s) => db.save(s as T)),
+              ...deleted.map((d) => db.delete(d)),
+            ]).then(() => {
+              // console.log(query);
+              stateInitializer(saved);
+            });
+          })
+          .catch((e) => {
+            console.log("21", e);
+          });
+      })
+      .catch((e) => {
+        console.log("1", e);
+      });
+  }
+
+  const { initShoppingListCollection, initShoppingListItemCollection } =
+    useActions();
+
   useEffect(() => {
     showLoadingActivityIndicator();
     AsyncStorage.getItem("@loggedUser").then((result) => {
@@ -305,6 +361,18 @@ export function ApplicationDataContextProvider({
             initSavedProducts(storedUser),
             initPantries(storedUser),
             initStoredProducts(storedUser),
+            initCollection(
+              new ShoppingList(),
+              storedUser,
+              initShoppingListCollection
+            ),
+            initCollection(
+              new ShoppingListItem(),
+              storedUser,
+              initShoppingListItemCollection
+            ),
+            // initShoppingLists(storedUser),
+            // initShoppingListItems(storedUser),
           ]).then(() => {
             hideLoadingActivityIndicator();
             console.log("applicaton state loaded");

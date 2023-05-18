@@ -2,6 +2,7 @@ import Group from "../../features/group/classes/group.class";
 import Product from "../../features/products/classes/product.class";
 import Pantry from "../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../features/products/classes/stored.product";
+import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 
 type StateActions = {
   showSnack: (infoMessage: string) => any;
@@ -63,6 +64,18 @@ export default class SnackBarService {
       `'${name}${productName}' was deleted from '${
         pantry?.name ?? "no pantry"
       }'`
+    );
+  }
+
+  showShoppingListSavedInfo(shoppingList: ShoppingList) {
+    this.stateActions?.showSnack(
+      `Shopping List '${shoppingList.name}' was saved.`
+    );
+  }
+
+  showShoppingListDeletedInfo(shoppingList: ShoppingList) {
+    this.stateActions?.showSnack(
+      `Shopping List '${shoppingList.name}' was deleted.`
     );
   }
 }

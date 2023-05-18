@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,7 +10,10 @@ import { Entypo } from "@expo/vector-icons";
 import { Checkbox } from "react-native-paper";
 import materialCommunityIconsFont from "react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf";
 import { useFonts } from "expo-font";
+import { v4 as uuidv4 } from "uuid";
 import IShoppingListItem from "../interfaces/shopping-list-item.interface";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import ShoppingListItem from "../classes/shopping-list-item.class";
 
 const styles = StyleSheet.create({
   itemContainer: {
@@ -72,20 +75,12 @@ const styles2 = StyleSheet.create({
 
 function UseShoppingListItem({
   shoppingListItem,
-  updateItemCallback,
-  storeItemCallback,
-  copyItemCallback,
-  deleteItemCallback,
 }: {
   shoppingListItem: IShoppingListItem;
-  updateItemCallback: (uuid: string) => void;
-  storeItemCallback: (uuid: string) => void;
-  copyItemCallback: (uuid: string) => void;
-  deleteItemCallback: (uuid: string) => void;
 }) {
-  const handleSelfDelete = () => deleteItemCallback(shoppingListItem.uuid);
-  const handleSelfStore = () => storeItemCallback(shoppingListItem.uuid);
-  const handleSelfCopy = () => copyItemCallback(shoppingListItem.uuid);
+  const { shoppingListService, navigationService, pantryService } = useContext(
+    DependencyInjectionContext
+  );
 
   const [quantity, setQuantity] = useState(shoppingListItem.quantity ?? 0);
   const [boughtPrice, setBoughtPrice] = useState(
@@ -93,15 +88,6 @@ function UseShoppingListItem({
   );
   const [bought, setBought] = React.useState(shoppingListItem.bought);
   const [name, setName] = useState(shoppingListItem.name ?? "");
-
-  useEffect(() => {
-    shoppingListItem.name = name;
-    shoppingListItem.quantity = quantity;
-    shoppingListItem.boughtPrice = boughtPrice;
-    shoppingListItem.bought = bought;
-    updateItemCallback(shoppingListItem.uuid);
-  }, [name, quantity, boughtPrice, bought]);
-
   const [materialCommunityIconsFontLoaded] = useFonts({
     MaterialCommunityIcons: materialCommunityIconsFont,
   });
@@ -111,59 +97,96 @@ function UseShoppingListItem({
     return null;
   }
 
+  const handleSelfStore = () => {
+    navigationService.showStoreProductScreen(
+      pantryService.createStoredProduct({
+        name: shoppingListItem.name,
+        quantity: shoppingListItem.quantity,
+        boughtPrice: shoppingListItem.boughtPrice,
+      })
+    );
+  };
+
+  const handleSelfDelete = () => {
+    shoppingListService.deleteShoppingListItem(shoppingListItem).then(() => {
+      // console.log(`Shopping list item '${shoppingListItem.uuid}' deleted`);
+    });
+  };
+
+  function updateShoppingListItem(data: Partial<ShoppingListItem>) {
+    return shoppingListService
+      .saveShoppingListItem(shoppingListItem.clone(data))
+      .then(() => {
+        // console.log(`Shopping list item '${shoppingListItem.uuid}' updated`);
+      });
+  }
+
   return (
-    <View style={styles.itemContainer}>
-      <View style={styles2.container}>
-        {}
-        <Checkbox
-          status={bought ? "checked" : "unchecked"}
-          onPress={() => {
-            setBought(!bought);
-          }}
-        />
-        <TextInput
-          placeholder="Label"
-          style={styles2.inputStyle}
-          onChangeText={(text) => {
-            setName(text);
-          }}
-          value={name}
-        />
+    <TouchableOpacity
+      onPress={() => {
+        updateShoppingListItem({
+          bought: !bought,
+        }).then(() => {
+          setBought(!bought);
+        });
+      }}
+    >
+      <View style={styles.itemContainer}>
+        <View style={styles2.container}>
+          <Checkbox status={bought ? "checked" : "unchecked"} />
+
+          <TextInput
+            editable={false}
+            placeholder="Label"
+            style={{
+              ...styles2.inputStyle,
+              ...(bought ? { textDecorationLine: "line-through" } : {}),
+            }}
+            value={name}
+          />
+        </View>
+        <Text style={styles.x}>x</Text>
+        <View style={styles1.container}>
+          <TextInput
+            placeholder="1"
+            keyboardType="numeric"
+            style={styles1.inputStyle}
+            onChangeText={(text) => {
+              setQuantity(Number(text));
+            }}
+            onSubmitEditing={() => {
+              updateShoppingListItem({
+                quantity,
+              });
+            }}
+            value={quantity.toString()}
+          />
+        </View>
+        <Text style={styles.x}>for</Text>
+        <View style={styles1.container}>
+          <TextInput
+            placeholder="1"
+            keyboardType="number-pad"
+            style={styles1.inputStyle2}
+            onChangeText={(text) => {
+              setBoughtPrice(text as unknown as number);
+            }}
+            onSubmitEditing={() => {
+              updateShoppingListItem({
+                boughtPrice,
+              });
+            }}
+            value={boughtPrice.toString()}
+          />
+        </View>
+        <TouchableOpacity onPress={handleSelfStore}>
+          <Entypo name="box" style={styles2.iconStyle} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSelfDelete}>
+          <Entypo name="trash" style={styles2.iconStyle} />
+        </TouchableOpacity>
       </View>
-      <Text style={styles.x}>x</Text>
-      <View style={styles1.container}>
-        <TextInput
-          placeholder="1"
-          keyboardType="numeric"
-          style={styles1.inputStyle}
-          onChangeText={(text) => {
-            setQuantity(Number(text));
-          }}
-          value={quantity.toString()}
-        />
-      </View>
-      <Text style={styles.x}>for</Text>
-      <View style={styles1.container}>
-        <TextInput
-          placeholder="1"
-          keyboardType="number-pad"
-          style={styles1.inputStyle2}
-          onChangeText={(text) => {
-            setBoughtPrice(text as unknown as number);
-          }}
-          value={boughtPrice.toString()}
-        />
-      </View>
-      <TouchableOpacity onPress={handleSelfStore}>
-        <Entypo name="box" style={styles2.iconStyle} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSelfCopy}>
-        <Entypo name="copy" style={styles2.iconStyle} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSelfDelete}>
-        <Entypo name="trash" style={styles2.iconStyle} />
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 }
 

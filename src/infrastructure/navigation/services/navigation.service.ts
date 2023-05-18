@@ -6,17 +6,20 @@ import {
   EditGroupScreenRouteName,
   EditPantryScreenRouteName,
   EditProductScreenRouteName,
+  EditShoppingListScreenRouteName,
   GroupsScreenRouteName,
   PantriesScreenRouteName,
   PantryContentScreenRouteName,
   ProductScreenRouteName,
   ProductSearchResultScreenRouteName,
   StoreProductScreenRouteName,
+  UseShoppingListScreenRouteName,
 } from "../route-names";
 import Product from "../../../features/products/classes/product.class";
 import { ProductSearchQuery } from "../../../features/products/services/product.service";
 import Pantry from "../../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../../features/products/classes/stored.product";
+import ShoppingList from "../../../features/shoppingList/classes/shopping-list.class";
 
 export default class NavigationService {
   private readonly navigation?: NavigationProp<ReactNavigation.RootParamList>;
@@ -98,6 +101,24 @@ export default class NavigationService {
       PantryContentScreenRouteName as never,
       {
         pantry,
+      } as never
+    );
+  }
+
+  showEditShoppingListScreen(shoppingList: ShoppingList): void {
+    this.navigation?.navigate(
+      EditShoppingListScreenRouteName as never,
+      {
+        shoppingList,
+      } as never
+    );
+  }
+
+  showUseShoppingListScreen(shoppingList: ShoppingList): void {
+    this.navigation?.navigate(
+      UseShoppingListScreenRouteName as never,
+      {
+        shoppingList,
       } as never
     );
   }

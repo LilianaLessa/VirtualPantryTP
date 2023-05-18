@@ -20,7 +20,6 @@ function ProductListItem({ item }: { item: Product }) {
   const { productService, navigationService, snackBarService, pantryService } =
     useContext(DependencyInjectionContext);
 
-  const navigation = useNavigation();
   const { showModal, hideModal } = useContext(DialogModalContext);
 
   const handleSelfDelete = () => {

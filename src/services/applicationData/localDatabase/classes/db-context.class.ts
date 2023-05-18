@@ -6,6 +6,8 @@ import Pantry from "../../../../features/pantries/classes/pantry.class";
 import StoredProduct from "../../../../features/products/classes/stored.product";
 import Group from "../../../../features/group/classes/group.class";
 import UserInGroup from "../../../../features/group/classes/user-in-group.class";
+import ShoppingList from "../../../../features/shoppingList/classes/shopping-list.class";
+import ShoppingListItem from "../../../../features/shoppingList/classes/shopping-list-item.class";
 
 const tables = [
   Product.GetTableStructor(),
@@ -13,6 +15,8 @@ const tables = [
   StoredProduct.GetTableStructor(),
   Group.GetTableStructor(),
   UserInGroup.GetTableStructor(),
+  ShoppingList.GetTableStructor(),
+  ShoppingListItem.GetTableStructor(),
 ];
 export default class DbContext {
   private static instance: DbContext;

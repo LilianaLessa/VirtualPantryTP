@@ -22,12 +22,11 @@ import {
   StoredProductActions,
 } from "../actions";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
-import { IStoredProduct } from "../../features/products/interfaces/stored-product.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
-import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 import Group from "../../features/group/classes/group.class";
 import StoredProduct from "../../features/products/classes/stored.product";
-import { getStackTraceAsString } from "../../dev-utils";
+import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
+import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -206,20 +205,56 @@ export const clearNotifications =
   };
 
 export const saveShoppingList =
-  (newShoppingList: IShoppingList) =>
+  (shoppingList: ShoppingList) =>
   (dispatch: Dispatch<ShoppingListsActions>) => {
     dispatch({
       type: ShoppingListsActionType.SAVE_SHOPPING_LIST,
-      newShoppingList,
+      shoppingList,
     });
   };
 
 export const deleteShoppingList =
-  (shoppingListToDelete: IShoppingList) =>
+  (shoppingList: ShoppingList) =>
   (dispatch: Dispatch<ShoppingListsActions>) => {
     dispatch({
       type: ShoppingListsActionType.DELETE_SHOPPING_LIST,
-      shoppingListToDelete,
+      shoppingList,
+    });
+  };
+
+export const initShoppingListCollection =
+  (shoppingLists: ShoppingList[]) =>
+  (dispatch: Dispatch<ShoppingListsActions>) => {
+    dispatch({
+      type: ShoppingListsActionType.INIT_SHOPPING_LIST_COLLECTION,
+      shoppingLists,
+    });
+  };
+
+export const saveShoppingListItem =
+  (shoppingListItem: ShoppingListItem) =>
+  (dispatch: Dispatch<ShoppingListsActions>) => {
+    dispatch({
+      type: ShoppingListsActionType.SAVE_SHOPPING_LIST_ITEM,
+      shoppingListItem,
+    });
+  };
+
+export const deleteShoppingListItem =
+  (shoppingListItem: ShoppingListItem) =>
+  (dispatch: Dispatch<ShoppingListsActions>) => {
+    dispatch({
+      type: ShoppingListsActionType.DELETE_SHOPPING_LIST_ITEM,
+      shoppingListItem,
+    });
+  };
+
+export const initShoppingListItemCollection =
+  (shoppingListItems: ShoppingListItem[]) =>
+  (dispatch: Dispatch<ShoppingListsActions>) => {
+    dispatch({
+      type: ShoppingListsActionType.INIT_SHOPPING_LIST_ITEM_COLLECTION,
+      shoppingListItems,
     });
   };
 

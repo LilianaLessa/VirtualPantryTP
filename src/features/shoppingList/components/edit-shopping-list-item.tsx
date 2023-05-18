@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { Entypo } from "@expo/vector-icons";
-import IShoppingListItem from "../interfaces/shopping-list-item.interface";
+import ShoppingListItem from "../classes/shopping-list-item.class";
 
 const styles = StyleSheet.create({
   itemContainer: {
@@ -63,12 +63,12 @@ const styles2 = StyleSheet.create({
 
 function EditShoppingListItem({
   shoppingListItem,
-  deleteItemCallback,
+  removeItemCallback,
 }: {
-  shoppingListItem: IShoppingListItem;
-  deleteItemCallback: (uuid: string) => void;
+  shoppingListItem: ShoppingListItem;
+  removeItemCallback: (item: ShoppingListItem) => void;
 }) {
-  const handleSelfDelete = () => deleteItemCallback(shoppingListItem.uuid);
+  const handleSelfDelete = () => removeItemCallback(shoppingListItem);
 
   const [quantity, setQuantity] = useState(shoppingListItem?.quantity ?? 0);
   const [name, setName] = useState(shoppingListItem?.name ?? "");

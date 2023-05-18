@@ -10,9 +10,10 @@ import {
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { INotification } from "../../features/notification/interfaces/notification.interface";
-import IShoppingList from "../../features/shoppingList/interfaces/shopping-list.interface";
 import Group from "../../features/group/classes/group.class";
 import StoredProduct from "../../features/products/classes/stored.product";
+import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
+import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -134,15 +135,41 @@ export type NotificationsActions =
 
 interface SaveShoppingList {
   type: ShoppingListsActionType.SAVE_SHOPPING_LIST;
-  newShoppingList: IShoppingList;
+  shoppingList: ShoppingList;
 }
 
 interface DeleteShoppingList {
   type: ShoppingListsActionType.DELETE_SHOPPING_LIST;
-  shoppingListToDelete: IShoppingList;
+  shoppingList: ShoppingList;
 }
 
-export type ShoppingListsActions = SaveShoppingList | DeleteShoppingList;
+interface InitShoppingListCollection {
+  type: ShoppingListsActionType.INIT_SHOPPING_LIST_COLLECTION;
+  shoppingLists: ShoppingList[];
+}
+
+interface SaveShoppingListItem {
+  type: ShoppingListsActionType.SAVE_SHOPPING_LIST_ITEM;
+  shoppingListItem: ShoppingListItem;
+}
+
+interface DeleteShoppingListItem {
+  type: ShoppingListsActionType.DELETE_SHOPPING_LIST_ITEM;
+  shoppingListItem: ShoppingListItem;
+}
+
+interface InitShoppingListItemCollection {
+  type: ShoppingListsActionType.INIT_SHOPPING_LIST_ITEM_COLLECTION;
+  shoppingListItems: ShoppingListItem[];
+}
+
+export type ShoppingListsActions =
+  | SaveShoppingList
+  | DeleteShoppingList
+  | InitShoppingListCollection
+  | SaveShoppingListItem
+  | DeleteShoppingListItem
+  | InitShoppingListItemCollection;
 
 interface SaveGroupAction {
   type: GroupsActionType.SAVE_GROUP;

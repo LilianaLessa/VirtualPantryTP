@@ -1,74 +1,82 @@
-import React, { useEffect, useState } from "react";
-import { RouteProp, useNavigation } from "@react-navigation/native";
-import { v4 as uuidv4 } from "uuid";
+import React, { useContext, useEffect, useState } from "react";
+import { RouteProp } from "@react-navigation/native";
 import { FlatList, View } from "react-native";
 import { Button, HelperText, TextInput } from "react-native-paper";
-import { faker } from "@faker-js/faker";
-import IShoppingList from "../interfaces/shopping-list.interface";
-import ShoppingList from "../classes/shopping-list.class";
-import IShoppingListItem from "../interfaces/shopping-list-item.interface";
-import ShoppingListItem from "../classes/shopping-list-item.class";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import EditShoppingListItem from "../components/edit-shopping-list-item";
-import { useActions } from "../../../hooks/useActions";
+import ShoppingList from "../classes/shopping-list.class";
+import ShoppingListItem from "../classes/shopping-list-item.class";
 
 export type EditShoppingListScreenParams = {
   EditShoppingList: {
-    shoppingList?: IShoppingList;
-    isEdit?: boolean;
+    shoppingList: ShoppingList;
   };
 };
 type Props = RouteProp<EditShoppingListScreenParams, "EditShoppingList">;
 
-function EditShoppingListScreen({ route }: { route: Props }) {
-  let { shoppingList } = route.params ?? {};
-  const { isEdit } = route.params ?? {
-    isEdit: false,
-  };
-  const navigation = useNavigation();
+function EditShoppingListScreen({
+  route: {
+    params: { shoppingList },
+  },
+}: {
+  route: Props;
+}) {
+  const { shoppingListService, navigationService, snackBarService } =
+    useContext(DependencyInjectionContext);
 
-  const [name, setName] = useState(shoppingList?.name ?? "");
+  const [name, setName] = useState(shoppingList.name);
   const [items, setItems] = useState(
-    (shoppingList?.items ?? []).reduce(
-      (map: Map<string, IShoppingListItem>, item: IShoppingListItem) =>
-        map.set(item.uuid, item),
-      new Map<string, IShoppingListItem>()
-    )
+    shoppingListService
+      .getItemsOnShoppingList(shoppingList)
+      .map((i) => i.clone())
   );
 
   useEffect(() => {
-    const screenTitle = isEdit ? "Edit Shopping List" : "Create Shopping List";
-    navigation.setOptions({
-      title: screenTitle,
-    });
-  }, [isEdit, navigation]);
-
-  const { saveShoppingList } = useActions();
+    setName(shoppingList.name);
+    setItems(
+      shoppingListService
+        .getItemsOnShoppingList(shoppingList)
+        .map((i) => i.clone())
+    );
+  }, [shoppingList, shoppingListService]);
 
   const handleShoppingListSave = () => {
-    shoppingList = shoppingList ?? new ShoppingList(uuidv4(), name);
-    shoppingList.items = Array.from(items.values());
+    const updatedShoppingList = shoppingList.clone({
+      name,
+    });
 
-    saveShoppingList(shoppingList);
-    navigation.goBack();
+    const currentItemsUuids = items.map((i) => i.uuid);
+    const deletedItems = items.filter(
+      (i) => !currentItemsUuids.includes(i.uuid)
+    );
+
+    Promise.all([
+      shoppingListService.saveShoppingList(updatedShoppingList),
+      ...items.map((i) => shoppingListService.saveShoppingListItem(i)),
+      ...deletedItems.map((i) => shoppingListService.deleteShoppingListItem(i)),
+    ])
+      .then(() => {
+        navigationService.goBack();
+        snackBarService.showShoppingListSavedInfo(updatedShoppingList);
+      })
+      .catch((e) => {});
   };
 
   const handleAddItem = () => {
-    const newItem = new ShoppingListItem(uuidv4());
-    newItem.name = faker.word.noun();
-    newItem.quantity = faker.random.numeric() as unknown as number;
-    items.set(newItem.uuid, newItem);
-    setItems(new Map(items));
+    setItems([
+      ...items,
+      shoppingListService.createNewShoppingListItem(shoppingList),
+    ]);
   };
 
-  const removeItem = (uuid: string) => {
-    items.delete(uuid);
-    setItems(new Map(items));
+  const removeItem = (item: ShoppingListItem) => {
+    setItems(items.filter((i) => i.uuid !== item.uuid));
   };
 
-  const renderItem = ({ item }: { item: IShoppingListItem }) => (
+  const renderItem = ({ item }: { item: ShoppingListItem }) => (
     <EditShoppingListItem
       shoppingListItem={item}
-      deleteItemCallback={removeItem}
+      removeItemCallback={removeItem}
     />
   );
 
@@ -86,9 +94,9 @@ function EditShoppingListScreen({ route }: { route: Props }) {
         Type a name for your Shopping List
       </HelperText>
       <FlatList
-        data={Array.from(items.values())}
+        data={items}
         renderItem={renderItem}
-        keyExtractor={(i: IShoppingListItem) => i.getKey()}
+        keyExtractor={(i: ShoppingListItem) => i.getKey()}
       />
       <Button mode="contained" onPress={handleAddItem}>
         AddItem

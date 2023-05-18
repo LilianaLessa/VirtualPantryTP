@@ -43,6 +43,10 @@ export enum NotificationsActionType {
 export enum ShoppingListsActionType {
   SAVE_SHOPPING_LIST = "save_shopping_list",
   DELETE_SHOPPING_LIST = "delete_shopping_list",
+  INIT_SHOPPING_LIST_COLLECTION = "init_shopping_list_collection",
+  SAVE_SHOPPING_LIST_ITEM = "save_shopping_list_item",
+  DELETE_SHOPPING_LIST_ITEM = "delete_shopping_list_item",
+  INIT_SHOPPING_LIST_ITEM_COLLECTION = "init_shopping_list_item_collection",
 }
 
 export enum GroupsActionType {
