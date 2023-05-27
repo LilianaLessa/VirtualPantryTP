@@ -80,9 +80,11 @@ function ShoppingList({ shoppingList }: { shoppingList: ShoppingListClass }) {
           <TouchableOpacity onPress={handleEdit}>
             <EditIcon />
           </TouchableOpacity>
-          <TouchableOpacity onPress={showConfirmDeletionModal}>
-            <DeleteIcon />
-          </TouchableOpacity>
+          {shoppingListService.isOwnedByTheCurrentUser(shoppingList) && (
+            <TouchableOpacity onPress={showConfirmDeletionModal}>
+              <DeleteIcon />
+            </TouchableOpacity>
+          )}
         </RightContent>
       </ProductListItemContainer>
       <ProgressBar progress={progressInfo.progress} />

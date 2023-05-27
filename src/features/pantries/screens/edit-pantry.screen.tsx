@@ -48,9 +48,12 @@ export function EditPantryScreen({
       <HelperText visible type="info" padding="none">
         Type a name for your pantry
       </HelperText>
-      <Button mode="contained" onPress={handleSave}>
-        Save
-      </Button>
+      {pantryService.isOwnedByTheCurrentUser(pantry) && (
+        <Button mode="contained" onPress={handleSave}>
+          Save
+        </Button>
+      )}
+
       <Text>{`Owner UID: ${pantry?.ownerUid}`}</Text>
       <Text>{`Firestore ID: ${pantry?.firestoreId}`}</Text>
     </View>

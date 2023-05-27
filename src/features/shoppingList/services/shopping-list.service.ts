@@ -4,6 +4,7 @@ import ShoppingList from "../classes/shopping-list.class";
 import ShoppingListItem from "../classes/shopping-list-item.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
+import Product from "../../products/classes/product.class";
 
 type StateActions = {
   saveShoppingList: (shoppingList: ShoppingList) => any;
@@ -189,5 +190,9 @@ export default class ShoppingListService {
         );
         throw e;
       });
+  }
+
+  isOwnedByTheCurrentUser(shoppingList: ShoppingList): boolean {
+    return this.authGuardService.getAuthUserUid(true) === shoppingList.ownerUid;
   }
 }

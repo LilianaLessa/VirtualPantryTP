@@ -111,9 +111,12 @@ export function EditProductScreen({
       <HelperText visible type="info" padding="none">
         Type or scan the bar code for the product
       </HelperText>
-      <Button mode="contained" onPress={handleSave}>
-        Save
-      </Button>
+      {productService.isOwnedByTheCurrentUser(product) && (
+        <Button mode="contained" onPress={handleSave}>
+          Save
+        </Button>
+      )}
+
       <Text>{`Owner UID: ${product?.ownerUid}`}</Text>
       <Text>{`Firestore Id: ${product?.firestoreId}`}</Text>
     </View>

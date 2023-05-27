@@ -42,6 +42,10 @@ export default class ProductService {
     this.firestoreActions = firestoreActions;
   }
 
+  isOwnedByTheCurrentUser(product: Product): boolean {
+    return this.authGuardService.getAuthUserUid(true) === product.ownerUid;
+  }
+
   createNewProduct(data?: Partial<Product>): Product {
     const newProduct = new Product(
       uuidv4(),

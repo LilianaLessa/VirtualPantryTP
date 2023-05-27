@@ -62,9 +62,12 @@ function ProductListItem({ item }: { item: Product }) {
           <LeftText>{item.name}</LeftText>
         </LeftContent>
         <RightContent>
-          <TouchableOpacity onPress={showConfirmDeletionModal}>
-            <DeleteIcon />
-          </TouchableOpacity>
+          {productService.isOwnedByTheCurrentUser(item) && (
+            <TouchableOpacity onPress={showConfirmDeletionModal}>
+              <DeleteIcon />
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity onPress={handleStoreProduct}>
             <AddToPantryIcon />
           </TouchableOpacity>

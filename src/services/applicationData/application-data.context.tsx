@@ -368,28 +368,6 @@ export function ApplicationDataContextProvider({
     initMemberInGroupCollection,
   } = useActions();
 
-  // const initMemberInGroup = (u: User | null) => {
-  //   const userUid = user?.uid;
-  //
-  //   if (!userUid) {
-  //     return Promise.resolve();
-  //   }
-  //   findDocuments(
-  //     UserInGroup.getFirestoreCollectionName(),
-  //     and(
-  //       where("answererUid", "==", userUid),
-  //       where("acceptanceState", "==", UseInGroupAcceptanceState.ACCEPTED)
-  //     )
-  //   ).then(()=>{
-  //
-  //   });
-  //   // get userInGroup where the logged user accepted the invite.
-  //
-  //   // get groups, save only on memory.
-  //   // for these, edition is not possible.
-  //   // this will affect pantries, stored products, saved products and shopping lists.
-  // };
-
   useEffect(() => {
     showLoadingActivityIndicator();
     AsyncStorage.getItem("@loggedUser").then((result) => {

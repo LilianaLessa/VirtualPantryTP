@@ -69,9 +69,12 @@ function PantryListItem({ item }: { item: IPantry }) {
           <TouchableOpacity onPress={handleEdit}>
             <EditIcon />
           </TouchableOpacity>
-          <TouchableOpacity onPress={showConfirmDeletionModal}>
-            <DeleteIcon />
-          </TouchableOpacity>
+          {pantryService.isOwnedByTheCurrentUser(item) && (
+            <TouchableOpacity onPress={showConfirmDeletionModal}>
+              <DeleteIcon />
+            </TouchableOpacity>
+          )}
+
           <DragHandler />
         </RightContent>
       </ProductListItemContainer>
