@@ -22,11 +22,11 @@ import {
   StoredProductActions,
 } from "../actions";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
-import { INotification } from "../../features/notification/interfaces/notification.interface";
 import Group from "../../features/group/classes/group.class";
 import StoredProduct from "../../features/products/classes/stored.product";
 import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
+import Notification from "../../features/notification/classes/notification.class";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -189,11 +189,11 @@ export const initStoredProductCollection =
   };
 
 export const deleteNotification =
-  (notificationToRemove: INotification) =>
+  (notification: Notification) =>
   (dispatch: Dispatch<NotificationsActions>) => {
     dispatch({
       type: NotificationsActionType.REMOVE_NOTIFICATION,
-      notificationToRemove,
+      notification,
     });
   };
 
@@ -201,6 +201,15 @@ export const clearNotifications =
   () => (dispatch: Dispatch<NotificationsActions>) => {
     dispatch({
       type: NotificationsActionType.CLEAR_NOTIFICATIONS,
+    });
+  };
+
+export const initNotificationCollection =
+  (notifications: Notification[]) =>
+  (dispatch: Dispatch<NotificationsActions>) => {
+    dispatch({
+      type: NotificationsActionType.INIT_NOTIFICATION_COLLECTION,
+      notifications,
     });
   };
 

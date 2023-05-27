@@ -6,6 +6,7 @@ export enum LocalTable {
   USER_IN_GROUP = "user_in_group",
   SHOPPING_LIST = "shopping_list",
   SHOPPING_LIST_ITEM = "shopping_list_item",
+  NOTIFICATION = "notification",
 }
 
 export type TableNames =
@@ -15,4 +16,5 @@ export type TableNames =
   | LocalTable.GROUP
   | LocalTable.SHOPPING_LIST
   | LocalTable.SHOPPING_LIST_ITEM
-  | LocalTable.USER_IN_GROUP;
+  | LocalTable.USER_IN_GROUP
+  | LocalTable.NOTIFICATION;

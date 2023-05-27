@@ -9,11 +9,11 @@ import {
 } from "../action-types";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
-import { INotification } from "../../features/notification/interfaces/notification.interface";
 import Group from "../../features/group/classes/group.class";
 import StoredProduct from "../../features/products/classes/stored.product";
 import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
+import Notification from "../../features/notification/classes/notification.class";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -110,28 +110,28 @@ export type MessageSnackbarActions =
 
 interface AddNotification {
   type: NotificationsActionType.ADD_NOTIFICATION;
-  newNotification: INotification;
+  notification: Notification;
 }
 
 interface RemoveNotification {
   type: NotificationsActionType.REMOVE_NOTIFICATION;
-  notificationToRemove: INotification;
-}
-
-interface ReadNotification {
-  type: NotificationsActionType.READ_NOTIFICATION;
-  notificationToRead: INotification;
+  notification: Notification;
 }
 
 interface ClearNotifications {
   type: NotificationsActionType.CLEAR_NOTIFICATIONS;
 }
 
+interface InitNotificationCollection {
+  type: NotificationsActionType.INIT_NOTIFICATION_COLLECTION;
+  notifications: Notification[];
+}
+
 export type NotificationsActions =
   | AddNotification
   | RemoveNotification
-  | ReadNotification
-  | ClearNotifications;
+  | ClearNotifications
+  | InitNotificationCollection;
 
 interface SaveShoppingList {
   type: ShoppingListsActionType.SAVE_SHOPPING_LIST;

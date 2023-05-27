@@ -14,6 +14,7 @@ import Group from "../../features/group/classes/group.class";
 import UserInGroup from "../../features/group/classes/user-in-group.class";
 import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
+import Notification from "../../features/notification/classes/notification.class";
 
 // todo this context is responsible to initiate the reducers based on local or firestore data.
 
@@ -300,7 +301,7 @@ export function ApplicationDataContextProvider({
     base: T,
     u: User | null,
     stateInitializer: (c: T[]) => void,
-    stateUpdater: (updated: T) => void
+    stateUpdater?: (updated: T) => void
   ) {
     const db = DbContext.getInstance().database;
     const userUid = u?.uid;
@@ -323,11 +324,13 @@ export function ApplicationDataContextProvider({
               userUid,
               base.constructor,
               Array.from(loadedEntities.values()),
-              (updatedData: DocumentData) => {
-                stateUpdater(
-                  base.constructor.buildFromFirestoreData(updatedData)
-                );
-              }
+              stateUpdater
+                ? (updatedData: DocumentData) => {
+                    stateUpdater(
+                      base.constructor.buildFromFirestoreData(updatedData)
+                    );
+                  }
+                : undefined
             )
           : Promise.resolve({
               saved: Array.from(loadedEntities.values()),
@@ -357,6 +360,7 @@ export function ApplicationDataContextProvider({
     initShoppingListItemCollection,
     saveShoppingList,
     saveShoppingListItem,
+    initNotificationCollection,
   } = useActions();
 
   useEffect(() => {
@@ -399,6 +403,11 @@ export function ApplicationDataContextProvider({
               db.save(updated);
               saveShoppingListItem(updated);
             }
+          ),
+          initCollection(
+            new Notification(),
+            storedUser,
+            initNotificationCollection
           ),
           // initShoppingLists(storedUser),
           // initShoppingListItems(storedUser),

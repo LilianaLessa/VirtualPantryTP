@@ -1,21 +1,13 @@
-import { INotification } from "../../features/notification/interfaces/notification.interface";
-import { createMockNotification } from "../../dev-utils";
 import { NotificationsActions } from "../actions";
 import { NotificationsActionType } from "../action-types";
+import Notification from "../../features/notification/classes/notification.class";
 
 interface NotificationsState {
-  notifications: Map<string, INotification>;
-}
-
-const mockNotifications = new Map<string, INotification>();
-
-for (let i = 0; i < 5; i++) {
-  const notification = createMockNotification();
-  mockNotifications.set(notification.uuid, notification);
+  notifications: Map<string, Notification>;
 }
 
 const initialState: NotificationsState = {
-  notifications: mockNotifications,
+  notifications: new Map<string, Notification>(),
 };
 
 const notificationsReducer = (
@@ -27,23 +19,27 @@ const notificationsReducer = (
   switch (action.type) {
     case NotificationsActionType.ADD_NOTIFICATION:
       state.notifications.set(
-        action.newNotification.uuid,
+        action.notification.uuid,
         // eslint-disable-next-line comma-dangle
-        action.newNotification
+        action.notification
       );
       return { ...state, notifications: new Map(state.notifications) };
     case NotificationsActionType.REMOVE_NOTIFICATION:
-      state.notifications.delete(action.notificationToRemove.uuid);
-      return { ...state, notifications: new Map(state.notifications) };
-    case NotificationsActionType.READ_NOTIFICATION:
-      state.notifications.set(action.notificationToRead.uuid, {
-        ...action.notificationToRead,
-        read: true,
-      });
+      state.notifications.delete(action.notification.uuid);
       return { ...state, notifications: new Map(state.notifications) };
     case NotificationsActionType.CLEAR_NOTIFICATIONS:
       state.notifications.clear();
       return { ...state, notifications: new Map(state.notifications) };
+
+    case NotificationsActionType.INIT_NOTIFICATION_COLLECTION:
+      return {
+        ...state,
+        notifications: action.notifications.reduce(
+          (map: Map<string, Notification>, p: Notification) =>
+            map.set(p.uuid, p),
+          new Map<string, Notification>()
+        ),
+      };
     default:
       return state;
   }
