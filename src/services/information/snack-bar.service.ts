@@ -6,6 +6,7 @@ import ShoppingList from "../../features/shoppingList/classes/shopping-list.clas
 
 type StateActions = {
   showSnack: (infoMessage: string) => any;
+  showErrorSnack: (errorMessage: string) => any;
 };
 export default class SnackBarService {
   private stateActions?: StateActions;
@@ -34,6 +35,12 @@ export default class SnackBarService {
     this.stateActions?.showSnack(`Group '${group.name}' was saved.`);
   }
 
+  showGroupNotSavedError(group: Group, message?: string) {
+    this.stateActions?.showErrorSnack(
+      `It was not possible to save the Group '${group.name}'. ${message}`
+    );
+  }
+
   groupInviteAcceptedInfo(groupName: string) {
     this.stateActions?.showSnack(
       `You accepted the invite to group '${groupName}'.`
@@ -48,6 +55,10 @@ export default class SnackBarService {
 
   showGroupDeletedInfo(group: Group) {
     this.stateActions?.showSnack(`Group '${group.name}' was deleted.`);
+  }
+
+  showLeftGroupInfo(group: Group) {
+    this.stateActions?.showSnack(`You left the Group '${group.name}'.`);
   }
 
   showProductStoredInfo(

@@ -33,10 +33,20 @@ export default function EditGroupScreen({
   const [updatedGroup, setUpdateGroup] = useState(group.clone());
 
   const handleSave = () => {
-    groupService.saveGroup(group, updatedGroup, () => {
-      navigationService.showGroupsScreen();
-      snackBarService.showGroupSavedInfo(updatedGroup);
-    });
+    groupService.saveGroup(
+      group,
+      updatedGroup,
+      () => {
+        navigationService.showGroupsScreen();
+        snackBarService.showGroupSavedInfo(updatedGroup);
+      },
+      () => {
+        snackBarService.showGroupNotSavedError(
+          updatedGroup,
+          "Does this group belongs to you?"
+        );
+      }
+    );
   };
 
   const handleUserDeletion = (userInGroupToDelete: UserInGroup) => {

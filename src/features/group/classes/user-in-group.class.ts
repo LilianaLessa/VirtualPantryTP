@@ -12,6 +12,7 @@ export enum UseInGroupAcceptanceState {
   VIEWED,
   ACCEPTED,
   REJECTED,
+  LEFT,
 }
 
 export default class UserInGroup
@@ -40,6 +41,10 @@ export default class UserInGroup
   answererUid: string;
 
   updatedAt?: string;
+
+  ownerUid: string;
+
+  firestoreId: string;
 
   constructor(
     uuid: string,

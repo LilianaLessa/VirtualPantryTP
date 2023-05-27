@@ -51,6 +51,10 @@ type FirestoreContextType = {
     firestoreCollectionName: string,
     uuid: string
   ) => Promise<any>;
+  findDocuments: (
+    collectionName: string,
+    ...queryConstraints: QueryConstraint[]
+  ) => Promise<any>;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -349,6 +353,17 @@ export function FirestoreContextProvider({
     });
   };
 
+  const findDocuments = (
+    collectionName: string,
+    ...queryConstraints: QueryConstraint[]
+  ) => {
+    if (!firestore) return Promise.resolve();
+
+    return getDocs(
+      query(collection(firestore, collectionName), ...queryConstraints)
+    );
+  };
+
   return (
     <FirestoreContext.Provider
       value={{
@@ -357,6 +372,7 @@ export function FirestoreContextProvider({
         syncCollection,
         createCollectionListener,
         getObjectByUuid,
+        findDocuments,
       }}
     >
       {children}

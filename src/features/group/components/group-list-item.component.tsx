@@ -37,13 +37,22 @@ function GroupListItem({ group }: { group: Group }) {
   const { showModal, hideModal } = useContext(DialogModalContext);
 
   const handleEdit = () => {
-    navigationService.showGroupEditScreen(group);
+    if (groupService.isGroupOwnedByLoggedUser(group)) {
+      navigationService.showGroupEditScreen(group);
+    }
   };
 
   const handleSelfDelete = () => {
     hideModal();
     groupService.deleteGroup(group, () => {
       snackBarService.showGroupDeletedInfo(group);
+    });
+  };
+
+  const handleSelfLeave = () => {
+    hideModal();
+    groupService.leaveGroup(group, () => {
+      snackBarService.showLeftGroupInfo(group);
     });
   };
 
@@ -60,7 +69,16 @@ function GroupListItem({ group }: { group: Group }) {
     );
   };
   const showConfirmLeaveModal = () => {
-    console.log("showConfirmLeaveModal todo");
+    showModal(
+      <ConfirmDialog
+        confirm="Leave"
+        cancel="Cancel"
+        dialogContent={`Do you want to Leave the group '${group.name}'?`}
+        dialogTitle="Leave Group"
+        cancelHandler={hideModal}
+        confirmHandler={handleSelfLeave}
+      />
+    );
   };
 
   // todo show delete group only for creator
@@ -74,12 +92,17 @@ function GroupListItem({ group }: { group: Group }) {
             <LeftText>{group.name}</LeftText>
           </LeftContent>
           <RightContent>
-            <TouchableOpacity onPress={showConfirmLeaveModal}>
-              <LeaveGroupIcon />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={showConfirmDeletionModal}>
-              <DeleteIcon />
-            </TouchableOpacity>
+            {!groupService.isGroupOwnedByLoggedUser(group) && (
+              <TouchableOpacity onPress={showConfirmLeaveModal}>
+                <LeaveGroupIcon />
+              </TouchableOpacity>
+            )}
+            {groupService.isGroupOwnedByLoggedUser(group) && (
+              <TouchableOpacity onPress={showConfirmDeletionModal}>
+                <DeleteIcon />
+              </TouchableOpacity>
+            )}
+
             <DragHandler />
           </RightContent>
         </ProductListItemContainer>

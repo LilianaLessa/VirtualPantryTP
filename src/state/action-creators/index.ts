@@ -300,6 +300,14 @@ export const initGroupsCollection =
     });
   };
 
+export const initMemberInGroupCollection =
+  (groupCollection: Group[]) => (dispatch: Dispatch<GroupsActions>) => {
+    dispatch({
+      type: GroupsActionType.INIT_MEMBER_IN_GROUP_COLLECTION,
+      groupCollection,
+    });
+  };
+
 export const showSnack =
   (infoMessage: string) => (dispatch: Dispatch<MessageSnackbarActions>) => {
     dispatch({

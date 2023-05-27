@@ -4,10 +4,12 @@ import { GroupsActions } from "../actions";
 
 interface GroupsState {
   groups: Map<string, Group>;
+  memberInGroups: Map<string, Group>;
 }
 
 const initialState: GroupsState = {
   groups: new Map<string, Group>(),
+  memberInGroups: new Map<string, Group>(),
 };
 
 const groupsReducer = (
@@ -27,6 +29,14 @@ const groupsReducer = (
       return {
         ...state,
         groups: action.groupCollection.reduce(
+          (map: Map<string, Group>, p: Group) => map.set(p.uuid, p),
+          new Map<string, Group>()
+        ),
+      };
+    case GroupsActionType.INIT_MEMBER_IN_GROUP_COLLECTION:
+      return {
+        ...state,
+        memberInGroups: action.groupCollection.reduce(
           (map: Map<string, Group>, p: Group) => map.set(p.uuid, p),
           new Map<string, Group>()
         ),

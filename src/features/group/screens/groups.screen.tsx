@@ -4,8 +4,10 @@ import { Button } from "react-native-paper";
 import Group from "../classes/group.class";
 import GroupListItem from "../components/group-list-item.component";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 function GroupsScreen() {
+  const { groups } = useTypedSelector((state) => state.groups);
   const { groupService, authGuardService, navigationService } = useContext(
     DependencyInjectionContext
   );
@@ -16,7 +18,7 @@ function GroupsScreen() {
 
   useEffect(() => {
     setCurrentGroups(groupService.getGroupsForCurrentUser());
-  }, [groupService]);
+  }, [groups]);
 
   const renderItem = ({ item }: { item: Group }) => (
     <GroupListItem group={item} />

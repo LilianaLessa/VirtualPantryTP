@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import { Query, QueryConstraint } from "@firebase/firestore";
-import { where } from "firebase/firestore";
+import { QueryConstraint } from "@firebase/firestore";
+import { and, where } from "firebase/firestore";
 import Group from "../classes/group.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import UserInGroup, {
@@ -30,20 +30,26 @@ type FirestoreActions = {
     onRemoved?: (data: any) => void,
     ...queryConstraints: QueryConstraint[]
   ) => () => void;
+  findDocuments: (
+    collectionName: string,
+    ...queryConstraints: QueryConstraint[]
+  ) => Promise<any>;
 };
 
 export default class GroupService {
-  private readonly notificationService: NotificationService | null;
+  notificationService: NotificationService | null;
 
   private readonly authGuardService: AuthGuardService;
 
-  private readonly groups: Map<string, Group>;
+  groups: Map<string, Group>;
 
   private readonly stateActions: GroupStateActions;
 
   private readonly firestoreActions: FirestoreActions;
 
   private unsubscribeUserFromGroupInvites = () => {};
+
+  private unsubscribeUserFromGroupUpdates = () => {};
 
   constructor(
     notificationService: NotificationService | null,
@@ -68,24 +74,27 @@ export default class GroupService {
     };
 
     this.authGuardService.guard(() => {
+      console.log(
+        `subscribing '${this.authGuardService.getAuthUserEmail()}' to group operations`
+      );
       const email = this.authGuardService.getAuthUserEmail();
-      if (email) {
+      const uid = this.authGuardService.getAuthUserUid();
+      if (email && uid) {
         this.subscribeUserToGroupInvites(email);
+        this.subscribeUserFromGroupUpdates(uid);
       }
     });
   }
 
   destructor() {
     console.log(
-      `unsubscribing to group invites for '${this.authGuardService.getAuthUserEmail()}'`
+      `unsubscribing '${this.authGuardService.getAuthUserEmail()}' from group operations.`
     );
     this.unsubscribeUserFromGroupInvites();
+    this.unsubscribeUserFromGroupUpdates();
   }
 
   private subscribeUserToGroupInvites(email: string) {
-    console.log(
-      `subscribing to group invites for '${this.authGuardService.getAuthUserEmail()}'`
-    );
     this.unsubscribeUserFromGroupInvites =
       this.firestoreActions.createCollectionListener(
         UserInGroup.getFirestoreCollectionName(),
@@ -132,8 +141,65 @@ export default class GroupService {
         (d) => {
           console.log("removed", d);
         },
-        where("acceptanceState", "==", UseInGroupAcceptanceState.PENDING),
-        where("email", "==", email)
+        and(
+          where("acceptanceState", "==", UseInGroupAcceptanceState.PENDING),
+          where("email", "==", email)
+        )
+      );
+  }
+
+  private subscribeUserFromGroupUpdates(uid: string) {
+    this.unsubscribeUserFromGroupUpdates =
+      this.firestoreActions.createCollectionListener(
+        UserInGroup.getFirestoreCollectionName(),
+        (d) => {
+          const userInGroup = UserInGroup.buildFromFirestoreData({
+            data: () => d,
+          });
+
+          this.getRemoteGroup(userInGroup.groupUuid)
+            .then((r) => {
+              const remoteGroup = r.docs.map((d) =>
+                Group.buildFromFirestoreData(d)
+              )[0];
+
+              console.log(`Member in group '${remoteGroup.name}'.`);
+
+              // todo fix: this loaded data will be overwritten by any state init collection.
+              // todo load group related data.
+
+              this.stateActions.saveGroup(remoteGroup);
+
+              // load group data into state.
+            })
+            .catch((e) => console.log(e));
+
+          // console.log("group update: added", userInGroup);
+        },
+        (d) => {
+          console.log("group update: modified", d);
+        },
+        (d) => {
+          const userInGroup = UserInGroup.buildFromFirestoreData({
+            data: () => d,
+          });
+          this.getRemoteGroup(userInGroup.groupUuid).then((r) => {
+            const remoteGroup = r.docs.map((d) =>
+              Group.buildFromFirestoreData(d)
+            )[0];
+
+            if (remoteGroup) {
+              // todo unload group related data.
+              this.stateActions.deleteGroup(remoteGroup);
+            }
+          });
+
+          console.log("group update: removed", d);
+        },
+        and(
+          where("answererUid", "==", uid),
+          where("acceptanceState", "==", UseInGroupAcceptanceState.ACCEPTED)
+        )
       );
   }
 
@@ -151,12 +217,58 @@ export default class GroupService {
     );
   }
 
+  public isGroupOwnedByLoggedUser(group: Group): boolean {
+    return this.authGuardService.guard(
+      () => this.authGuardService.getAuthUserUid(true) === group.ownerUid,
+      () => false
+    );
+  }
+
+  public leaveGroup(
+    group: Group,
+    successCallback?: () => any,
+    errorCallback?: () => any
+  ): void {
+    this.firestoreActions
+      .findDocuments(
+        UserInGroup.getFirestoreCollectionName(),
+        and(
+          where("groupUuid", "==", group.uuid),
+          where("acceptanceState", "==", UseInGroupAcceptanceState.ACCEPTED),
+          where("answererUid", "==", this.authGuardService.getAuthUserUid())
+        )
+      )
+      .then((r) => {
+        const remoteUserInGroup = r.docs.map((d) =>
+          UserInGroup.buildFromFirestoreData(d)
+        )[0];
+        if (remoteUserInGroup) {
+          remoteUserInGroup.acceptanceState = UseInGroupAcceptanceState.LEFT;
+          this.firestoreActions.saveObject(remoteUserInGroup).then(() => {
+            if (successCallback) {
+              return successCallback();
+            }
+          });
+        }
+      });
+    // get from firestore user groups where acceptanceState= 2, groupUUid = group.uuid and answererId = currentUser.uuid.
+    // set the acceptanceState of this object to LEFT
+    // save the found object at firebase, then remove the group from state. maybe the collection listener can take care of it.
+  }
+
   public saveGroup(
     group: Group,
     updatedGroup: Group,
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
+    if (!this.isGroupOwnedByLoggedUser(group)) {
+      if (errorCallback) {
+        return errorCallback();
+      }
+    }
+    // todo check if the group is owned by the current user
+
     this.stateActions.showLoadingActivityIndicator();
     const db = DbContext.getInstance().database;
 

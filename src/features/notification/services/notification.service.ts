@@ -12,7 +12,7 @@ type StateActions = {
 };
 
 export default class NotificationService {
-  private readonly notifications: Notification[];
+  notifications: Notification[];
 
   private readonly dataSynchronizerService: DataSynchronizerService;
 

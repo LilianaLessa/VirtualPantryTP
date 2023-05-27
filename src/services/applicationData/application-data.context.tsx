@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DocumentData } from "firebase/firestore";
+import { and, DocumentData, where } from "firebase/firestore";
 import { useActions } from "../../hooks/useActions";
 import DbContext from "./localDatabase/classes/db-context.class";
 import Product from "../../features/products/classes/product.class";
@@ -11,7 +11,9 @@ import StoredProduct from "../../features/products/classes/stored.product";
 import { AuthenticationContext } from "../firebase/authentication.context";
 import { FirestoreContext } from "../firebase/firestore.context";
 import Group from "../../features/group/classes/group.class";
-import UserInGroup from "../../features/group/classes/user-in-group.class";
+import UserInGroup, {
+  UseInGroupAcceptanceState,
+} from "../../features/group/classes/user-in-group.class";
 import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
 import Notification from "../../features/notification/classes/notification.class";
@@ -30,7 +32,7 @@ export function ApplicationDataContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const { user } = useContext(AuthenticationContext);
-  const { syncCollection } = useContext(FirestoreContext);
+  const { syncCollection, findDocuments } = useContext(FirestoreContext);
   const {
     initProductCollection,
     showLoadingActivityIndicator,
@@ -363,7 +365,30 @@ export function ApplicationDataContextProvider({
     saveShoppingList,
     saveShoppingListItem,
     initNotificationCollection,
+    initMemberInGroupCollection,
   } = useActions();
+
+  // const initMemberInGroup = (u: User | null) => {
+  //   const userUid = user?.uid;
+  //
+  //   if (!userUid) {
+  //     return Promise.resolve();
+  //   }
+  //   findDocuments(
+  //     UserInGroup.getFirestoreCollectionName(),
+  //     and(
+  //       where("answererUid", "==", userUid),
+  //       where("acceptanceState", "==", UseInGroupAcceptanceState.ACCEPTED)
+  //     )
+  //   ).then(()=>{
+  //
+  //   });
+  //   // get userInGroup where the logged user accepted the invite.
+  //
+  //   // get groups, save only on memory.
+  //   // for these, edition is not possible.
+  //   // this will affect pantries, stored products, saved products and shopping lists.
+  // };
 
   useEffect(() => {
     showLoadingActivityIndicator();

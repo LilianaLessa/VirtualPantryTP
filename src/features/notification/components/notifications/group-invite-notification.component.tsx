@@ -58,9 +58,12 @@ export default function GroupInviteNotificationComponent({
 }: {
   notification: Notification;
 }) {
-  const { notificationService, groupService, snackBarService } = useContext(
-    DependencyInjectionContext
-  );
+  const {
+    navigationService,
+    notificationService,
+    groupService,
+    snackBarService,
+  } = useContext(DependencyInjectionContext);
   const {
     data: { groupName, userInGroupUuid, accepted },
     createdAt,
@@ -106,6 +109,7 @@ export default function GroupInviteNotificationComponent({
           })
         )
         .then(() => {
+          navigationService.showGroupsScreen();
           snackBarService.groupInviteAcceptedInfo(groupName);
         });
     });
