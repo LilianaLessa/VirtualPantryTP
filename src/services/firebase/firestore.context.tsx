@@ -8,13 +8,23 @@ import {
   getDocs,
   getFirestore,
   onSnapshot,
+  or,
   query,
   setDoc,
   where,
 } from "firebase/firestore";
-import { Firestore, Query, QueryConstraint } from "@firebase/firestore";
+import { Firestore, QueryConstraint } from "@firebase/firestore";
 import { FirebaseContext } from "./firebase.context";
 import IFirestoreObject from "./interfaces/firestore-object.interface";
+
+function sliceIntoChunks(arr, chunkSize) {
+  const res = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    const chunk = arr.slice(i, i + chunkSize);
+    res.push(chunk);
+  }
+  return res;
+}
 
 export type FirestoreCollectionSyncResult = {
   saved: IFirestoreObject[];
@@ -124,6 +134,11 @@ export function FirestoreContextProvider({
     }
     console.log(`Firebase syncing collection '${collectionType.name}'`);
 
+    const localCollectionUuidChunks = sliceIntoChunks(
+      localCollection.map((o) => o.uuid),
+      30
+    );
+
     const getDeletedObjects =
       localCollection.length > 0
         ? getDocs(
@@ -132,10 +147,10 @@ export function FirestoreContextProvider({
                 firestore,
                 collectionType.getFirestoreDeletedCollectionName()
               ),
-              where(
-                "uuid",
-                "in", // todo this support up to 30 comparison values. chunk this search.
-                localCollection.map((o) => o.uuid)
+              or(
+                ...localCollectionUuidChunks.map((uuidsChunk) =>
+                  where("uuid", "in", uuidsChunk)
+                )
               )
             )
           ).catch((e) => {
