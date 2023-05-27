@@ -144,16 +144,25 @@ export function DependencyInjectionContextProvider({
   }, [authGuardService, savedProducts, firestoreActions]);
 
   useEffect(() => {
+    // console.log(Array.from(storedProducts.values()));
+    pantryService.destructor();
     setPantryService(
       new PantryService(
         Array.from(pantries.values()),
         Array.from(storedProducts.values()),
         authGuardService,
+        notificationService,
         stateActions,
         firestoreActions
       )
     );
-  }, [authGuardService, pantries, storedProducts, firestoreActions]);
+  }, [
+    notificationService,
+    authGuardService,
+    pantries,
+    storedProducts,
+    firestoreActions,
+  ]);
 
   useEffect(() => {
     setShoppingListService(

@@ -6,6 +6,7 @@ import IFirestoreObject from "../../../services/firebase/interfaces/firestore-ob
 import StoredProduct from "../../products/classes/stored.product";
 import { getStackTraceAsString } from "../../../dev-utils";
 import Product from "../../products/classes/product.class";
+import NotificationService from "../../notification/services/notification.service";
 
 type StateActions = {
   savePantry: (pantry: Pantry) => any;
@@ -28,22 +29,35 @@ export default class PantryService {
 
   private readonly authGuardService: AuthGuardService;
 
+  private readonly notificationService: NotificationService;
+
   private readonly stateActions: StateActions;
 
   private readonly firestoreActions: FirestoreActions;
+
+  private static foregroundExpirationNotificationCheckTimerId: // todo this should be info from async storage, as it shouldn't depend on class or instance.
+  number | undefined;
 
   constructor(
     pantries: Pantry[],
     storedProducts: StoredProduct[],
     authGuardService: AuthGuardService,
+    notificationService: NotificationService,
     stateActions: StateActions,
     firestoreActions: FirestoreActions
   ) {
     this.pantries = pantries;
     this.storedProducts = storedProducts;
     this.authGuardService = authGuardService;
+    this.notificationService = notificationService;
     this.stateActions = stateActions;
     this.firestoreActions = firestoreActions;
+
+    this.initForegroundExpirationNotificationCheck();
+  }
+
+  destructor() {
+    this.stopForegroundExpirationTimeNotificationCheck();
   }
 
   createNewPantry(data?: Partial<Pantry>): Pantry {
@@ -266,5 +280,69 @@ export default class PantryService {
 
     console.log(name, productName);
     return `${name}${productName}`;
+  }
+
+  foregroundExpirationNotificationCheck() {
+    const currentTime = new Date();
+    console.log("foreground expiration notification check", currentTime);
+    const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    const hourToTrigger = 1; // todo debug, should come from config
+    const minuteToTrigger = 12; // todo debug, should come from config
+    const daysBeforeExpiration = 3; // todo debug, should come from config
+    const msBeforeExpiration = daysBeforeExpiration * _MS_PER_DAY;
+
+    if (
+      currentTime.getHours() == hourToTrigger &&
+      currentTime.getMinutes() == minuteToTrigger
+    ) {
+      this.storedProducts.forEach((storedProduct: StoredProduct) => {
+        if (typeof storedProduct.bestBefore !== "undefined") {
+          const expirationDate = new Date(storedProduct.bestBefore);
+          const diffInMilliseconds = expirationDate - currentTime;
+          console.log(
+            storedProduct.name,
+            storedProduct.uuid,
+            diffInMilliseconds,
+            msBeforeExpiration
+          );
+          if (diffInMilliseconds <= msBeforeExpiration) {
+            this.notificationService.saveNotification(
+              this.notificationService.createExpirationNoticeNotification(
+                storedProduct
+              )
+            );
+          }
+        }
+      });
+    }
+  }
+
+  private initForegroundExpirationNotificationCheck() {
+    // console.log(this.storedProducts);
+    if (
+      typeof PantryService.foregroundExpirationNotificationCheckTimerId ===
+      "undefined"
+    ) {
+      console.log("starting foreground expiration notification check");
+      // this.foregroundExpirationNotificationCheck();
+      PantryService.foregroundExpirationNotificationCheckTimerId = setInterval(
+        () => {
+          this.foregroundExpirationNotificationCheck();
+        },
+        60000
+      );
+    }
+  }
+
+  private stopForegroundExpirationTimeNotificationCheck(): void {
+    console.log("stopping foreground expiration notification check");
+    if (
+      typeof PantryService.foregroundExpirationNotificationCheckTimerId !==
+      "undefined"
+    ) {
+      clearInterval(PantryService.foregroundExpirationNotificationCheckTimerId);
+      PantryService.foregroundExpirationNotificationCheckTimerId = undefined;
+    }
   }
 }
