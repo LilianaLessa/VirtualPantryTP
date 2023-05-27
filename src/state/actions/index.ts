@@ -186,7 +186,13 @@ interface InitGroupCollectionAction {
   groupCollection: Group[];
 }
 
+interface InitMemberInGroupCollectionAction {
+  type: GroupsActionType.INIT_MEMBER_IN_GROUP_COLLECTION;
+  groupCollection: Group[];
+}
+
 export type GroupsActions =
   | SaveGroupAction
   | DeleteGroupAction
-  | InitGroupCollectionAction;
+  | InitGroupCollectionAction
+  | InitMemberInGroupCollectionAction;

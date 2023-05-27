@@ -285,6 +285,7 @@ export default class GroupService {
           acceptanceState,
           undefined,
           undefined,
+          undefined,
           new Date().toString()
         )
       );
@@ -321,6 +322,8 @@ export default class GroupService {
           uig.acceptanceState = acceptInvite
             ? UseInGroupAcceptanceState.ACCEPTED
             : UseInGroupAcceptanceState.REJECTED;
+          uig.answererUid = this.authGuardService.getAuthUserUid();
+
           return this.firestoreActions.saveObject(uig);
         }
         return Promise.resolve();

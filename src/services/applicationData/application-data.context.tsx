@@ -248,6 +248,7 @@ export function ApplicationDataContextProvider({
                 r.isAdmin,
                 r.isInviter,
                 r.acceptanceState,
+                r.answererUid,
                 r.id,
                 r.firestoreId,
                 r.updatedAt

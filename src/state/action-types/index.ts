@@ -53,4 +53,5 @@ export enum GroupsActionType {
   SAVE_GROUP = "save_group",
   DELETE_GROUP = "delete_group",
   INIT_GROUP_COLLECTION = "init_group_collection",
+  INIT_MEMBER_IN_GROUP_COLLECTION = "init_member_in_group_collection",
 }

@@ -37,6 +37,8 @@ export default class UserInGroup
 
   acceptanceState: UseInGroupAcceptanceState;
 
+  answererUid: string;
+
   updatedAt?: string;
 
   constructor(
@@ -46,7 +48,8 @@ export default class UserInGroup
     email: string,
     isAdmin: boolean,
     isInviter: boolean,
-    acceptanceState: number,
+    acceptanceState: UseInGroupAcceptanceState,
+    answererUid?: string,
     id?: number,
     firestoreId?: string,
     updatedAt?: string
@@ -69,6 +72,10 @@ export default class UserInGroup
     if (typeof firestoreId !== "undefined") {
       this.firestoreId = firestoreId;
     }
+
+    if (typeof answererUid !== "undefined") {
+      this.answererUid = answererUid;
+    }
   }
 
   getKey(): string {
@@ -88,6 +95,7 @@ export default class UserInGroup
       userInGroup.isAdmin,
       userInGroup.isInviter,
       userInGroup.acceptanceState,
+      userInGroup.answererUid,
       userInGroup.id,
       userInGroup.firestoreId,
       userInGroup.updatedAt
@@ -106,7 +114,8 @@ export default class UserInGroup
       .column("isAdmin")
       .boolean.column("isInviter")
       .boolean.column("acceptanceState")
-      .number.column("updatedAt")
+      .number.column("answererUid")
+      .column("updatedAt")
       .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(UserInGroup.prototype);
   }
@@ -140,6 +149,7 @@ export default class UserInGroup
       doc.data().isAdmin,
       doc.data().isInviter,
       doc.data().acceptanceState,
+      doc.data().answererUid,
       undefined,
       doc.id,
       doc.data().updatedAt
