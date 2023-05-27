@@ -1,4 +1,3 @@
-import { Text, View } from "react-native";
 import React from "react";
 import Notification from "../../classes/notification.class";
 import {
@@ -7,7 +6,7 @@ import {
   NotificationDatetime,
   NotificationMessage,
   NotificationMessageContainer,
-} from "../product-expiration-notice.styles";
+} from "./product-expiration-notice.styles";
 import NotificationDeleteButton from "../notification-delete-button.component";
 
 export default function MessageNotificationComponent({

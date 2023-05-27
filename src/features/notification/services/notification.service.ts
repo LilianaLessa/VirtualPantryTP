@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import Notification from "../classes/notification.class";
+import Notification, { NotificationType } from "../classes/notification.class";
 import DataSynchronizerService from "../../../services/applicationData/data-synchronizer.service";
+import StoredProduct from "../../products/classes/stored.product";
 
 type StateActions = {
   saveNotification: (notification: Notification) => any;
@@ -30,13 +31,31 @@ export default class NotificationService {
   }
 
   createMockNotification(): Notification {
-    return this.dataSynchronizerService.attachOwnerUuid(
-      new Notification(uuidv4(), {
+    return this.createBaseNotification().clone({
+      data: {
         message: `Mock notification ---- ${new Date().toString()}`,
-      }).clone({
-        createdAt: new Date().toString(),
-      })
-    );
+      },
+    });
+  }
+
+  createExpirationNoticeNotification(
+    storedProduct: StoredProduct
+  ): Notification {
+    const daysUntil = (date1: Date): number => {
+      const date2 = new Date();
+      const difference = date1.getTime() - date2.getTime();
+      return Math.ceil(difference / (1000 * 3600 * 24));
+    };
+
+    const remainingDays = daysUntil(new Date(storedProduct.bestBefore));
+
+    return this.createBaseNotification().clone({
+      type: NotificationType.PRODUCT_EXPIRATION_NOTICE,
+      data: {
+        storedProductUuid: storedProduct.uuid,
+        remainingDays,
+      },
+    });
   }
 
   saveNotification(notification: Notification): Promise<any> {
@@ -64,5 +83,13 @@ export default class NotificationService {
 
   getUnreadNotifications(): Notification[] {
     return this.notifications.filter((n) => !n.read);
+  }
+
+  private createBaseNotification(): Notification {
+    return this.dataSynchronizerService.attachOwnerUuid(
+      new Notification(uuidv4()).clone({
+        createdAt: new Date().toString(),
+      })
+    );
   }
 }

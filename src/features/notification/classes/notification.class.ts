@@ -10,10 +10,18 @@ type MessageNotificationData = {
   message: string;
 };
 
-type NotificationData = MessageNotificationData;
+type ProductExpirationNoticeNotificationData = {
+  storedProductUuid: string;
+  remainingDays: number;
+};
+
+type NotificationData =
+  | MessageNotificationData
+  | ProductExpirationNoticeNotificationData;
 
 export enum NotificationType {
   MESSAGE,
+  PRODUCT_EXPIRATION_NOTICE,
 }
 export default class Notification
   extends IBaseModule<TableNames>

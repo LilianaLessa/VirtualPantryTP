@@ -66,6 +66,10 @@ export const EatIcon = styled(MaterialCommunityIconsIcon).attrs({
   name: "silverware-fork-knife",
 })``;
 
+export const DebugIcon = styled(MaterialCommunityIconsIcon).attrs({
+  name: "bug",
+})``;
+
 export const DeleteIcon = styled(EntypoIcon).attrs({ name: "trash" })``;
 
 export const AddToPantryIcon = styled(EntypoIcon).attrs({ name: "box" })``;

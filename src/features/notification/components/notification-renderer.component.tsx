@@ -2,6 +2,7 @@ import { Text, View } from "react-native";
 import React from "react";
 import Notification, { NotificationType } from "../classes/notification.class";
 import MessageNotificationComponent from "./notifications/message-notification.component";
+import ProductExpirationNotice from "./notifications/product-expiration-notice.component";
 
 function NullNotification({ notification }: { notification: Notification }) {
   return (
@@ -22,6 +23,9 @@ export default function NotificationRenderer({
   switch (notification.type) {
     case NotificationType.MESSAGE:
       Renderer = MessageNotificationComponent;
+      break;
+    case NotificationType.PRODUCT_EXPIRATION_NOTICE:
+      Renderer = ProductExpirationNotice;
       break;
     default:
       Renderer = NullNotification;

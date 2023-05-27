@@ -238,6 +238,12 @@ export default class PantryService {
       : this.pantries.find((p) => p.uuid === uuid);
   }
 
+  getStoredProductByUuid(uuid?: string): StoredProduct | undefined {
+    return typeof uuid === "undefined"
+      ? undefined
+      : this.storedProducts.find((p) => p.uuid === uuid);
+  }
+
   getPantries() {
     return this.pantries;
   }
