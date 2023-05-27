@@ -179,17 +179,26 @@ export default class GroupService {
           if (userInGroup) {
             this.removeGroupListener(userInGroup);
             this.getRemoteGroup(userInGroup.groupUuid).then((r) => {
-              const remoteGroup = r.docs.map((rd) =>
+              const remoteGroup: Group = r.docs.map((rd) =>
                 Group.buildFromFirestoreData(rd)
               )[0];
               if (remoteGroup) {
-                if (
-                  typeof this.getGroupByUuid(remoteGroup.uuid) === "undefined"
-                ) {
-                  this.stateActions.saveGroup(remoteGroup);
-                }
+                // todo get the users for the group and inject then here.
+                this.firestoreActions
+                  .findDocuments(
+                    UserInGroup.getFirestoreCollectionName(),
+                    where("groupUuid", "==", remoteGroup.uuid)
+                  )
+                  .then((md) => {
+                    md.docs.map((d) => {
+                      remoteGroup.setUser(
+                        UserInGroup.buildFromFirestoreData(d)
+                      );
+                    });
 
-                this.addGroupListener(userInGroup, remoteGroup);
+                    this.stateActions.saveGroup(remoteGroup);
+                    this.addGroupListener(userInGroup, remoteGroup);
+                  });
               }
             });
           }
