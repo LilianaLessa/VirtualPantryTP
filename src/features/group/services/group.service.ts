@@ -61,6 +61,8 @@ export default class GroupService {
 
   private unsubscribeUserFromGroupUpdates = () => {};
 
+  private groupMemberListenerUnsubscribers: Map<string, () => void>;
+
   constructor(
     notificationService: NotificationService | null,
     authGuardService: AuthGuardService,
@@ -94,6 +96,8 @@ export default class GroupService {
         this.subscribeUserFromGroupUpdates(uid);
       }
     });
+
+    this.groupMemberListenerUnsubscribers = new Map<string, () => void>();
   }
 
   destructor() {
@@ -102,6 +106,11 @@ export default class GroupService {
     );
     this.unsubscribeUserFromGroupInvites();
     this.unsubscribeUserFromGroupUpdates();
+    this.groupMemberListenerUnsubscribers.forEach((f) => f());
+  }
+
+  private getGroupByUuid(uuid: string): Group | undefined {
+    return this.groups.get(uuid);
   }
 
   private subscribeUserToGroupInvites(email: string) {
@@ -167,146 +176,141 @@ export default class GroupService {
           const userInGroup = UserInGroup.buildFromFirestoreData({
             data: () => d,
           });
-
-          this.getRemoteGroup(userInGroup.groupUuid)
-            .then((r) => {
-              const remoteGroup = r.docs.map((d) =>
-                Group.buildFromFirestoreData(d)
+          if (userInGroup) {
+            this.removeGroupListener(userInGroup);
+            this.getRemoteGroup(userInGroup.groupUuid).then((r) => {
+              const remoteGroup = r.docs.map((rd) =>
+                Group.buildFromFirestoreData(rd)
               )[0];
-
-              console.log(`Member in group '${remoteGroup.name}'.`);
-
               if (remoteGroup) {
-                // todo fix: this loaded data will be overwritten by any state init collection.
-                // todo load group related data.
+                if (
+                  typeof this.getGroupByUuid(remoteGroup.uuid) === "undefined"
+                ) {
+                  this.stateActions.saveGroup(remoteGroup);
+                }
 
-                this.firestoreActions
-                  .findDocuments(
-                    UserInGroup.getFirestoreCollectionName(),
-                    and(
-                      where("groupUuid", "==", remoteGroup.uuid),
-                      where(
-                        "acceptanceState",
-                        "==",
-                        UseInGroupAcceptanceState.ACCEPTED
-                      )
-                    )
-                  )
-                  .then((r2) => {
-                    const usersInGroup = r2.docs.map((d) =>
-                      UserInGroup.buildFromFirestoreData(d)
-                    );
-
-                    const dataLoaders: Promise<any>[] = [];
-                    usersInGroup.forEach((uig: UserInGroup) => {
-                      if (
-                        uig.answererUid ===
-                        this.authGuardService.getAuthUserUid()
-                      ) {
-                        return Promise.resolve();
-                      }
-
-                      const collectionsToFetch = [
-                        {
-                          collectionName: Product.getFirestoreCollectionName(),
-                          entityBuilder: Product.buildFromFirestoreData,
-                          stateUpdater: this.stateActions.saveProduct,
-                        },
-                        {
-                          collectionName: Pantry.getFirestoreCollectionName(),
-                          entityBuilder: Pantry.buildFromFirestoreData,
-                          stateUpdater: this.stateActions.savePantry,
-                        },
-                        {
-                          collectionName:
-                            StoredProduct.getFirestoreCollectionName(),
-                          entityBuilder: StoredProduct.buildFromFirestoreData,
-                          stateUpdater: this.stateActions.storeProduct,
-                        },
-                        {
-                          collectionName:
-                            ShoppingList.getFirestoreCollectionName(),
-                          entityBuilder: ShoppingList.buildFromFirestoreData,
-                          stateUpdater: this.stateActions.saveShoppingList,
-                        },
-                        {
-                          collectionName:
-                            ShoppingListItem.getFirestoreCollectionName(),
-                          entityBuilder:
-                            ShoppingListItem.buildFromFirestoreData,
-                          stateUpdater: this.stateActions.saveShoppingListItem,
-                        },
-                      ];
-
-                      return Promise.all(
-                        collectionsToFetch.map(
-                          ({
-                            collectionName,
-                            entityBuilder,
-                            stateUpdater,
-                          }: {
-                            collectionName: string;
-                            entityBuilder: any;
-                            stateUpdater: any;
-                          }) => {
-                            this.firestoreActions
-                              .findDocuments(
-                                collectionName,
-                                where("ownerUid", "==", uig.answererUid)
-                              )
-                              .then((r) => {
-                                console.log(
-                                  `group operation: loading collection '${collectionName}' from user '${uig.answererUid}'`
-                                );
-                                r.docs
-                                  .map((d) => entityBuilder(d))
-                                  .forEach((e) => stateUpdater(e));
-                              });
-                          }
-                        )
-                      );
-                    });
-
-                    Promise.all(dataLoaders).then(() => {
-                      this.stateActions.saveGroup(remoteGroup);
-                    });
-
-                    // load group data into state.
-                  });
+                this.addGroupListener(userInGroup, remoteGroup);
               }
-            })
-            .catch((e) => console.log(e));
-
-          // console.log("group update: added", userInGroup);
+            });
+          }
         },
-        (d) => {
-          console.log("group update: modified", d);
-        },
+        null,
         (d) => {
           const userInGroup = UserInGroup.buildFromFirestoreData({
             data: () => d,
           });
-          this.getRemoteGroup(userInGroup.groupUuid).then((r) => {
-            const remoteGroup = r.docs.map((d) =>
-              Group.buildFromFirestoreData(d)
-            )[0];
-
-            if (remoteGroup) {
-              // todo unload group related data.
-              this.stateActions.deleteGroup(remoteGroup);
-
-              // from each member of the group, remove the items from state.
-              // but if an item is from a user that shares another group with the current user, keep the item.
-            }
-          });
-
-          console.log("group update: removed", d);
+          if (userInGroup) {
+            this.removeGroupListener(userInGroup);
+          }
         },
         and(
           where("answererUid", "==", uid),
           where("acceptanceState", "==", UseInGroupAcceptanceState.ACCEPTED)
         )
       );
+  }
+
+  private addGroupListener(userInGroup: UserInGroup, remoteGroup: Group) {
+    this.groupMemberListenerUnsubscribers.set(
+      userInGroup.groupUuid,
+      this.getGroupMembersUnsubscriberForGroup(userInGroup, remoteGroup)
+    );
+  }
+
+  private getGroupMembersUnsubscriberForGroup(
+    { answererUid }: UserInGroup,
+    remoteGroup: Group
+  ): () => void {
+    return this.firestoreActions.createCollectionListener(
+      UserInGroup.getFirestoreCollectionName(),
+      (d) => {
+        const userInGroup = UserInGroup.buildFromFirestoreData({
+          data: () => d,
+        });
+        if (userInGroup && userInGroup.answererUid !== answererUid) {
+          console.log(
+            `Member in group ${remoteGroup.name}: ${userInGroup.answererUid}`
+          );
+
+          const collectionsToFetch = [
+            {
+              collectionName: Product.getFirestoreCollectionName(),
+              entityBuilder: Product.buildFromFirestoreData,
+              stateUpdater: this.stateActions.saveProduct,
+            },
+            {
+              collectionName: Pantry.getFirestoreCollectionName(),
+              entityBuilder: Pantry.buildFromFirestoreData,
+              stateUpdater: this.stateActions.savePantry,
+            },
+            {
+              collectionName: StoredProduct.getFirestoreCollectionName(),
+              entityBuilder: StoredProduct.buildFromFirestoreData,
+              stateUpdater: this.stateActions.storeProduct,
+            },
+            {
+              collectionName: ShoppingList.getFirestoreCollectionName(),
+              entityBuilder: ShoppingList.buildFromFirestoreData,
+              stateUpdater: this.stateActions.saveShoppingList,
+            },
+            {
+              collectionName: ShoppingListItem.getFirestoreCollectionName(),
+              entityBuilder: ShoppingListItem.buildFromFirestoreData,
+              stateUpdater: this.stateActions.saveShoppingListItem,
+            },
+          ];
+
+          Promise.all(
+            collectionsToFetch.map(
+              ({
+                collectionName,
+                entityBuilder,
+                stateUpdater,
+              }: {
+                collectionName: string;
+                entityBuilder: any;
+                stateUpdater: any;
+              }) => {
+                this.firestoreActions
+                  .findDocuments(
+                    collectionName,
+                    where("ownerUid", "==", userInGroup.answererUid)
+                  )
+                  .then((r) => {
+                    console.log(
+                      `group operation: loading collection '${collectionName}' from user '${userInGroup.answererUid}'`
+                    );
+                    r.docs
+                      .map((d) => entityBuilder(d))
+                      .forEach((e) => stateUpdater(e));
+                  });
+              }
+            )
+          ).then(() => {
+            console.log(
+              `group operation: finished collections load for user '${userInGroup.answererUid}'`
+            );
+          });
+        }
+      },
+      null,
+      null, // todo remove member data from state
+      and(
+        where("groupUuid", "==", remoteGroup.uuid),
+        // where("answererId", "!=", answererUid),
+        where("acceptanceState", "==", UseInGroupAcceptanceState.ACCEPTED)
+      )
+    );
+  }
+
+  private removeGroupListener(userInGroup: UserInGroup) {
+    // remove the listener to that group.
+    const groupUnsubscriber = this.groupMemberListenerUnsubscribers.get(
+      userInGroup.groupUuid
+    );
+    if (groupUnsubscriber) {
+      groupUnsubscriber();
+    }
   }
 
   private getRemoteGroup(remoteGroupUuid: string): Promise<any> {
