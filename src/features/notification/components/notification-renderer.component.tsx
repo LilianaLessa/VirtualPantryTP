@@ -1,8 +1,13 @@
 import { Text, View } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import Notification, { NotificationType } from "../classes/notification.class";
 import MessageNotificationComponent from "./notifications/message-notification.component";
 import ProductExpirationNotice from "./notifications/product-expiration-notice.component";
+import {
+  NotificationContainer,
+  UnreadNotificationContainer,
+} from "./notifications/product-expiration-notice.styles";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function NullNotification({ notification }: { notification: Notification }) {
   return (
@@ -19,6 +24,8 @@ export default function NotificationRenderer({
 }: {
   notification: Notification;
 }) {
+  const { notificationService } = useContext(DependencyInjectionContext);
+
   let Renderer;
   switch (notification.type) {
     case NotificationType.MESSAGE:

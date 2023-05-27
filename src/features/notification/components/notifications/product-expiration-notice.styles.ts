@@ -11,6 +11,15 @@ export const NotificationContainer = styled(TouchableOpacity)`
   border-color: #000000;
 `;
 
+export const UnreadNotificationContainer = styled(TouchableOpacity)`
+  background-color: rgb(150, 209, 236);
+  flex-direction: row;
+  padding: 5px;
+  align-items: center;
+  border-width: 1px;
+  border-color: #000000;
+`;
+
 export const ExpirationNoticeLeftIcon = styled(FontAwesome).attrs({
   name: "warning",
 })`
@@ -20,7 +29,6 @@ export const ExpirationNoticeLeftIcon = styled(FontAwesome).attrs({
 `;
 
 export const NotificationMessageContainer = styled(View)`
-  background-color: #e6e6e6;
   margin: 10px 10px 10px 0;
   align-self: stretch;
   flex: 1;
