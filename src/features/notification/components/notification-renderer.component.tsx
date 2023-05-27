@@ -8,6 +8,7 @@ import {
   UnreadNotificationContainer,
 } from "./notifications/product-expiration-notice.styles";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import GroupInviteNotificationComponent from "./notifications/group-invite-notification.component";
 
 function NullNotification({ notification }: { notification: Notification }) {
   return (
@@ -33,6 +34,9 @@ export default function NotificationRenderer({
       break;
     case NotificationType.PRODUCT_EXPIRATION_NOTICE:
       Renderer = ProductExpirationNotice;
+      break;
+    case NotificationType.GROUP_INVITE:
+      Renderer = GroupInviteNotificationComponent;
       break;
     default:
       Renderer = NullNotification;

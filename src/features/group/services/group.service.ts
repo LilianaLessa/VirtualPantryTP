@@ -3,9 +3,12 @@ import { Query, QueryConstraint } from "@firebase/firestore";
 import { where } from "firebase/firestore";
 import Group from "../classes/group.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
-import UserInGroup from "../classes/user-in-group.class";
+import UserInGroup, {
+  UseInGroupAcceptanceState,
+} from "../classes/user-in-group.class";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
+import NotificationService from "../../notification/services/notification.service";
 
 type GroupStateActions = {
   saveGroup: (group: Group) => any;
@@ -16,6 +19,10 @@ type GroupStateActions = {
 type FirestoreActions = {
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
   deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+  getObjectByUuid: (
+    firestoreCollectionName: string,
+    uuid: string
+  ) => Promise<any>;
   createCollectionListener: (
     collectionName: string,
     onAdded?: (data: any) => void,
@@ -26,6 +33,8 @@ type FirestoreActions = {
 };
 
 export default class GroupService {
+  private readonly notificationService: NotificationService | null;
+
   private readonly authGuardService: AuthGuardService;
 
   private readonly groups: Map<string, Group>;
@@ -37,11 +46,13 @@ export default class GroupService {
   private unsubscribeUserFromGroupInvites = () => {};
 
   constructor(
+    notificationService: NotificationService | null,
     authGuardService: AuthGuardService,
     groups?: Map<string, Group>,
     stateActions?: GroupStateActions,
     firestoreActions?: FirestoreActions
   ) {
+    this.notificationService = notificationService;
     this.authGuardService = authGuardService;
     this.groups = groups ?? new Map<string, Group>();
     this.stateActions = stateActions ?? {
@@ -79,7 +90,41 @@ export default class GroupService {
       this.firestoreActions.createCollectionListener(
         UserInGroup.getFirestoreCollectionName(),
         (d) => {
-          console.log("added", d);
+          const userInGroup = UserInGroup.buildFromFirestoreData({
+            data: () => d,
+          });
+
+          if (this.notificationService !== null) {
+            this.getRemoteGroup(userInGroup.groupUuid).then((result) => {
+              const group = result.docs.map((d) =>
+                Group.buildFromFirestoreData(d)
+              )[0];
+
+              if (group) {
+                this.notificationService
+                  ?.sendGroupInviteNotification(userInGroup, group)
+                  .then(() => {
+                    this.firestoreActions
+                      .getObjectByUuid(
+                        UserInGroup.getFirestoreCollectionName(),
+                        userInGroup.uuid
+                      )
+                      .then((r) => {
+                        const uig = r.docs.map((d) =>
+                          UserInGroup.buildFromFirestoreData(d)
+                        )[0];
+                        if (uig) {
+                          uig.acceptanceState =
+                            UseInGroupAcceptanceState.VIEWED;
+                          this.firestoreActions.saveObject(uig).then(() => {});
+                        }
+                      });
+                  });
+              }
+            });
+          }
+
+          console.log("added", userInGroup);
         },
         (d) => {
           console.log("modified", d);
@@ -87,8 +132,16 @@ export default class GroupService {
         (d) => {
           console.log("removed", d);
         },
+        where("acceptanceState", "==", UseInGroupAcceptanceState.PENDING),
         where("email", "==", email)
       );
+  }
+
+  private getRemoteGroup(remoteGroupUuid: string): Promise<any> {
+    return this.firestoreActions.getObjectByUuid(
+      Group.getFirestoreCollectionName(),
+      remoteGroupUuid
+    );
   }
 
   public createNewGroup(name?: string): Group | never {
@@ -217,7 +270,8 @@ export default class GroupService {
     group: Group,
     email: string,
     isAdmin: boolean,
-    isInviter: boolean
+    isInviter: boolean,
+    acceptanceState: UseInGroupAcceptanceState
   ): void {
     if (email.length >= 3) {
       group.setUser(
@@ -228,6 +282,7 @@ export default class GroupService {
           email,
           isAdmin,
           isInviter,
+          acceptanceState,
           undefined,
           undefined,
           new Date().toString()
@@ -252,5 +307,23 @@ export default class GroupService {
       undefined,
       new Date().toString()
     );
+  }
+
+  answerInvite(userInGroupUuid: string, acceptInvite: boolean): Promise<any> {
+    return this.firestoreActions
+      .getObjectByUuid(
+        UserInGroup.getFirestoreCollectionName(),
+        userInGroupUuid
+      )
+      .then((r) => {
+        const uig = r.docs.map((d) => UserInGroup.buildFromFirestoreData(d))[0];
+        if (uig) {
+          uig.acceptanceState = acceptInvite
+            ? UseInGroupAcceptanceState.ACCEPTED
+            : UseInGroupAcceptanceState.REJECTED;
+          return this.firestoreActions.saveObject(uig);
+        }
+        return Promise.resolve();
+      });
   }
 }

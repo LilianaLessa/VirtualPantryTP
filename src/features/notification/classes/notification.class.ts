@@ -15,13 +15,21 @@ type ProductExpirationNoticeNotificationData = {
   remainingDays: number;
 };
 
+type GroupInviteNotificationData = {
+  userInGroupUuid: string;
+  groupName: string;
+  accepted?: boolean;
+};
+
 type NotificationData =
   | MessageNotificationData
+  | GroupInviteNotificationData
   | ProductExpirationNoticeNotificationData;
 
 export enum NotificationType {
   MESSAGE,
   PRODUCT_EXPIRATION_NOTICE,
+  GROUP_INVITE,
 }
 export default class Notification
   extends IBaseModule<TableNames>

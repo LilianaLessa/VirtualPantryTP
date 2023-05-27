@@ -29,7 +29,7 @@ type DependencyInjectionContextType = {
 
 const defaultValue = {
   authGuardService: new AuthGuardService(null),
-  groupService: new GroupService(new AuthGuardService(null)),
+  groupService: new GroupService(null, new AuthGuardService(null)),
   navigationService: new NavigationService(),
   snackBarService: new SnackBarService(),
   productService: new ProductService([], new AuthGuardService(null), {}, {}),
@@ -132,13 +132,6 @@ export function DependencyInjectionContextProvider({
   }, [user]);
 
   useEffect(() => {
-    groupService.destructor();
-    setGroupService(
-      new GroupService(authGuardService, groups, stateActions, firestoreActions)
-    );
-  }, [authGuardService, groups]);
-
-  useEffect(() => {
     // console.log("init product service", Array.from(savedProducts.values()));
     setProductService(
       new ProductService(
@@ -181,6 +174,19 @@ export function DependencyInjectionContextProvider({
   useEffect(() => {
     setBarCodeScanService(new BarCodeScanService(navigationService));
   }, [navigationService]);
+
+  useEffect(() => {
+    groupService.destructor();
+    setGroupService(
+      new GroupService(
+        notificationService,
+        authGuardService,
+        groups,
+        stateActions,
+        firestoreActions
+      )
+    );
+  }, [notificationService, authGuardService, groups]);
 
   return (
     <DependencyInjectionContext.Provider

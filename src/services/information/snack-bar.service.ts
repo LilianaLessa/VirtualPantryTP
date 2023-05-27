@@ -34,6 +34,18 @@ export default class SnackBarService {
     this.stateActions?.showSnack(`Group '${group.name}' was saved.`);
   }
 
+  groupInviteAcceptedInfo(groupName: string) {
+    this.stateActions?.showSnack(
+      `You accepted the invite to group '${groupName}'.`
+    );
+  }
+
+  groupInviteRejectedInfo(groupName: string) {
+    this.stateActions?.showSnack(
+      `You rejected the invite to group '${groupName}'.`
+    );
+  }
+
   showGroupDeletedInfo(group: Group) {
     this.stateActions?.showSnack(`Group '${group.name}' was deleted.`);
   }

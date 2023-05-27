@@ -47,6 +47,10 @@ type FirestoreContextType = {
     onRemoved?: (data: any) => void,
     ...queryConstraints: QueryConstraint[]
   ) => any;
+  getObjectByUuid: (
+    firestoreCollectionName: string,
+    uuid: string
+  ) => Promise<any>;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -118,6 +122,19 @@ export function FirestoreContextProvider({
           )
         )
       : Promise.resolve();
+  };
+
+  const getObjectByUuid = (firestoreCollectionName: string, uuid: string) => {
+    if (!firestore) {
+      return Promise.resolve(new Error("firestore not initiated."));
+    }
+
+    return getDocs(
+      query(
+        collection(firestore, firestoreCollectionName),
+        where("uuid", "==", uuid)
+      )
+    );
   };
 
   // todo check if there is a way to type hint collectionType here.
@@ -339,6 +356,7 @@ export function FirestoreContextProvider({
         deleteObject,
         syncCollection,
         createCollectionListener,
+        getObjectByUuid,
       }}
     >
       {children}

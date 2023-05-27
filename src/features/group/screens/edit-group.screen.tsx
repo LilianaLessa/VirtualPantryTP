@@ -6,7 +6,9 @@ import Group from "../classes/group.class";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import UserListItem from "../components/user-list-item.component";
 import AddUserInput from "../components/add-user-input.component";
-import UserInGroup from "../classes/user-in-group.class";
+import UserInGroup, {
+  UseInGroupAcceptanceState,
+} from "../classes/user-in-group.class";
 
 // todo when rendering this screen, make sure that the logged user is the owner of the group.
 //      this will avoid unauthorized group edition.
@@ -66,7 +68,13 @@ export default function EditGroupScreen({
       <AddUserInput
         addUserCallback={(newUserEmail) => {
           // console.log("add user callback", groupService, updatedGroup);
-          groupService.setUser(updatedGroup, newUserEmail, false, false);
+          groupService.setUser(
+            updatedGroup,
+            newUserEmail,
+            false,
+            false,
+            UseInGroupAcceptanceState.PENDING
+          );
           setUpdateGroup(updatedGroup.clone());
         }}
       />

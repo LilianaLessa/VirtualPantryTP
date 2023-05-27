@@ -7,6 +7,13 @@ import {
 import Product from "../../products/classes/product.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 
+export enum UseInGroupAcceptanceState {
+  PENDING,
+  VIEWED,
+  ACCEPTED,
+  REJECTED,
+}
+
 export default class UserInGroup
   extends IBaseModule<TableNames>
   implements IFirestoreObject
@@ -28,6 +35,8 @@ export default class UserInGroup
 
   isInviter: boolean;
 
+  acceptanceState: UseInGroupAcceptanceState;
+
   updatedAt?: string;
 
   constructor(
@@ -37,6 +46,7 @@ export default class UserInGroup
     email: string,
     isAdmin: boolean,
     isInviter: boolean,
+    acceptanceState: number,
     id?: number,
     firestoreId?: string,
     updatedAt?: string
@@ -48,6 +58,7 @@ export default class UserInGroup
     this.email = email;
     this.isAdmin = isAdmin;
     this.isInviter = isInviter;
+    this.acceptanceState = acceptanceState ?? UseInGroupAcceptanceState.PENDING;
     this.relationKey = UserInGroup.calculateRelationKey(this);
     if (typeof id !== "undefined") {
       this.id = id;
@@ -76,6 +87,7 @@ export default class UserInGroup
       userInGroup.email,
       userInGroup.isAdmin,
       userInGroup.isInviter,
+      userInGroup.acceptanceState,
       userInGroup.id,
       userInGroup.firestoreId,
       userInGroup.updatedAt
@@ -93,7 +105,8 @@ export default class UserInGroup
       .constrain<Product>("groupUuid", LocalTable.GROUP, "uuid")
       .column("isAdmin")
       .boolean.column("isInviter")
-      .boolean.column("updatedAt")
+      .boolean.column("acceptanceState")
+      .number.column("updatedAt")
       .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(UserInGroup.prototype);
   }
@@ -126,6 +139,7 @@ export default class UserInGroup
       doc.data().email,
       doc.data().isAdmin,
       doc.data().isInviter,
+      doc.data().acceptanceState,
       undefined,
       doc.id,
       doc.data().updatedAt

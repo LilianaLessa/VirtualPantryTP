@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import Notification, { NotificationType } from "../classes/notification.class";
 import DataSynchronizerService from "../../../services/applicationData/data-synchronizer.service";
 import StoredProduct from "../../products/classes/stored.product";
+import UserInGroup from "../../group/classes/user-in-group.class";
+import Group from "../../group/classes/group.class";
 
 type StateActions = {
   saveNotification: (notification: Notification) => any;
@@ -83,6 +85,33 @@ export default class NotificationService {
 
   getUnreadNotifications(): Notification[] {
     return this.notifications.filter((n) => !n.read);
+  }
+
+  sendGroupInviteNotification(
+    userInGroup: UserInGroup,
+    group: Group
+  ): Promise<any> {
+    // check on notifications if there is already an invite to this group.
+    const currentInvite = this.notifications.find(
+      (n) =>
+        n.type === NotificationType.GROUP_INVITE &&
+        n.data.userInGroupUuid === userInGroup.uuid
+    );
+    if (typeof currentInvite === "undefined") {
+      const newInvite = this.createBaseNotification().clone({
+        type: NotificationType.GROUP_INVITE,
+        data: {
+          userInGroupUuid: userInGroup.uuid,
+          groupName: group.name,
+        },
+      });
+
+      if (typeof newInvite.ownerUid !== "undefined") {
+        return this.saveNotification(newInvite);
+      }
+    }
+
+    return Promise.resolve();
   }
 
   private createBaseNotification(): Notification {
