@@ -87,9 +87,10 @@ export default function PantryContentProductListItem({
         <LeftContent>
           <LeftIcon />
           <LeftText>
-            {`${getStoredProductDisplayName(storedProduct, product)} x${
-              storedProduct.quantity
-            }`}
+            {`${pantryService.getStoredProductDisplayName(
+              storedProduct,
+              product
+            )} x${storedProduct.quantity}`}
           </LeftText>
         </LeftContent>
         <RightContent>

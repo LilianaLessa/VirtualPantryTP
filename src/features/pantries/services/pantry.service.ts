@@ -5,6 +5,7 @@ import DbContext from "../../../services/applicationData/localDatabase/classes/d
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 import StoredProduct from "../../products/classes/stored.product";
 import { getStackTraceAsString } from "../../../dev-utils";
+import Product from "../../products/classes/product.class";
 
 type StateActions = {
   savePantry: (pantry: Pantry) => any;
@@ -246,5 +247,20 @@ export default class PantryService {
 
   getPantries() {
     return this.pantries;
+  }
+
+  getStoredProductDisplayName(
+    storedProduct?: StoredProduct,
+    product?: Product
+  ): string {
+    const name =
+      (storedProduct && storedProduct.name?.length > 0
+        ? storedProduct?.name
+        : product?.name) ?? "(stored product not found)";
+    const productName =
+      product?.name && name !== product?.name ? ` (${product?.name})` : "";
+
+    console.log(name, productName);
+    return `${name}${productName}`;
   }
 }

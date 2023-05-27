@@ -15,7 +15,7 @@ function ProductExpirationNotice({
 }: {
   notification: Notification;
 }) {
-  const { pantryService, navigationService } = useContext(
+  const { productService, pantryService, navigationService } = useContext(
     DependencyInjectionContext
   );
   const {
@@ -31,10 +31,15 @@ function ProductExpirationNotice({
     setStoredProduct(pantryService.getStoredProductByUuid(storedProductUuid));
   }, [pantryService]);
 
-  const getMessage = () =>
-    `The product '${
-      storedProduct?.name ?? "<not found>"
+  const getMessage = () => {
+    const displayName = pantryService.getStoredProductDisplayName(
+      storedProduct,
+      productService.getProductByUuid(storedProduct?.productUuid)
+    );
+    return `The product '${
+      displayName ?? "<not found>"
     }' will expire in ${remainingDays} days.`;
+  };
 
   const getDatetimeString = () =>
     new Date(createdAt).toLocaleDateString("en-US", {
