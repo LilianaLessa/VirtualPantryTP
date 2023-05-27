@@ -1,7 +1,13 @@
 {
   "expo": {
     "name": "virtual-pantry-tp",
-    "slug": "virtual-pantry-tp",
-    "version": "1.0.0"
+    "slug": "virtualpantry-tp",
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "57abf249-1461-4aa3-9c45-c1a179c7e8cb"
+      }
+    },
+    "owner": "lilicaroles"
   }
 }
