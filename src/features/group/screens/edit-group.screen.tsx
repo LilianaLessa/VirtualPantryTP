@@ -90,7 +90,9 @@ export default function EditGroupScreen({
       />
 
       <FlatList
-        data={updatedGroup.users}
+        data={updatedGroup.users.filter(
+          (uig) => !groupService.isLoggedUser(uig)
+        )}
         renderItem={({ item }) => (
           <UserListItem
             userInGroup={item}

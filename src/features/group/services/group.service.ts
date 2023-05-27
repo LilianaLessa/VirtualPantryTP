@@ -260,6 +260,7 @@ export default class GroupService {
             },
           ];
 
+          this.stateActions.showLoadingActivityIndicator();
           Promise.all(
             collectionsToFetch.map(
               ({
@@ -286,11 +287,16 @@ export default class GroupService {
                   });
               }
             )
-          ).then(() => {
-            console.log(
-              `group operation: finished collections load for user '${userInGroup.answererUid}'`
-            );
-          });
+          )
+            .then(() => {
+              this.stateActions.hideLoadingActivityIndicator();
+              console.log(
+                `group operation: finished collections load for user '${userInGroup.answererUid}'`
+              );
+            })
+            .catch((e) => {
+              this.stateActions.hideLoadingActivityIndicator();
+            });
         }
       },
       null,
@@ -332,6 +338,10 @@ export default class GroupService {
       () => this.authGuardService.getAuthUserUid(true) === group.ownerUid,
       () => false
     );
+  }
+
+  public isLoggedUser(userInGroup: UserInGroup): boolean {
+    return this.authGuardService.getAuthUserUid() === userInGroup.answererUid;
   }
 
   public leaveGroup(
@@ -386,6 +396,17 @@ export default class GroupService {
     const removedUsers = group.users.filter(
       (x) => !updatedGroupUserUuids.includes(x.uuid)
     );
+
+    if (updatedGroup.ownerUid === this.authGuardService.getAuthUserUid()) {
+      this.setUser(
+        updatedGroup,
+        this.authGuardService.getAuthUserEmail() ?? "",
+        true,
+        true,
+        UseInGroupAcceptanceState.ACCEPTED,
+        this.authGuardService.getAuthUserUid()
+      );
+    }
 
     const saveGroup = db.save(updatedGroup as Group).then(() => {
       Promise.all(
@@ -493,7 +514,8 @@ export default class GroupService {
     email: string,
     isAdmin: boolean,
     isInviter: boolean,
-    acceptanceState: UseInGroupAcceptanceState
+    acceptanceState: UseInGroupAcceptanceState,
+    answererUid?: string
   ): void {
     if (email.length >= 3) {
       group.setUser(
@@ -505,7 +527,7 @@ export default class GroupService {
           isAdmin,
           isInviter,
           acceptanceState,
-          undefined,
+          answererUid,
           undefined,
           undefined,
           new Date().toString()
