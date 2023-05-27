@@ -94,12 +94,7 @@ export const savePantry =
 
 // eslint-disable-next-line operator-linebreak
 export const deletePantry =
-  (pantry: IPantry) =>
-  (dispatch: Dispatch<PantriesActions | MessageSnackbarActions>) => {
-    dispatch({
-      type: MessageSnackbarActionType.SHOW_INFO,
-      infoMessage: `Pantry '${pantry.name}' removed.`,
-    });
+  (pantry: IPantry) => (dispatch: Dispatch<PantriesActions>) => {
     dispatch({
       type: PantriesActionType.DELETE_PANTRY,
       pantryToDelete: pantry,

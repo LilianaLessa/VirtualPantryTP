@@ -21,10 +21,15 @@ type GroupStateActions = {
   showLoadingActivityIndicator: () => any;
   hideLoadingActivityIndicator: () => any;
   saveProduct: (product: Product) => any;
+  deleteProduct: (product: Product) => any;
   savePantry: (pantry: Pantry) => any;
+  deletePantry: (pantry: Pantry) => any;
   storeProduct: (storedProduct: StoredProduct) => any;
+  deleteStoredProduct: (storedProduct: StoredProduct) => any;
   saveShoppingList: (shoppingList: ShoppingList) => any;
+  deleteShoppingList: (shoppingList: ShoppingList) => any;
   saveShoppingListItem: (shoppingListItem: ShoppingListItem) => any;
+  deleteShoppingListItem: (shoppingListItem: ShoppingListItem) => any;
 };
 type FirestoreActions = {
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
@@ -183,7 +188,6 @@ export default class GroupService {
                 Group.buildFromFirestoreData(rd)
               )[0];
               if (remoteGroup) {
-                // todo get the users for the group and inject then here.
                 this.firestoreActions
                   .findDocuments(
                     UserInGroup.getFirestoreCollectionName(),
@@ -210,6 +214,91 @@ export default class GroupService {
           });
           if (userInGroup) {
             this.removeGroupListener(userInGroup);
+
+            this.firestoreActions
+              .findDocuments(
+                UserInGroup.getFirestoreCollectionName(),
+                where("groupUuid", "==", userInGroup.groupUuid)
+              )
+              .then((r2) => {
+                r2.docs
+                  .map((d) => UserInGroup.buildFromFirestoreData(d))
+                  .filter((uig) => uig.answererUid !== uid)
+                  .forEach((uig: UserInGroup) => {
+                    console.log(
+                      `removing member data from group ${uig.groupUuid}: ${uig.answererUid}`
+                    );
+
+                    const collectionsToFetch = [
+                      {
+                        collectionName: Product.getFirestoreCollectionName(),
+                        entityBuilder: Product.buildFromFirestoreData,
+                        stateUpdater: this.stateActions.deleteProduct,
+                      },
+                      {
+                        collectionName: Pantry.getFirestoreCollectionName(),
+                        entityBuilder: Pantry.buildFromFirestoreData,
+                        stateUpdater: this.stateActions.deletePantry,
+                      },
+                      {
+                        collectionName:
+                          StoredProduct.getFirestoreCollectionName(),
+                        entityBuilder: StoredProduct.buildFromFirestoreData,
+                        stateUpdater: this.stateActions.deleteStoredProduct,
+                      },
+                      {
+                        collectionName:
+                          ShoppingList.getFirestoreCollectionName(),
+                        entityBuilder: ShoppingList.buildFromFirestoreData,
+                        stateUpdater: this.stateActions.deleteShoppingList,
+                      },
+                      {
+                        collectionName:
+                          ShoppingListItem.getFirestoreCollectionName(),
+                        entityBuilder: ShoppingListItem.buildFromFirestoreData,
+                        stateUpdater: this.stateActions.deleteShoppingListItem,
+                      },
+                    ];
+
+                    this.stateActions.showLoadingActivityIndicator();
+                    Promise.all(
+                      collectionsToFetch.map(
+                        ({
+                          collectionName,
+                          entityBuilder,
+                          stateUpdater,
+                        }: {
+                          collectionName: string;
+                          entityBuilder: any;
+                          stateUpdater: any;
+                        }) => {
+                          this.firestoreActions
+                            .findDocuments(
+                              collectionName,
+                              where("ownerUid", "==", uig.answererUid)
+                            )
+                            .then((r) => {
+                              console.log(
+                                `group operation: unloading collection '${collectionName}' from user '${uig.answererUid}'`
+                              );
+                              r.docs
+                                .map((d) => entityBuilder(d))
+                                .forEach((e) => stateUpdater(e));
+                            });
+                        }
+                      )
+                    )
+                      .then(() => {
+                        this.stateActions.hideLoadingActivityIndicator();
+                        console.log(
+                          `group operation: finished collections load for user '${uig.answererUid}'`
+                        );
+                      })
+                      .catch((e) => {
+                        this.stateActions.hideLoadingActivityIndicator();
+                      });
+                  });
+              });
           }
         },
         and(
@@ -300,7 +389,7 @@ export default class GroupService {
             .then(() => {
               this.stateActions.hideLoadingActivityIndicator();
               console.log(
-                `group operation: finished collections load for user '${userInGroup.answererUid}'`
+                `group operation: finished unloading collections load for user '${userInGroup.answererUid}'`
               );
             })
             .catch((e) => {
@@ -309,7 +398,82 @@ export default class GroupService {
         }
       },
       null,
-      null, // todo remove member data from state
+      (d) => {
+        const userInGroup = UserInGroup.buildFromFirestoreData({
+          data: () => d,
+        });
+        if (userInGroup && userInGroup.answererUid !== answererUid) {
+          console.log(
+            `removing member data from group ${remoteGroup.name}: ${userInGroup.answererUid}`
+          );
+
+          const collectionsToFetch = [
+            {
+              collectionName: Product.getFirestoreCollectionName(),
+              entityBuilder: Product.buildFromFirestoreData,
+              stateUpdater: this.stateActions.deleteProduct,
+            },
+            {
+              collectionName: Pantry.getFirestoreCollectionName(),
+              entityBuilder: Pantry.buildFromFirestoreData,
+              stateUpdater: this.stateActions.deletePantry,
+            },
+            {
+              collectionName: StoredProduct.getFirestoreCollectionName(),
+              entityBuilder: StoredProduct.buildFromFirestoreData,
+              stateUpdater: this.stateActions.deleteStoredProduct,
+            },
+            {
+              collectionName: ShoppingList.getFirestoreCollectionName(),
+              entityBuilder: ShoppingList.buildFromFirestoreData,
+              stateUpdater: this.stateActions.deleteShoppingList,
+            },
+            {
+              collectionName: ShoppingListItem.getFirestoreCollectionName(),
+              entityBuilder: ShoppingListItem.buildFromFirestoreData,
+              stateUpdater: this.stateActions.deleteShoppingListItem,
+            },
+          ];
+
+          this.stateActions.showLoadingActivityIndicator();
+          Promise.all(
+            collectionsToFetch.map(
+              ({
+                collectionName,
+                entityBuilder,
+                stateUpdater,
+              }: {
+                collectionName: string;
+                entityBuilder: any;
+                stateUpdater: any;
+              }) => {
+                this.firestoreActions
+                  .findDocuments(
+                    collectionName,
+                    where("ownerUid", "==", userInGroup.answererUid)
+                  )
+                  .then((r) => {
+                    console.log(
+                      `group operation: unloading collection '${collectionName}' from user '${userInGroup.answererUid}'`
+                    );
+                    r.docs
+                      .map((d) => entityBuilder(d))
+                      .forEach((e) => stateUpdater(e));
+                  });
+              }
+            )
+          )
+            .then(() => {
+              this.stateActions.hideLoadingActivityIndicator();
+              console.log(
+                `group operation: finished collections load for user '${userInGroup.answererUid}'`
+              );
+            })
+            .catch((e) => {
+              this.stateActions.hideLoadingActivityIndicator();
+            });
+        }
+      },
       and(
         where("groupUuid", "==", remoteGroup.uuid),
         // where("answererId", "!=", answererUid),
