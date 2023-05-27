@@ -1,115 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Text, TouchableOpacity, View, Platform } from "react-native";
-import { Button, HelperText, Switch, TextInput } from "react-native-paper";
+import React, { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { HelperText, Switch, TextInput } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
 import { useFonts } from "expo-font";
 import materialCommunityIconsFont from "react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import { AndroidNotificationPriority } from "expo-notifications/src/Notifications.types";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    priority: AndroidNotificationPriority.MAX,
-  }),
-});
-
-// Can use this function below OR use Expo's Push Notification Tool from: https://expo.dev/notifications
-async function sendPushNotification(expoPushToken) {
-  const message = {
-    to: expoPushToken,
-    sound: "default",
-    title: "Original Title",
-    body: "And here is the body!",
-    data: { someData: "goes here" },
-  };
-
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Accept-encoding": "gzip, deflate",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(message),
-  });
-}
-
-async function registerForPushNotificationsAsync() {
-  let token;
-  if (Device.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      // console.log("Failed to get push token for push notification!");
-      return;
-    }
-    token = (
-      await Notifications.getExpoPushTokenAsync({
-        // projectId: 'projectId'
-      })
-    ).data;
-    // console.log(token);
-  } else {
-    // console.log("Must use physical device for Push Notifications");
-  }
-
-  if (Platform.OS === "android") {
-    Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
-  }
-
-  return token;
-}
 
 function ConfigurationScreen() {
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
-  const notificationListener = useRef();
-  const responseListener = useRef();
-
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
-
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
-      });
-
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        // console.log(response);
-      });
-
-    return () => {
-      Notifications.removeNotificationSubscription(
-        notificationListener.current
-      );
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
-
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
-  const [daysBeforeExpiring, setDaysBeforeExpiring] = React.useState(3);
-
-  const [notificationTime, setNotificationTime] = React.useState(
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [daysBeforeExpiring, setDaysBeforeExpiring] = useState(3);
+  const [notificationTime, setNotificationTime] = useState(
     ((d: Date) => `${d.getHours()}:${d.getMinutes()}`)(new Date())
   );
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState(false);
   const onDismiss = React.useCallback(() => {
     setVisible(false);
   }, [setVisible]);
@@ -133,8 +35,6 @@ function ConfigurationScreen() {
   if (!materialCommunityIconsFontLoaded) {
     return null;
   }
-
-  const testNotification = () => {};
 
   const onToggleSwitch = () => setNotificationsEnabled(!notificationsEnabled);
 
@@ -179,32 +79,6 @@ function ConfigurationScreen() {
         hours={new Date(`1970-01-01T${notificationTime}Z`).getHours()}
         minutes={new Date(`1970-01-01T${notificationTime}Z`).getMinutes()}
       />
-      <Text>
-        Your expo push token:
-        {expoPushToken}
-      </Text>
-      <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <Text>
-          Title:
-          {notification && notification.request.content.title}
-        </Text>
-        <Text>
-          Body:
-          {notification && notification.request.content.body}
-        </Text>
-        <Text>
-          Data:
-          {notification && JSON.stringify(notification.request.content.data)}
-        </Text>
-      </View>
-      <Button
-        mode="contained"
-        onPress={async () => {
-          await sendPushNotification(expoPushToken);
-        }}
-      >
-        test
-      </Button>
     </View>
   );
 }

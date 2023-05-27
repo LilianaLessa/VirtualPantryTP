@@ -26,4 +26,12 @@ export default class AuthGuardService {
 
     return this.user?.uid;
   }
+
+  public getAuthUserEmail(allowAnonymous = true): string | undefined {
+    if (!allowAnonymous && typeof this.user?.uid === "undefined") {
+      throw new Error("Authentication not initialized.");
+    }
+
+    return this.user?.email ?? undefined;
+  }
 }

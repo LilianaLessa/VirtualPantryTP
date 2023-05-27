@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
+import { Query, QueryConstraint } from "@firebase/firestore";
+import { where } from "firebase/firestore";
 import Group from "../classes/group.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import UserInGroup from "../classes/user-in-group.class";
@@ -11,9 +13,16 @@ type GroupStateActions = {
   showLoadingActivityIndicator: () => any;
   hideLoadingActivityIndicator: () => any;
 };
-type FirestoreContext = {
+type FirestoreActions = {
   saveObject: (firestoreObject: IFirestoreObject) => Promise<any>;
   deleteObject: (firestoreObject: IFirestoreObject) => Promise<any>;
+  createCollectionListener: (
+    collectionName: string,
+    onAdded?: (data: any) => void,
+    onModified?: (data: any) => void,
+    onRemoved?: (data: any) => void,
+    ...queryConstraints: QueryConstraint[]
+  ) => () => void;
 };
 
 export default class GroupService {
@@ -23,13 +32,15 @@ export default class GroupService {
 
   private readonly stateActions: GroupStateActions;
 
-  private readonly firestoreContext: FirestoreContext;
+  private readonly firestoreActions: FirestoreActions;
+
+  private unsubscribeUserFromGroupInvites = () => {};
 
   constructor(
     authGuardService: AuthGuardService,
     groups?: Map<string, Group>,
     stateActions?: GroupStateActions,
-    firestoreContext?: FirestoreContext
+    firestoreActions?: FirestoreActions
   ) {
     this.authGuardService = authGuardService;
     this.groups = groups ?? new Map<string, Group>();
@@ -39,11 +50,45 @@ export default class GroupService {
       showLoadingActivityIndicator: () => {},
       hideLoadingActivityIndicator: () => {},
     };
-    this.firestoreContext = firestoreContext ?? {
+    this.firestoreActions = firestoreActions ?? {
       saveObject: (firestoreObject: IFirestoreObject) => Promise.resolve(null),
       deleteObject: (firestoreObject: IFirestoreObject) =>
         Promise.resolve(null),
     };
+
+    this.authGuardService.guard(() => {
+      const email = this.authGuardService.getAuthUserEmail();
+      if (email) {
+        this.subscribeUserToGroupInvites(email);
+      }
+    });
+  }
+
+  destructor() {
+    console.log(
+      `unsubscribing to group invites for '${this.authGuardService.getAuthUserEmail()}'`
+    );
+    this.unsubscribeUserFromGroupInvites();
+  }
+
+  private subscribeUserToGroupInvites(email: string) {
+    console.log(
+      `subscribing to group invites for '${this.authGuardService.getAuthUserEmail()}'`
+    );
+    this.unsubscribeUserFromGroupInvites =
+      this.firestoreActions.createCollectionListener(
+        UserInGroup.getFirestoreCollectionName(),
+        (d) => {
+          console.log("added", d);
+        },
+        (d) => {
+          console.log("modified", d);
+        },
+        (d) => {
+          console.log("removed", d);
+        },
+        where("email", "==", email)
+      );
   }
 
   public createNewGroup(name?: string): Group | never {
@@ -73,10 +118,10 @@ export default class GroupService {
           db.save(userInGroup as UserInGroup)
         )
       ).then(() => {
-        this.firestoreContext.saveObject(updatedGroup).then((savedGroup) => {
+        this.firestoreActions.saveObject(updatedGroup).then((savedGroup) => {
           Promise.all(
             updatedGroup.users.map((userInGroup) =>
-              this.firestoreContext.saveObject(userInGroup)
+              this.firestoreActions.saveObject(userInGroup)
             )
           ).then((savedUsers) => {
             savedUsers.forEach((savedUser: UserInGroup) => {
@@ -94,7 +139,7 @@ export default class GroupService {
     });
 
     const deleteUsersOnFirestore = Promise.all(
-      removedUsers.map((u) => this.firestoreContext.deleteObject(u))
+      removedUsers.map((u) => this.firestoreActions.deleteObject(u))
     );
 
     const deleteUsersOnLocalStorage = Promise.all(
@@ -134,9 +179,9 @@ export default class GroupService {
         )
           .then(() =>
             Promise.all([
-              this.firestoreContext.deleteObject(group),
+              this.firestoreActions.deleteObject(group),
               ...group.users.map((userInGroup) =>
-                this.firestoreContext.deleteObject(userInGroup)
+                this.firestoreActions.deleteObject(userInGroup)
               ),
             ])
           )

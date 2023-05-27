@@ -360,7 +360,7 @@ export function ApplicationDataContextProvider({
   } = useActions();
 
   useEffect(() => {
-    // showLoadingActivityIndicator();
+    showLoadingActivityIndicator();
     AsyncStorage.getItem("@loggedUser").then((result) => {
       const storedUser = result ? JSON.parse(result) : null;
       const db = DbContext.getInstance().database;

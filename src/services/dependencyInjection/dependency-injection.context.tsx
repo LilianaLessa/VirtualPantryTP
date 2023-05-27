@@ -95,7 +95,7 @@ export function DependencyInjectionContextProvider({
   }, [user]);
 
   useEffect(() => {
-    // console.log("instantiating group service", groups);
+    groupService.destructor();
     setGroupService(
       new GroupService(authGuardService, groups, stateActions, firestoreContext)
     );

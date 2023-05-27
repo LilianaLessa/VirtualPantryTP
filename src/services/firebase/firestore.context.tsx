@@ -12,7 +12,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import { Firestore } from "@firebase/firestore";
+import { Firestore, Query, QueryConstraint } from "@firebase/firestore";
 import { FirebaseContext } from "./firebase.context";
 import IFirestoreObject from "./interfaces/firestore-object.interface";
 
@@ -28,8 +28,15 @@ type FirestoreContextType = {
     ownerUid: string,
     collectionType: any,
     localCollection: IFirestoreObject[],
-    onSavedDocSnapshot?: (object: IFirestoreObject) => void
+    onSavedDocSnapshot?: (d: DocumentData) => void
   ) => Promise<FirestoreCollectionSyncResult>;
+  createCollectionListener: (
+    collectionName: string,
+    onAdded?: (data: any) => void,
+    onModified?: (data: any) => void,
+    onRemoved?: (data: any) => void,
+    ...queryConstraints: QueryConstraint[]
+  ) => any;
 };
 
 export const FirestoreContext = createContext<FirestoreContextType>({});
@@ -274,12 +281,49 @@ export function FirestoreContextProvider({
     });
   }
 
+  const createCollectionListener = (
+    collectionName: string,
+    onAdded?: (data: any) => void,
+    onModified?: (data: any) => void,
+    onRemoved?: (data: any) => void,
+    ...queryConstraints: QueryConstraint[]
+  ) => {
+    const collectionQuery = query(
+      collection(firestore, collectionName),
+      ...queryConstraints
+    );
+    return onSnapshot(collectionQuery, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        switch (change.type) {
+          case "added":
+            if (onAdded) {
+              onAdded(change.doc.data());
+            }
+            break;
+          case "modified":
+            if (onModified) {
+              onModified(change.doc.data());
+            }
+            break;
+          case "removed":
+            if (onRemoved) {
+              onRemoved(change.doc.data());
+            }
+            break;
+          default:
+            console.log("undefined data type");
+        }
+      });
+    });
+  };
+
   return (
     <FirestoreContext.Provider
       value={{
         saveObject,
         deleteObject,
         syncCollection,
+        createCollectionListener,
       }}
     >
       {children}
