@@ -9,22 +9,25 @@ import {
 } from "../route-names";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 function HeaderRightActions() {
   const navigation = useNavigation();
 
   const { user } = useContext(AuthenticationContext);
-  const { notificationService } = useContext(DependencyInjectionContext);
+  // const { notificationService } = useContext(DependencyInjectionContext);
+  const { notifications } = useTypedSelector((state) => state.notifications);
 
   const [unreadNotificationsCount, setUnreadNotificationCount] = useState(
-    notificationService.getUnreadNotifications().length
+    Array.from(notifications.values()).filter((n) => !n.read).length
   );
 
   useEffect(() => {
+    console.log("setting unreadNotificationsCount");
     setUnreadNotificationCount(
-      notificationService.getUnreadNotifications().length
+      Array.from(notifications.values()).filter((n) => !n.read).length
     );
-  }, [notificationService]);
+  }, [notifications]);
 
   return (
     <View
