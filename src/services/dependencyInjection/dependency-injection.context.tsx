@@ -186,7 +186,16 @@ export function DependencyInjectionContextProvider({
         firestoreActions
       )
     );
-  }, [notificationService, authGuardService, groups]);
+  }, [authGuardService]);
+
+  useEffect(() => {
+    console.log("groupservice: Updating groups");
+    groupService.groups = groups;
+  }, [groups]);
+
+  useEffect(() => {
+    groupService.notificationService = notificationService;
+  }, [notificationService]);
 
   return (
     <DependencyInjectionContext.Provider
