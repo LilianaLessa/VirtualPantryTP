@@ -29,6 +29,8 @@ export default class Notification
 
   read: boolean;
 
+  createdAt: string;
+
   ownerUid: string;
 
   firestoreCollectionName = Notification.getFirestoreCollectionName();
@@ -45,6 +47,7 @@ export default class Notification
     data: NotificationData = { message: `notification ${uuid}` },
     type: NotificationType = NotificationType.MESSAGE,
     read = false,
+    createdAt: string,
     ownerUid: string,
     id?: number,
     firestoreId?: string,
@@ -55,6 +58,7 @@ export default class Notification
     this.data = data;
     this.type = type;
     this.read = read;
+    this.createdAt = createdAt;
     this.ownerUid = ownerUid;
 
     if (typeof id !== "undefined") {
@@ -86,6 +90,7 @@ export default class Notification
       override?.data ?? this.data,
       override?.type ?? this.type,
       override?.read ?? this.read,
+      override?.createdAt ?? this.createdAt,
       override?.ownerUid ?? this.ownerUid,
       override?.id ?? this.id,
       override?.firestoreId ?? this.firestoreId,
@@ -101,7 +106,8 @@ export default class Notification
       .column("type")
       .number.column("ownerUid")
       .nullable.column("read")
-      .boolean.column("updatedAt")
+      .boolean.column("createdAt")
+      .column("updatedAt")
       .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(Notification.prototype);
   }
@@ -114,6 +120,7 @@ export default class Notification
       r.data,
       r.type,
       r.read,
+      r.createdAt,
       r.ownerUid,
       r.id,
       r.firestoreId,
@@ -135,6 +142,7 @@ export default class Notification
       doc.data().data,
       doc.data().type,
       doc.data().read,
+      doc.data().createdAt,
       doc.data().ownerUid,
       undefined,
       doc.id,

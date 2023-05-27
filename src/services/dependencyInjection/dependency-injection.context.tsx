@@ -12,6 +12,8 @@ import ProductService from "../../features/products/services/product.service";
 import BarCodeScanService from "../barCodeScanner/bar-code-scan.service";
 import PantryService from "../../features/pantries/services/pantry.service";
 import ShoppingListService from "../../features/shoppingList/services/shopping-list.service";
+import DataSynchronizerService from "../applicationData/data-synchronizer.service";
+import NotificationService from "../../features/notification/services/notification.service";
 
 type DependencyInjectionContextType = {
   authGuardService: AuthGuardService;
@@ -22,6 +24,7 @@ type DependencyInjectionContextType = {
   barCodeScanService: BarCodeScanService;
   pantryService: PantryService;
   shoppingListService: ShoppingListService;
+  notificationService: NotificationService;
 };
 
 const defaultValue = {
@@ -39,6 +42,7 @@ const defaultValue = {
     {},
     {}
   ),
+  notificationService: new NotificationService([], null, {}),
 };
 
 // todo this shouldn't depend that much on useEffect.
@@ -52,11 +56,12 @@ export function DependencyInjectionContextProvider({
   children: React.ReactNode[] | React.ReactNode;
 }) {
   const stateActions = useActions();
-  const firestoreContext = useContext(FirestoreContext);
+  const firestoreActions = useContext(FirestoreContext);
   const { user } = useContext(AuthenticationContext);
   const navigation = useNavigation();
   const { groups } = useTypedSelector((state) => state.groups);
   const { savedProducts } = useTypedSelector((state) => state.savedProducts);
+  const { notifications } = useTypedSelector((state) => state.notifications);
   const { storedProducts } = useTypedSelector((state) => state.storedProducts);
   const { pantries } = useTypedSelector((state) => state.pantries);
   const { shoppingLists, shoppingListItems } = useTypedSelector(
@@ -88,6 +93,38 @@ export function DependencyInjectionContextProvider({
     defaultValue.shoppingListService
   );
 
+  const [dataSynchronizerService, setDataSynchronizerService] = useState(
+    new DataSynchronizerService(
+      authGuardService,
+      stateActions,
+      firestoreActions
+    )
+  );
+
+  const [notificationService, setNotificationService] = useState(
+    defaultValue.notificationService
+  );
+
+  useEffect(() => {
+    setDataSynchronizerService(
+      new DataSynchronizerService(
+        authGuardService,
+        stateActions,
+        firestoreActions
+      )
+    );
+  }, [authGuardService, firestoreActions]);
+
+  useEffect(() => {
+    setNotificationService(
+      new NotificationService(
+        Array.from(notifications.values()),
+        dataSynchronizerService,
+        stateActions
+      )
+    );
+  }, [dataSynchronizerService, notifications]);
+
   useEffect(() => {
     setAuthGuardService(new AuthGuardService(user));
 
@@ -97,7 +134,7 @@ export function DependencyInjectionContextProvider({
   useEffect(() => {
     groupService.destructor();
     setGroupService(
-      new GroupService(authGuardService, groups, stateActions, firestoreContext)
+      new GroupService(authGuardService, groups, stateActions, firestoreActions)
     );
   }, [authGuardService, groups]);
 
@@ -108,10 +145,10 @@ export function DependencyInjectionContextProvider({
         Array.from(savedProducts.values()),
         authGuardService,
         stateActions,
-        firestoreContext
+        firestoreActions
       )
     );
-  }, [authGuardService, savedProducts, firestoreContext]);
+  }, [authGuardService, savedProducts, firestoreActions]);
 
   useEffect(() => {
     setPantryService(
@@ -120,10 +157,10 @@ export function DependencyInjectionContextProvider({
         Array.from(storedProducts.values()),
         authGuardService,
         stateActions,
-        firestoreContext
+        firestoreActions
       )
     );
-  }, [authGuardService, pantries, storedProducts, firestoreContext]);
+  }, [authGuardService, pantries, storedProducts, firestoreActions]);
 
   useEffect(() => {
     setShoppingListService(
@@ -132,10 +169,10 @@ export function DependencyInjectionContextProvider({
         Array.from(shoppingListItems.values()),
         authGuardService,
         stateActions,
-        firestoreContext
+        firestoreActions
       )
     );
-  }, [shoppingLists, shoppingListItems, authGuardService, firestoreContext]);
+  }, [shoppingLists, shoppingListItems, authGuardService, firestoreActions]);
 
   useEffect(() => {
     setNavigationService(new NavigationService(navigation));
@@ -156,6 +193,7 @@ export function DependencyInjectionContextProvider({
         barCodeScanService,
         pantryService,
         shoppingListService,
+        notificationService,
       }}
     >
       {children}

@@ -78,4 +78,8 @@ export default class SnackBarService {
       `Shopping List '${shoppingList.name}' was deleted.`
     );
   }
+
+  showNotificationsClearedInfo() {
+    this.stateActions?.showSnack("Notifications cleared.");
+  }
 }

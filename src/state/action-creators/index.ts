@@ -188,6 +188,15 @@ export const initStoredProductCollection =
     });
   };
 
+export const saveNotification =
+  (notification: Notification) =>
+  (dispatch: Dispatch<NotificationsActions>) => {
+    dispatch({
+      type: NotificationsActionType.ADD_NOTIFICATION,
+      notification,
+    });
+  };
+
 export const deleteNotification =
   (notification: Notification) =>
   (dispatch: Dispatch<NotificationsActions>) => {

@@ -1,17 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { TouchableOpacity } from "react-native";
-import { INotification } from "../interfaces/notification.interface";
-import { useActions } from "../../../hooks/useActions";
 import NotificationDeleteButtonIcon from "./notification-delete-button.styles";
+import Notification from "../classes/notification.class";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export default function NotificationDeleteButton({
   notification,
 }: {
-  notification: INotification;
+  notification: Notification;
 }) {
-  const { deleteNotification } = useActions();
+  const { notificationService } = useContext(DependencyInjectionContext);
   const handleSelfDelete = () => {
-    deleteNotification(notification);
+    notificationService.deleteNotification(notification);
   };
 
   return (
