@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import styled from "styled-components";
 import { Text, View } from "react-native";
 
@@ -7,6 +6,7 @@ export const DialogBoxContainer = styled(View)`
   width: 200px;
   box-shadow: 3px 3px 5px black;
   margin: auto;
+  background-color: #ffffff;
 `;
 
 export const DialogTitleContainer = styled(View)`
@@ -23,7 +23,6 @@ export const DialogTitle = styled(Text)`
 `;
 
 export const DialogContentContainer = styled(View)`
-  background-color: #e6e6e6;
   align-self: stretch;
   margin: 5px 15px 15px 15px;
   padding: 0;
@@ -31,15 +30,15 @@ export const DialogContentContainer = styled(View)`
 
 export const DialogContent = styled(Text)`
   color: #121212;
-  font-size: 12px;
+  font-size: 15px;
   width: 170px;
-  margin-bottom: -11px;
-  margin-top: 11px;
+  padding-bottom: -11px;
+  padding-top: 11px;
   align-self: center;
 `;
 
 export const DialogButtonsContainer = styled(View)`
-  background-color: #e6e6e6;
+  background-color: #ffffff;
   align-self: stretch;
   margin: 15px;
   flex-direction: row;
@@ -47,11 +46,21 @@ export const DialogButtonsContainer = styled(View)`
 `;
 
 export const DialogConfirmButtonLabel = styled(Text)`
-  color: rgba(186, 0, 13, 1);
-  font-size: 10px;
+  border: 1px;
+  background-color: #e77d7d;
+  color: rgb(166, 0, 0);
+  font-size: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-weight: bold;
 `;
 
 export const DialogCancelButtonLabel = styled(Text)`
+  border: 1px;
+  background-color: #c4c0c0;
   color: #121212;
-  font-size: 10px;
+  font-size: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-weight: bold;
 `;

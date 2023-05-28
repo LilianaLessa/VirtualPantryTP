@@ -37,7 +37,7 @@ function NotificationScreen() {
       <ConfirmDialog
         confirm="Clear"
         cancel="Cancel"
-        dialogContent="Do you want to delete all notifications"
+        dialogContent="Do you want to delete all notifications?"
         dialogTitle="Clear Notifications"
         cancelHandler={hideModal}
         confirmHandler={handleClearNotifications}
