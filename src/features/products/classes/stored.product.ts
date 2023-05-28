@@ -125,7 +125,7 @@ export default class StoredProduct
       .nullable.column("bestBefore")
       .nullable.column("boughtPrice")
       .nullable.column("ownerUid")
-      .column("productUuid")
+      .nullable.column("productUuid")
       .constrain<Product>("productUuid", LocalTable.PRODUCT, "uuid")
       .column("firestoreId")
       .nullable.column("updatedAt");
