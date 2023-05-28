@@ -34,6 +34,14 @@ export default class StoredProduct
 
   updatedAt?: string;
 
+  prepared: number;
+
+  eaten: number;
+
+  expired: number;
+
+  discarded: number;
+
   firestoreCollectionName = StoredProduct.getFirestoreCollectionName();
 
   firestoreDeletedCollectionName =
@@ -51,7 +59,11 @@ export default class StoredProduct
     productUuid?: string,
     id?: number,
     firestoreId?: string,
-    updatedAt?: string
+    updatedAt?: string,
+    prepared?: number,
+    eaten?: number,
+    expired?: number,
+    discarded?: number
   ) {
     super(LocalTable.STORED_PRODUCT);
     this.uuid = uuid;
@@ -64,6 +76,11 @@ export default class StoredProduct
     this.bestBefore = bestBefore ?? "";
 
     this.boughtPrice = boughtPrice ?? 1;
+
+    this.prepared = prepared ?? 0;
+    this.eaten = eaten ?? 0;
+    this.expired = expired ?? 0;
+    this.discarded = discarded ?? 0;
 
     if (ownerUid) {
       this.ownerUid = ownerUid;
@@ -105,7 +122,11 @@ export default class StoredProduct
         : this.productUuid,
       override?.id ?? this.id,
       override?.firestoreId ?? this.firestoreId,
-      override?.updatedAt ?? this.updatedAt
+      override?.updatedAt ?? this.updatedAt,
+      override?.prepared ?? this.prepared,
+      override?.eaten ?? this.eaten,
+      override?.expired ?? this.expired,
+      override?.discarded ?? this.discarded
     );
   }
 
@@ -128,7 +149,11 @@ export default class StoredProduct
       .nullable.column("productUuid")
       .nullable.constrain<Product>("productUuid", LocalTable.PRODUCT, "uuid")
       .column("firestoreId")
-      .nullable.column("updatedAt");
+      .nullable.column("updatedAt")
+      .column("prepared")
+      .nullable.number.column("eaten")
+      .nullable.number.column("expired")
+      .nullable.number.column("discarded").nullable.number;
   }
 
   getFirestoreData(): object {
@@ -164,7 +189,11 @@ export default class StoredProduct
       doc.data().productUuid,
       undefined,
       doc.id,
-      doc.data().updatedAt
+      doc.data().updatedAt,
+      doc.data().prepared,
+      doc.data().eaten,
+      doc.data().expired,
+      doc.data().discarded
     );
   }
 }

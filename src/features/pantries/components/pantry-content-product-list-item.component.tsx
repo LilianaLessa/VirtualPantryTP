@@ -1,10 +1,9 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
 import React, { useContext, useState, useEffect } from "react";
-import { TextInput } from "react-native-paper";
 import {
   CookIcon,
   DeleteIcon,
-  DischardIcon,
+  DiscardIcon,
   DragHandler,
   EatIcon,
   ExpireIcon,
@@ -18,17 +17,6 @@ import ConfirmDialog from "../../../components/dialogs/confirm-dialog.component"
 import { DialogModalContext } from "../../../services/modal/dialog-modal.context";
 import StoredProduct from "../../products/classes/stored.product";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
-import Product from "../../products/classes/product.class";
-import {
-  DialogBoxContainer,
-  DialogButtonsContainer,
-  DialogCancelButtonLabel,
-  DialogConfirmButtonLabel,
-  DialogContent,
-  DialogContentContainer,
-  DialogTitle,
-  DialogTitleContainer,
-} from "../../../components/dialogs/confirm-dialog.styles";
 import ActionDialog from "./ActionDialog";
 
 export default function PantryContentProductListItem({
@@ -80,11 +68,16 @@ export default function PantryContentProductListItem({
   };
 
   const savePrepared = (quantity: number) => {
-    snackBarService.showStoredItemConsumedInfo(
-      pantryService.getStoredProductDisplayName(storedProduct, product),
-      quantity,
-      "prepared"
-    );
+    const updatedStoredProduct = storedProduct.clone({
+      prepared: storedProduct.prepared + quantity,
+    });
+    pantryService.storeProduct(updatedStoredProduct, () => {
+      snackBarService.showStoredItemConsumedInfo(
+        pantryService.getStoredProductDisplayName(storedProduct, product),
+        quantity,
+        "prepared"
+      );
+    });
   };
 
   const showPrepareDialog = () => {
@@ -98,11 +91,16 @@ export default function PantryContentProductListItem({
   };
 
   const saveEaten = (quantity: number) => {
-    snackBarService.showStoredItemConsumedInfo(
-      pantryService.getStoredProductDisplayName(storedProduct, product),
-      quantity,
-      "eaten"
-    );
+    const updatedStoredProduct = storedProduct.clone({
+      eaten: storedProduct.eaten + quantity,
+    });
+    pantryService.storeProduct(updatedStoredProduct, () => {
+      snackBarService.showStoredItemConsumedInfo(
+        pantryService.getStoredProductDisplayName(storedProduct, product),
+        quantity,
+        "eaten"
+      );
+    });
   };
   const showEatDialog = () => {
     showModal(
@@ -111,11 +109,16 @@ export default function PantryContentProductListItem({
   };
 
   const saveExpired = (quantity: number) => {
-    snackBarService.showStoredItemConsumedInfo(
-      pantryService.getStoredProductDisplayName(storedProduct, product),
-      quantity,
-      "expired"
-    );
+    const updatedStoredProduct = storedProduct.clone({
+      expired: storedProduct.expired + quantity,
+    });
+    pantryService.storeProduct(updatedStoredProduct, () => {
+      snackBarService.showStoredItemConsumedInfo(
+        pantryService.getStoredProductDisplayName(storedProduct, product),
+        quantity,
+        "expired"
+      );
+    });
   };
   const showExpireDialog = () => {
     showModal(
@@ -127,20 +130,25 @@ export default function PantryContentProductListItem({
     );
   };
 
-  const saveDischarded = (quantity: number) => {
-    snackBarService.showStoredItemConsumedInfo(
-      pantryService.getStoredProductDisplayName(storedProduct, product),
-      quantity,
-      "discharded"
-    );
+  const saveDiscarded = (quantity: number) => {
+    const updatedStoredProduct = storedProduct.clone({
+      discarded: storedProduct.discarded + quantity,
+    });
+    pantryService.storeProduct(updatedStoredProduct, () => {
+      snackBarService.showStoredItemConsumedInfo(
+        pantryService.getStoredProductDisplayName(storedProduct, product),
+        quantity,
+        "discarded"
+      );
+    });
   };
 
-  const showDischardDialog = () => {
+  const showDiscardDialog = () => {
     showModal(
       <ActionDialog
-        Icon={DischardIcon}
-        title="Dischard"
-        saveHandler={saveDischarded}
+        Icon={DiscardIcon}
+        title="Discard"
+        saveHandler={saveDiscarded}
       />
     );
   };
@@ -171,8 +179,8 @@ export default function PantryContentProductListItem({
           <TouchableOpacity onPress={showExpireDialog}>
             <ExpireIcon />
           </TouchableOpacity>
-          <TouchableOpacity onPress={showDischardDialog}>
-            <DischardIcon />
+          <TouchableOpacity onPress={showDiscardDialog}>
+            <DiscardIcon />
           </TouchableOpacity>
           <TouchableOpacity onPress={showConfirmDeletionModal}>
             <DeleteIcon />

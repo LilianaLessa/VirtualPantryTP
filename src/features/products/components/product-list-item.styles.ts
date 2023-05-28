@@ -70,7 +70,7 @@ export const ExpireIcon = styled(MaterialCommunityIconsIcon).attrs({
   name: "skull",
 })``;
 
-export const DischardIcon = styled(MaterialCommunityIconsIcon).attrs({
+export const DiscardIcon = styled(MaterialCommunityIconsIcon).attrs({
   name: "archive-remove",
 })``;
 
