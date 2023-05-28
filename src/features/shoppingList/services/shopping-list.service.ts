@@ -193,6 +193,9 @@ export default class ShoppingListService {
   }
 
   isOwnedByTheCurrentUser(shoppingList: ShoppingList): boolean {
-    return this.authGuardService.getAuthUserUid(true) === shoppingList.ownerUid;
+    return (
+      this.authGuardService.getAuthUserUid(true) ===
+      (shoppingList.ownerUid ? shoppingList.ownerUid : undefined)
+    );
   }
 }

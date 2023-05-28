@@ -43,7 +43,10 @@ export default class ProductService {
   }
 
   isOwnedByTheCurrentUser(product: Product): boolean {
-    return this.authGuardService.getAuthUserUid(true) === product.ownerUid;
+    return (
+      this.authGuardService.getAuthUserUid(true) ===
+      (product.ownerUid ? product.ownerUid : undefined)
+    );
   }
 
   createNewProduct(data?: Partial<Product>): Product {

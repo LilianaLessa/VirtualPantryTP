@@ -269,7 +269,10 @@ export default class PantryService {
   }
 
   isOwnedByTheCurrentUser(pantry: Pantry): boolean {
-    return this.authGuardService.getAuthUserUid(true) === pantry.ownerUid;
+    return (
+      this.authGuardService.getAuthUserUid(true) ===
+      (pantry.ownerUid ? pantry.ownerUid : undefined)
+    );
   }
 
   getStoredProductDisplayName(
