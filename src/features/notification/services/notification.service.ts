@@ -87,6 +87,10 @@ export default class NotificationService {
     return this.notifications.filter((n) => !n.read);
   }
 
+  getReadNotifications(): Notification[] {
+    return this.notifications.filter((n) => n.read);
+  }
+
   sendGroupInviteNotification(
     userInGroup: UserInGroup,
     group: Group
@@ -112,6 +116,26 @@ export default class NotificationService {
     }
 
     return Promise.resolve();
+  }
+
+  markAllAsRead(): Promise<any> {
+    const unreadNotifications = this.getUnreadNotifications();
+    return Promise.all(
+      unreadNotifications.map((n) => {
+        n.read = true;
+        return this.saveNotification(n);
+      })
+    );
+  }
+
+  markAllAsUnread(): Promise<any> {
+    const readNotifications = this.getReadNotifications();
+    return Promise.all(
+      readNotifications.map((n) => {
+        n.read = false;
+        return this.saveNotification(n);
+      })
+    );
   }
 
   private createBaseNotification(): Notification {

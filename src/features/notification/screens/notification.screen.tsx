@@ -45,24 +45,41 @@ function NotificationScreen() {
     );
   };
 
+  const readAll = () => {
+    notificationService.markAllAsRead().then(() => {});
+  };
+  const unreadAll = () => {
+    notificationService.markAllAsUnread().then(() => {});
+  };
+
+  const debugMode = false;
+
   return (
     <View>
-      <Button
-        mode="outlined"
-        onPress={() => {
-          notificationService
-            .saveNotification(
-              notificationService.createMockNotification("this is a mock!")
-            )
-            .then(() => {});
-        }}
-      >
-        Debug: add mock notification
-      </Button>
       <TouchableOpacity onPress={showConfirmClearNotificationsModal}>
         <Button mode="contained">
-          <MaterialCommunityIcons name="broom" size={24} color="black" />
+          <MaterialCommunityIcons name="broom" size={20} color="black" />
           Clear Notifications
+        </Button>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={readAll}>
+        <Button mode="contained">
+          <MaterialCommunityIcons
+            name="email-open-outline"
+            size={20}
+            color="black"
+          />
+          {" Mark All as Read"}
+        </Button>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={unreadAll}>
+        <Button mode="contained">
+          <MaterialCommunityIcons
+            name="email-outline"
+            size={20}
+            color="black"
+          />
+          {" Mark All as Unread"}
         </Button>
       </TouchableOpacity>
       <FlatList
@@ -70,6 +87,20 @@ function NotificationScreen() {
         renderItem={renderItem}
         keyExtractor={(n) => n.getKey()}
       />
+      {debugMode && (
+        <Button
+          mode="outlined"
+          onPress={() => {
+            notificationService
+              .saveNotification(
+                notificationService.createMockNotification("this is a mock!")
+              )
+              .then(() => {});
+          }}
+        >
+          Debug: add mock notification
+        </Button>
+      )}
     </View>
   );
 }
