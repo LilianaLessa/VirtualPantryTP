@@ -126,7 +126,7 @@ export default class StoredProduct
       .nullable.column("boughtPrice")
       .nullable.column("ownerUid")
       .nullable.column("productUuid")
-      .constrain<Product>("productUuid", LocalTable.PRODUCT, "uuid")
+      .nullable.constrain<Product>("productUuid", LocalTable.PRODUCT, "uuid")
       .column("firestoreId")
       .nullable.column("updatedAt");
   }
