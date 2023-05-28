@@ -9,6 +9,7 @@ import UserInGroup from "../../../../features/group/classes/user-in-group.class"
 import ShoppingList from "../../../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../../../features/shoppingList/classes/shopping-list-item.class";
 import Notification from "../../../../features/notification/classes/notification.class";
+import Configuration from "../../../../features/configuration/classes/configuration.class";
 
 const tables = [
   Product.GetTableStructor(),
@@ -19,6 +20,7 @@ const tables = [
   ShoppingList.GetTableStructor(),
   ShoppingListItem.GetTableStructor(),
   Notification.GetTableStructor(),
+  Configuration.GetTableStructor(),
 ];
 export default class DbContext {
   private static instance: DbContext;

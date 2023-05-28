@@ -1,31 +1,84 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { HelperText, Switch, TextInput } from "react-native-paper";
+import { Button, HelperText, Switch, TextInput } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
 import { useFonts } from "expo-font";
 import materialCommunityIconsFont from "react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
+
+function addTrailingZero(value: any) {
+  if (value == 0) return "00";
+  return Intl.NumberFormat("en-US", {
+    minimumIntegerDigits: 2,
+  }).format(value);
+}
 
 function ConfigurationScreen() {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [daysBeforeExpiring, setDaysBeforeExpiring] = useState(3);
-  const [notificationTime, setNotificationTime] = useState(
-    ((d: Date) => `${d.getHours()}:${d.getMinutes()}`)(new Date())
+  const { configuration } = useTypedSelector((state) => state.configuration);
+  const { configurationService, snackBarService } = useContext(
+    DependencyInjectionContext
   );
-  const [visible, setVisible] = useState(false);
+
+  const [currentConfiguration, setCurrentConfiguration] = useState(
+    configurationService.getConfiguration() ??
+      configurationService.createConfiguration()
+  );
+
+  useEffect(() => {
+    setCurrentConfiguration(
+      configurationService.getConfiguration() ??
+        configurationService.createConfiguration()
+    );
+  }, [configuration, configurationService]);
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    currentConfiguration.data.productExpiringNotification.enabled
+  );
+  const [daysBeforeExpiring, setDaysBeforeExpiring] = useState(
+    currentConfiguration.data.productExpiringNotification.daysBefore
+  );
+  const [notificationTime, setNotificationTime] = useState(
+    `${addTrailingZero(
+      currentConfiguration.data.productExpiringNotification.hours
+    )}:${addTrailingZero(
+      currentConfiguration.data.productExpiringNotification.minutes
+    )}`
+  );
+
+  useEffect(() => {
+    setNotificationsEnabled(
+      currentConfiguration.data.productExpiringNotification.enabled
+    );
+    setDaysBeforeExpiring(
+      currentConfiguration.data.productExpiringNotification.daysBefore
+    );
+    setNotificationTime(
+      `${addTrailingZero(
+        currentConfiguration.data.productExpiringNotification.hours
+      )}:${addTrailingZero(
+        currentConfiguration.data.productExpiringNotification.minutes
+      )}`
+    );
+  }, [currentConfiguration]);
+
+  const [timePickerVisible, setTimePickerVisible] = useState(false);
   const onDismiss = React.useCallback(() => {
-    setVisible(false);
-  }, [setVisible]);
+    setTimePickerVisible(false);
+  }, [setTimePickerVisible]);
 
   const openTimePicker = () => {
-    setVisible(true);
+    setTimePickerVisible(true);
   };
 
   const onConfirm = React.useCallback(
     ({ hours, minutes }: { hours: number; minutes: number }) => {
-      setVisible(false);
-      setNotificationTime(`${hours}:${minutes}`);
+      setTimePickerVisible(false);
+      setNotificationTime(
+        `${addTrailingZero(hours)}:${addTrailingZero(minutes)}`
+      );
     },
-    [setVisible]
+    [setTimePickerVisible]
   );
 
   const [materialCommunityIconsFontLoaded] = useFonts({
@@ -37,6 +90,31 @@ function ConfigurationScreen() {
   }
 
   const onToggleSwitch = () => setNotificationsEnabled(!notificationsEnabled);
+
+  const saveConfiguration = () => {
+    const [h, m] = notificationTime.split(":");
+    const productExpiringNotification = {
+      enabled: notificationsEnabled,
+      daysBefore: daysBeforeExpiring,
+      hours: h as unknown as number,
+      minutes: m as unknown as number,
+    };
+
+    configurationService
+      .saveConfiguration(
+        currentConfiguration.clone({
+          data: {
+            productExpiringNotification,
+          },
+        })
+      )
+      .then(() => {
+        snackBarService.showConfigurationSavedInfo();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
 
   return (
     <View>
@@ -73,12 +151,15 @@ function ConfigurationScreen() {
         start.
       </HelperText>
       <TimePickerModal
-        visible={visible}
+        visible={timePickerVisible}
         onDismiss={onDismiss}
         onConfirm={onConfirm}
-        hours={new Date(`1970-01-01T${notificationTime}Z`).getHours()}
-        minutes={new Date(`1970-01-01T${notificationTime}Z`).getMinutes()}
+        hours={notificationTime.split(":")[0]}
+        minutes={notificationTime.split(":")[1]}
       />
+      <TouchableOpacity onPress={saveConfiguration}>
+        <Button mode="contained">Save</Button>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -1,5 +1,6 @@
 import {
   ApiActivityActionType,
+  ConfigurationActionType,
   GroupsActionType,
   NotificationsActionType,
   PantriesActionType,
@@ -14,6 +15,7 @@ import StoredProduct from "../../features/products/classes/stored.product";
 import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
 import Notification from "../../features/notification/classes/notification.class";
+import Configuration from "../../features/configuration/classes/configuration.class";
 
 interface SaveProductAction {
   type: SavedProductsActionType.SAVE_PRODUCT;
@@ -196,3 +198,10 @@ export type GroupsActions =
   | DeleteGroupAction
   | InitGroupCollectionAction
   | InitMemberInGroupCollectionAction;
+
+interface SetConfiguration {
+  type: ConfigurationActionType.SET_CONFIGURATION;
+  configuration: Configuration | undefined;
+}
+
+export type ConfigurationActions = SetConfiguration;

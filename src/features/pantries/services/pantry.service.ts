@@ -7,6 +7,7 @@ import StoredProduct from "../../products/classes/stored.product";
 import { getStackTraceAsString } from "../../../dev-utils";
 import Product from "../../products/classes/product.class";
 import NotificationService from "../../notification/services/notification.service";
+import ConfigurationService from "../../configuration/services/configuration.service";
 
 type StateActions = {
   savePantry: (pantry: Pantry) => any;
@@ -31,6 +32,8 @@ export default class PantryService {
 
   private readonly notificationService: NotificationService;
 
+  private readonly configurationService: ConfigurationService;
+
   private readonly stateActions: StateActions;
 
   private readonly firestoreActions: FirestoreActions;
@@ -43,6 +46,7 @@ export default class PantryService {
     storedProducts: StoredProduct[],
     authGuardService: AuthGuardService,
     notificationService: NotificationService,
+    configurationService: ConfigurationService,
     stateActions: StateActions,
     firestoreActions: FirestoreActions
   ) {
@@ -50,6 +54,7 @@ export default class PantryService {
     this.storedProducts = storedProducts;
     this.authGuardService = authGuardService;
     this.notificationService = notificationService;
+    this.configurationService = configurationService;
     this.stateActions = stateActions;
     this.firestoreActions = firestoreActions;
 
@@ -282,15 +287,18 @@ export default class PantryService {
     return `${name}${productName}`;
   }
 
-  foregroundExpirationNotificationCheck() {
+  expirationNotificationCheck() {
     const currentTime = new Date();
-    console.log("foreground expiration notification check", currentTime);
+    console.log("expiration notification check", currentTime);
     const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-    const hourToTrigger = 1; // todo debug, should come from config
-    const minuteToTrigger = 33; // todo debug, should come from config
-    const daysBeforeExpiration = 3; // todo debug, should come from config
-    const msBeforeExpiration = daysBeforeExpiration * _MS_PER_DAY;
+    const {
+      productExpiringNotification: { hours, minutes, daysBefore },
+    } = this.getConfiguration();
+
+    const hourToTrigger = hours;
+    const minuteToTrigger = minutes;
+    const msBeforeExpiration = daysBefore * _MS_PER_DAY;
 
     if (
       currentTime.getHours() == hourToTrigger &&
@@ -319,19 +327,21 @@ export default class PantryService {
   }
 
   private initForegroundExpirationNotificationCheck() {
-    // console.log(this.storedProducts);
-    if (
-      typeof PantryService.foregroundExpirationNotificationCheckTimerId ===
-      "undefined"
-    ) {
-      console.log("starting foreground expiration notification check");
-      // this.foregroundExpirationNotificationCheck();
-      PantryService.foregroundExpirationNotificationCheckTimerId = setInterval(
-        () => {
-          this.foregroundExpirationNotificationCheck();
-        },
-        60000
-      );
+    const {
+      productExpiringNotification: { enabled },
+    } = this.getConfiguration();
+    if (enabled) {
+      if (
+        typeof PantryService.foregroundExpirationNotificationCheckTimerId ===
+        "undefined"
+      ) {
+        console.log("starting foreground expiration notification check");
+        // this.foregroundExpirationNotificationCheck();
+        PantryService.foregroundExpirationNotificationCheckTimerId =
+          setInterval(() => {
+            this.expirationNotificationCheck();
+          }, 60000);
+      }
     }
   }
 
@@ -344,5 +354,18 @@ export default class PantryService {
       clearInterval(PantryService.foregroundExpirationNotificationCheckTimerId);
       PantryService.foregroundExpirationNotificationCheckTimerId = undefined;
     }
+  }
+
+  private getConfiguration() {
+    return (
+      this.configurationService.getConfiguration()?.data ?? {
+        productExpiringNotification: {
+          hours: 0,
+          minutes: 0,
+          daysBefore: 1,
+          enabled: false,
+        },
+      }
+    );
   }
 }

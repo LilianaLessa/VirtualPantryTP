@@ -105,4 +105,8 @@ export default class SnackBarService {
   showNotificationsClearedInfo() {
     this.stateActions?.showSnack("Notifications cleared.");
   }
+
+  showConfigurationSavedInfo() {
+    this.stateActions?.showSnack("Configuration saved.");
+  }
 }

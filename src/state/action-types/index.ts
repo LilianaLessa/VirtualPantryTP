@@ -55,3 +55,7 @@ export enum GroupsActionType {
   INIT_GROUP_COLLECTION = "init_group_collection",
   INIT_MEMBER_IN_GROUP_COLLECTION = "init_member_in_group_collection",
 }
+
+export enum ConfigurationActionType {
+  SET_CONFIGURATION = "set_configuration",
+}

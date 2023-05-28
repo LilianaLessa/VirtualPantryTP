@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
   ApiActivityActionType,
+  ConfigurationActionType,
   GroupsActionType,
   MessageSnackbarActionType,
   NotificationsActionType,
@@ -13,6 +14,7 @@ import {
 } from "../action-types";
 import {
   ApiActivityActions,
+  ConfigurationActions,
   GroupsActions,
   MessageSnackbarActions,
   NotificationsActions,
@@ -27,6 +29,7 @@ import StoredProduct from "../../features/products/classes/stored.product";
 import ShoppingList from "../../features/shoppingList/classes/shopping-list.class";
 import ShoppingListItem from "../../features/shoppingList/classes/shopping-list-item.class";
 import Notification from "../../features/notification/classes/notification.class";
+import Configuration from "../../features/configuration/classes/configuration.class";
 
 /**
  * todo maybe these actions shouldn't be interfaces, but classes?
@@ -309,5 +312,14 @@ export const hideLoadingActivityIndicator =
   () => (dispatch: Dispatch<ApiActivityActions>) => {
     dispatch({
       type: ApiActivityActionType.DATA_FETCHING_FINISHED,
+    });
+  };
+
+export const setConfiguration =
+  (configuration: Configuration) =>
+  (dispatch: Dispatch<ConfigurationActions>) => {
+    dispatch({
+      type: ConfigurationActionType.SET_CONFIGURATION,
+      configuration,
     });
   };
