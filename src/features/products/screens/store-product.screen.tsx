@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 
 import { PaperSelect } from "react-native-paper-select";
@@ -103,6 +103,23 @@ export default function StoreProductScreen({
   );
   const [boughtPrice, setBoughtPrice] = useState(storedProduct.boughtPrice);
 
+  const [prepared, setPrepared] = useState(storedProduct.prepared);
+  useEffect(() => {
+    setPrepared(storedProduct.prepared);
+  }, [storedProduct]);
+  const [eaten, setEaten] = useState(storedProduct.eaten);
+  useEffect(() => {
+    setEaten(storedProduct.eaten);
+  }, [storedProduct]);
+  const [expired, setExpired] = useState(storedProduct.expired);
+  useEffect(() => {
+    setExpired(storedProduct.expired);
+  }, [storedProduct]);
+  const [discarded, setDiscarded] = useState(storedProduct.discarded);
+  useEffect(() => {
+    setDiscarded(storedProduct.discarded);
+  }, [storedProduct]);
+
   if (!materialCommunityIconsFontLoaded) {
     // console.log("font not loaded"); //todo put an activity indicator here?
     return null;
@@ -137,6 +154,10 @@ export default function StoreProductScreen({
       storedAt: storedAt.toString(),
       productUuid: selectedProduct?.uuid,
       pantryUuid: selectedPantry?.uuid,
+      prepared,
+      eaten,
+      expired,
+      discarded,
     });
     pantryService.storeProduct(updatedStoredProduct, () => {
       navigationService.goBack();
@@ -156,95 +177,148 @@ export default function StoreProductScreen({
 
   return (
     <View>
-      <PaperSelect
-        label="Select a Pantry"
-        value={selectedPantry?.name ?? ""}
-        arrayList={toList(pantries)}
-        multiEnable={false}
-        errorText=""
-        selectedArrayList={getSelectedPantryOnList()}
-        onSelection={handlePantrySelect}
-      />
-      <SelectProductContainer>
+      <ScrollView>
         <PaperSelect
-          label="Select a Product"
-          value={selectedProduct?.name ?? ""}
-          arrayList={toList(products)}
+          label="Select a Pantry"
+          value={selectedPantry?.name ?? ""}
+          arrayList={toList(pantries)}
           multiEnable={false}
           errorText=""
-          selectedArrayList={getSelectedProductOnList()}
-          onSelection={handleProductSelect}
+          selectedArrayList={getSelectedPantryOnList()}
+          onSelection={handlePantrySelect}
         />
-        <TouchableOpacity onPress={handleProductSelectBarcodePress}>
-          <BarCodeScanIcon />
-        </TouchableOpacity>
-      </SelectProductContainer>
-      <TextInput
-        mode="outlined"
-        label="Name"
-        placeholder="Ex.: Cake for party"
-        value={name}
-        onChangeText={(text) => setName(text)}
-        style={{ width: "100%" }}
-      />
-      <HelperText visible type="info" padding="none">
-        You can choose a different name to this product on the pantry.
-      </HelperText>
-      <TextInput
-        mode="outlined"
-        label="Quantity"
-        placeholder="Ex.: 3"
-        value={`${quantity}`}
-        onChangeText={(text) => setQuantity(text as unknown as number)}
-        keyboardType="numeric"
-        style={{ width: "100%" }}
-      />
-      <HelperText visible type="info" padding="none">
-        Set the product quantity to store
-      </HelperText>
-      <DatePickerInput
-        locale="enGB"
-        label="Stored at"
-        value={storedAt}
-        onChange={(d) => setStoredAt(d ?? new Date())}
-        inputMode="start"
-      />
-      <HelperText visible type="info" padding="none">
-        The date when the product was stored in the pantry.
-      </HelperText>
-      <DatePickerInput
-        locale="enGB"
-        label="Best before"
-        value={bestBefore}
-        onChange={(d) => setBestBefore(d ?? new Date())}
-        inputMode="start"
-      />
-      <HelperText visible type="info" padding="none">
-        The date until which the product should be consumed.
-      </HelperText>
-      <TextInput
-        mode="outlined"
-        label="Bought Price"
-        placeholder="Ex.: 10"
-        value={`${boughtPrice}`}
-        onChangeText={(text) => setBoughtPrice(text as unknown as number)}
-        keyboardType="numeric"
-        style={{ width: "100%" }}
-      />
-      <HelperText visible type="info" padding="none">
-        Set the price of the product when you bought it.
-      </HelperText>
-      <Button
-        mode="contained"
-        onPress={handleStore}
-        disabled={!selectedPantry || (name.length < 1 && !selectedProduct)}
-      >
-        {!selectedPantry
-          ? "Please select a pantry"
-          : name.length < 1 && !selectedProduct
-          ? "Please select a product or type a name"
-          : "save"}
-      </Button>
+        <SelectProductContainer>
+          <PaperSelect
+            label="Select a Product"
+            value={selectedProduct?.name ?? ""}
+            arrayList={toList(products)}
+            multiEnable={false}
+            errorText=""
+            selectedArrayList={getSelectedProductOnList()}
+            onSelection={handleProductSelect}
+          />
+          <TouchableOpacity onPress={handleProductSelectBarcodePress}>
+            <BarCodeScanIcon />
+          </TouchableOpacity>
+        </SelectProductContainer>
+        <TextInput
+          mode="outlined"
+          label="Name"
+          placeholder="Ex.: Cake for party"
+          value={name}
+          onChangeText={(text) => setName(text)}
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          You can choose a different name to this product on the pantry.
+        </HelperText>
+        <TextInput
+          mode="outlined"
+          label="Quantity"
+          placeholder="Ex.: 3"
+          value={`${quantity}`}
+          onChangeText={(text) => setQuantity(text as unknown as number)}
+          keyboardType="numeric"
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          Set the product quantity to store
+        </HelperText>
+        <DatePickerInput
+          locale="enGB"
+          label="Stored at"
+          value={storedAt}
+          onChange={(d) => setStoredAt(d ?? new Date())}
+          inputMode="start"
+        />
+        <HelperText visible type="info" padding="none">
+          The date when the product was stored in the pantry.
+        </HelperText>
+        <DatePickerInput
+          locale="enGB"
+          label="Best before"
+          value={bestBefore}
+          onChange={(d) => setBestBefore(d ?? new Date())}
+          inputMode="start"
+        />
+        <HelperText visible type="info" padding="none">
+          The date until which the product should be consumed.
+        </HelperText>
+        <TextInput
+          mode="outlined"
+          label="Bought Price"
+          placeholder="Ex.: 10"
+          value={`${boughtPrice}`}
+          onChangeText={(text) => setBoughtPrice(text as unknown as number)}
+          keyboardType="numeric"
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          Set the price of the product when you bought it.
+        </HelperText>
+        <TextInput
+          mode="outlined"
+          label="Prepared"
+          placeholder="Ex.: 10"
+          value={`${prepared}`}
+          onChangeText={(text) => setPrepared(text as unknown as number)}
+          keyboardType="numeric"
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          The quantity of the item that is prepared.
+        </HelperText>
+
+        <TextInput
+          mode="outlined"
+          label="Eaten"
+          placeholder="Ex.: 10"
+          value={`${eaten}`}
+          onChangeText={(text) => setEaten(text as unknown as number)}
+          keyboardType="numeric"
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          The quantity of the item that is eaten.
+        </HelperText>
+
+        <TextInput
+          mode="outlined"
+          label="Expired"
+          placeholder="Ex.: 10"
+          value={`${expired}`}
+          onChangeText={(text) => setExpired(text as unknown as number)}
+          keyboardType="numeric"
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          The quantity of the item that is expired.
+        </HelperText>
+
+        <TextInput
+          mode="outlined"
+          label="Discarded"
+          placeholder="Ex.: 10"
+          value={`${discarded}`}
+          onChangeText={(text) => setDiscarded(text as unknown as number)}
+          keyboardType="numeric"
+          style={{ width: "100%" }}
+        />
+        <HelperText visible type="info" padding="none">
+          The quantity of the item that is discarded.
+        </HelperText>
+        <Button
+          mode="contained"
+          onPress={handleStore}
+          disabled={!selectedPantry || (name.length < 1 && !selectedProduct)}
+        >
+          {!selectedPantry
+            ? "Please select a pantry"
+            : name.length < 1 && !selectedProduct
+            ? "Please select a product or type a name"
+            : "save"}
+        </Button>
+      </ScrollView>
     </View>
   );
 }
