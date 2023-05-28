@@ -58,6 +58,8 @@ export default class Notification
 
   firestoreId?: string;
 
+  _serialized: string;
+
   constructor(
     uuid: string,
     data: NotificationData = { message: `notification ${uuid}` },
@@ -77,6 +79,8 @@ export default class Notification
     this.createdAt = createdAt;
     this.ownerUid = ownerUid;
 
+    this.serialized = this.data;
+
     if (typeof id !== "undefined") {
       this.id = id;
     }
@@ -93,11 +97,11 @@ export default class Notification
   }
 
   get serialized(): string {
-    return JSON.stringify(this.data);
+    return JSON.parse(this._serialized);
   }
 
-  set serialized(value: string) {
-    this.data = JSON.parse(value);
+  set serialized(value: any) {
+    this._serialized = JSON.stringify(value);
   }
 
   public clone(override?: Partial<Notification>) {
@@ -118,11 +122,11 @@ export default class Notification
     return TableBuilder<Notification, TableNames>(Notification.localTableName)
       .column("id")
       .primary.autoIncrement.number.column("uuid")
-      .unique.string.column("serialized")
-      .column("type")
+      .unique.string.column("_serialized")
+      .nullable.string.column("type")
       .number.column("ownerUid")
       .nullable.column("read")
-      .boolean.column("createdAt")
+      .number.column("createdAt")
       .column("updatedAt")
       .string.nullable.column("firestoreId")
       .string.nullable.objectPrototype(Notification.prototype);
@@ -133,7 +137,7 @@ export default class Notification
     //  if the component comes already build from the query, there's no need of this method at all.
     return new Notification(
       r.uuid,
-      r.data,
+      JSON.parse(r._serialized),
       r.type,
       r.read,
       r.createdAt,
@@ -174,6 +178,7 @@ export default class Notification
       firestoreDeletedCollectionName,
       serialized,
       firestoreId,
+      _serialized,
       ...sendToFirestoreData
     } = this;
     return sendToFirestoreData;
