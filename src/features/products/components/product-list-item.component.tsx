@@ -3,6 +3,7 @@ import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   AddToPantryIcon,
+  AddToShoppingListIcon,
   DeleteIcon,
   DragHandler,
   LeftContent,
@@ -17,8 +18,13 @@ import { DependencyInjectionContext } from "../../../services/dependencyInjectio
 import Product from "../classes/product.class";
 
 function ProductListItem({ item }: { item: Product }) {
-  const { productService, navigationService, snackBarService, pantryService } =
-    useContext(DependencyInjectionContext);
+  const {
+    productService,
+    navigationService,
+    snackBarService,
+    pantryService,
+    shoppingListService,
+  } = useContext(DependencyInjectionContext);
 
   const { showModal, hideModal } = useContext(DialogModalContext);
 
@@ -28,6 +34,8 @@ function ProductListItem({ item }: { item: Product }) {
       snackBarService.showProductDeletedInfo(item);
     });
   };
+
+  const { addItemToShoppingListCallback } = shoppingListService;
 
   const showConfirmDeletionModal = () => {
     showModal(
@@ -42,8 +50,16 @@ function ProductListItem({ item }: { item: Product }) {
     );
   };
 
+  const handleAddToShoppingList = () => {
+    addItemToShoppingListCallback(item);
+  };
+
   const handleEdit = () => {
-    navigationService.showEditProductScreen(item);
+    if (typeof addItemToShoppingListCallback === "undefined") {
+      navigationService.showEditProductScreen(item);
+    } else {
+      handleAddToShoppingList();
+    }
   };
 
   const handleStoreProduct = () => {
@@ -61,18 +77,26 @@ function ProductListItem({ item }: { item: Product }) {
           <LeftIcon />
           <LeftText>{item.name}</LeftText>
         </LeftContent>
-        <RightContent>
-          {productService.isOwnedByTheCurrentUser(item) && (
-            <TouchableOpacity onPress={showConfirmDeletionModal}>
-              <DeleteIcon />
-            </TouchableOpacity>
-          )}
+        {typeof addItemToShoppingListCallback === "undefined" && (
+          <RightContent>
+            {productService.isOwnedByTheCurrentUser(item) && (
+              <TouchableOpacity onPress={showConfirmDeletionModal}>
+                <DeleteIcon />
+              </TouchableOpacity>
+            )}
 
-          <TouchableOpacity onPress={handleStoreProduct}>
-            <AddToPantryIcon />
-          </TouchableOpacity>
-          <DragHandler />
-        </RightContent>
+            <TouchableOpacity onPress={handleStoreProduct}>
+              <AddToPantryIcon />
+            </TouchableOpacity>
+          </RightContent>
+        )}
+        {typeof addItemToShoppingListCallback !== "undefined" && (
+          <RightContent>
+            <TouchableOpacity onPress={handleAddToShoppingList}>
+              <AddToShoppingListIcon />
+            </TouchableOpacity>
+          </RightContent>
+        )}
       </ProductListItemContainer>
     </TouchableOpacity>
   );

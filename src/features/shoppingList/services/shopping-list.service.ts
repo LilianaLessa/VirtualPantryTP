@@ -33,6 +33,8 @@ export default class ShoppingListService {
 
   private readonly firestoreActions: FirestoreActions;
 
+  addItemToShoppingListCallback?: any;
+
   constructor(
     shoppingLists: ShoppingList[],
     shoppingListItems: ShoppingListItem[],
@@ -47,6 +49,8 @@ export default class ShoppingListService {
     this.productService = productService;
     this.stateActions = stateActions;
     this.firestoreActions = firestoreActions;
+
+    this.addItemToShoppingListCallback = undefined;
   }
 
   getShoppingLists(): ShoppingList[] {

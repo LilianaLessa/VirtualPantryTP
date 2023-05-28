@@ -74,6 +74,10 @@ export const DeleteIcon = styled(EntypoIcon).attrs({ name: "trash" })``;
 
 export const AddToPantryIcon = styled(EntypoIcon).attrs({ name: "box" })``;
 
+export const AddToShoppingListIcon = styled(MaterialCommunityIcons).attrs({
+  name: "format-list-bulleted",
+})``;
+
 export const DragHandler = styled(MaterialIcons).attrs({ name: "drag-handle" })`
   color: rgba(128, 128, 128, 1);
   font-size: 20px;

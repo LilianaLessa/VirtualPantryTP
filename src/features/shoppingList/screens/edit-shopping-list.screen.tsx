@@ -6,6 +6,8 @@ import { DependencyInjectionContext } from "../../../services/dependencyInjectio
 import EditShoppingListItem from "../components/edit-shopping-list-item";
 import ShoppingList from "../classes/shopping-list.class";
 import ShoppingListItem from "../classes/shopping-list-item.class";
+import ProductSearchBar from "../../products/components/product-search-bar.component";
+import Product from "../../products/classes/product.class";
 
 export type EditShoppingListScreenParams = {
   EditShoppingList: {
@@ -83,6 +85,16 @@ function EditShoppingListScreen({
     />
   );
 
+  const addItemToShoppingListCallback = (product: Product) => {
+    setItems([
+      ...items,
+      shoppingListService.createNewShoppingListItem(shoppingList, {
+        name: product.name,
+      }),
+    ]);
+    navigationService.goBack();
+  };
+
   return (
     <View>
       <TextInput
@@ -101,8 +113,11 @@ function EditShoppingListScreen({
         renderItem={renderItem}
         keyExtractor={(i: ShoppingListItem) => i.getKey()}
       />
+      <ProductSearchBar
+        addItemToShoppingListCallback={addItemToShoppingListCallback}
+      />
       <Button mode="contained" onPress={handleAddItem}>
-        AddItem
+        Add Item
       </Button>
       {shoppingListService.isOwnedByTheCurrentUser(shoppingList) && (
         <Button mode="contained" onPress={handleShoppingListSave}>

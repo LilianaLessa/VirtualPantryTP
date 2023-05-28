@@ -23,7 +23,7 @@ export function ProductSearchResultScreen({
 }: {
   route: Props;
 }) {
-  const { productService, navigationService } = useContext(
+  const { productService, navigationService, shoppingListService } = useContext(
     DependencyInjectionContext
   );
 
@@ -76,12 +76,16 @@ export function ProductSearchResultScreen({
     }
     noProductsFoundMessage += ".";
 
+    const { addItemToShoppingListCallback } = shoppingListService;
+
     return (
       <View>
         <Text>{noProductsFoundMessage}</Text>
-        <Button mode="contained" onPress={creationHandler}>
-          Create
-        </Button>
+        {typeof addItemToShoppingListCallback === "undefined" && (
+          <Button mode="contained" onPress={creationHandler}>
+            Create
+          </Button>
+        )}
       </View>
     );
   }
