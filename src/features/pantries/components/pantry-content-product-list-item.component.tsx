@@ -1,10 +1,13 @@
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import React, { useContext, useState, useEffect } from "react";
+import { TextInput } from "react-native-paper";
 import {
   CookIcon,
   DeleteIcon,
+  DischardIcon,
   DragHandler,
   EatIcon,
+  ExpireIcon,
   LeftContent,
   LeftIcon,
   LeftText,
@@ -16,18 +19,17 @@ import { DialogModalContext } from "../../../services/modal/dialog-modal.context
 import StoredProduct from "../../products/classes/stored.product";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import Product from "../../products/classes/product.class";
-
-function getStoredProductDisplayName(
-  storedProduct: StoredProduct,
-  product?: Product
-): string {
-  const name =
-    storedProduct.name?.length > 0 ? storedProduct.name : product?.name;
-  const productName =
-    product?.name && name !== product?.name ? ` (${product?.name})` : "";
-
-  return `${name}${productName}`;
-}
+import {
+  DialogBoxContainer,
+  DialogButtonsContainer,
+  DialogCancelButtonLabel,
+  DialogConfirmButtonLabel,
+  DialogContent,
+  DialogContentContainer,
+  DialogTitle,
+  DialogTitleContainer,
+} from "../../../components/dialogs/confirm-dialog.styles";
+import ActionDialog from "./ActionDialog";
 
 export default function PantryContentProductListItem({
   storedProduct,
@@ -77,6 +79,72 @@ export default function PantryContentProductListItem({
     );
   };
 
+  const savePrepared = (quantity: number) => {
+    snackBarService.showStoredItemConsumedInfo(
+      pantryService.getStoredProductDisplayName(storedProduct, product),
+      quantity,
+      "prepared"
+    );
+  };
+
+  const showPrepareDialog = () => {
+    showModal(
+      <ActionDialog
+        Icon={CookIcon}
+        title="Prepare"
+        saveHandler={savePrepared}
+      />
+    );
+  };
+
+  const saveEaten = (quantity: number) => {
+    snackBarService.showStoredItemConsumedInfo(
+      pantryService.getStoredProductDisplayName(storedProduct, product),
+      quantity,
+      "eaten"
+    );
+  };
+  const showEatDialog = () => {
+    showModal(
+      <ActionDialog Icon={EatIcon} title="Eat" saveHandler={saveEaten} />
+    );
+  };
+
+  const saveExpired = (quantity: number) => {
+    snackBarService.showStoredItemConsumedInfo(
+      pantryService.getStoredProductDisplayName(storedProduct, product),
+      quantity,
+      "expired"
+    );
+  };
+  const showExpireDialog = () => {
+    showModal(
+      <ActionDialog
+        Icon={ExpireIcon}
+        title="Expire"
+        saveHandler={saveExpired}
+      />
+    );
+  };
+
+  const saveDischarded = (quantity: number) => {
+    snackBarService.showStoredItemConsumedInfo(
+      pantryService.getStoredProductDisplayName(storedProduct, product),
+      quantity,
+      "discharded"
+    );
+  };
+
+  const showDischardDialog = () => {
+    showModal(
+      <ActionDialog
+        Icon={DischardIcon}
+        title="Dischard"
+        saveHandler={saveDischarded}
+      />
+    );
+  };
+
   const handleEdit = () => {
     navigationService.showStoreProductScreen(storedProduct);
   };
@@ -94,11 +162,17 @@ export default function PantryContentProductListItem({
           </LeftText>
         </LeftContent>
         <RightContent>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={showPrepareDialog}>
             <CookIcon />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={showEatDialog}>
             <EatIcon />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={showExpireDialog}>
+            <ExpireIcon />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={showDischardDialog}>
+            <DischardIcon />
           </TouchableOpacity>
           <TouchableOpacity onPress={showConfirmDeletionModal}>
             <DeleteIcon />

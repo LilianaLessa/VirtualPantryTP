@@ -66,6 +66,14 @@ export const EatIcon = styled(MaterialCommunityIconsIcon).attrs({
   name: "silverware-fork-knife",
 })``;
 
+export const ExpireIcon = styled(MaterialCommunityIconsIcon).attrs({
+  name: "skull",
+})``;
+
+export const DischardIcon = styled(MaterialCommunityIconsIcon).attrs({
+  name: "archive-remove",
+})``;
+
 export const DebugIcon = styled(MaterialCommunityIconsIcon).attrs({
   name: "bug",
 })``;

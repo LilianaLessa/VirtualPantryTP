@@ -10,7 +10,6 @@ import { Entypo } from "@expo/vector-icons";
 import { Checkbox } from "react-native-paper";
 import materialCommunityIconsFont from "react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf";
 import { useFonts } from "expo-font";
-import { v4 as uuidv4 } from "uuid";
 import IShoppingListItem from "../interfaces/shopping-list-item.interface";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import ShoppingListItem from "../classes/shopping-list-item.class";

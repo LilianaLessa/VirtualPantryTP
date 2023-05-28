@@ -109,4 +109,10 @@ export default class SnackBarService {
   showConfigurationSavedInfo() {
     this.stateActions?.showSnack("Configuration saved.");
   }
+
+  showStoredItemConsumedInfo(name: string, quantity: number, verb: string) {
+    this.stateActions?.showSnack(
+      `${quantity} units of '${name}' were ${verb}.`
+    );
+  }
 }
