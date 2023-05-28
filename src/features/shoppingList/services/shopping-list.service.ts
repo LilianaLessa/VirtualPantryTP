@@ -4,7 +4,7 @@ import ShoppingList from "../classes/shopping-list.class";
 import ShoppingListItem from "../classes/shopping-list-item.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";
 import DbContext from "../../../services/applicationData/localDatabase/classes/db-context.class";
-import Product from "../../products/classes/product.class";
+import ProductService from "../../products/services/product.service";
 
 type StateActions = {
   saveShoppingList: (shoppingList: ShoppingList) => any;
@@ -27,6 +27,8 @@ export default class ShoppingListService {
 
   private readonly authGuardService: AuthGuardService;
 
+  private readonly productService: ProductService;
+
   private readonly stateActions: StateActions;
 
   private readonly firestoreActions: FirestoreActions;
@@ -35,12 +37,14 @@ export default class ShoppingListService {
     shoppingLists: ShoppingList[],
     shoppingListItems: ShoppingListItem[],
     authGuardService: AuthGuardService,
+    productService: ProductService,
     stateActions: StateActions,
     firestoreActions: FirestoreActions
   ) {
     this.shoppingLists = shoppingLists;
     this.shoppingListItems = shoppingListItems;
     this.authGuardService = authGuardService;
+    this.productService = productService;
     this.stateActions = stateActions;
     this.firestoreActions = firestoreActions;
   }
@@ -52,6 +56,14 @@ export default class ShoppingListService {
   getItemsOnShoppingList(shoppingList: ShoppingList): ShoppingListItem[] {
     return this.shoppingListItems.filter(
       (i) => i.shoppingListUuid === shoppingList.uuid
+    );
+  }
+
+  generateSuggestedItems(shoppingList: ShoppingList): ShoppingListItem[] {
+    const products = this.productService.getProducts().slice(0, 5);
+
+    return products.map((p) =>
+      this.createNewShoppingListItem(shoppingList, { name: p.name })
     );
   }
 

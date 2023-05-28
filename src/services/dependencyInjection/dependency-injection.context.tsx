@@ -52,6 +52,7 @@ const defaultValue = {
     [],
     [],
     new AuthGuardService(null),
+    new ProductService([], new AuthGuardService(null), {}, {}),
     {},
     {}
   ),
@@ -204,11 +205,18 @@ export function DependencyInjectionContextProvider({
         Array.from(shoppingLists.values()),
         Array.from(shoppingListItems.values()),
         authGuardService,
+        productService,
         stateActions,
         firestoreActions
       )
     );
-  }, [shoppingLists, shoppingListItems, authGuardService, firestoreActions]);
+  }, [
+    shoppingLists,
+    shoppingListItems,
+    authGuardService,
+    productService,
+    firestoreActions,
+  ]);
 
   useEffect(() => {
     setNavigationService(new NavigationService(navigation));

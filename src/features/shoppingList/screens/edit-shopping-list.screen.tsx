@@ -25,19 +25,22 @@ function EditShoppingListScreen({
     useContext(DependencyInjectionContext);
 
   const [name, setName] = useState(shoppingList.name);
-  const [items, setItems] = useState(
-    shoppingListService
+
+  function getInitialShoppingListItems() {
+    const currentItems = shoppingListService
       .getItemsOnShoppingList(shoppingList)
-      .map((i) => i.clone())
-  );
+      .map((i) => i.clone());
+
+    return currentItems.length > 0
+      ? currentItems
+      : shoppingListService.generateSuggestedItems(shoppingList);
+  }
+
+  const [items, setItems] = useState(getInitialShoppingListItems());
 
   useEffect(() => {
     setName(shoppingList.name);
-    setItems(
-      shoppingListService
-        .getItemsOnShoppingList(shoppingList)
-        .map((i) => i.clone())
-    );
+    setItems(getInitialShoppingListItems());
   }, [shoppingList, shoppingListService]);
 
   const handleShoppingListSave = () => {
