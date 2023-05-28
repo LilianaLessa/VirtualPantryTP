@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import PantryList from "../components/pantry-list.component";
@@ -30,7 +30,10 @@ function PantryScreen() {
           Add pantry
         </Button>
       </TouchableOpacity>
-      <PantryList pantries={currentPantries} />
+      {currentPantries.length > 0 && <PantryList pantries={currentPantries} />}
+      {currentPantries.length <= 0 && (
+        <Text>There are no pantries saved yet.</Text>
+      )}
     </View>
   );
 }
