@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import ProductList from "../components/product-list.component";
@@ -33,7 +33,10 @@ function ProductScreen() {
           Add product
         </Button>
       </TouchableOpacity>
-      <ProductList products={currentProducts} />
+      {currentProducts.length > 0 && <ProductList products={currentProducts} />}
+      {currentProducts.length <= 0 && (
+        <Text>There are no products saved yet.</Text>
+      )}
     </View>
   );
 }
