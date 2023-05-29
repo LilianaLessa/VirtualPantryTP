@@ -119,11 +119,9 @@ function EditShoppingListScreen({
       <Button mode="contained" onPress={handleAddItem}>
         Add Item
       </Button>
-      {shoppingListService.isOwnedByTheCurrentUser(shoppingList) && (
-        <Button mode="contained" onPress={handleShoppingListSave}>
-          Save
-        </Button>
-      )}
+      <Button mode="contained" onPress={handleShoppingListSave}>
+        Save
+      </Button>
     </View>
   );
 }

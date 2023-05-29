@@ -16,9 +16,8 @@ function addTrailingZero(value: any) {
 
 function ConfigurationScreen() {
   const { configuration } = useTypedSelector((state) => state.configuration);
-  const { configurationService, snackBarService } = useContext(
-    DependencyInjectionContext
-  );
+  const { configurationService, snackBarService, navigationService } =
+    useContext(DependencyInjectionContext);
 
   const [currentConfiguration, setCurrentConfiguration] = useState(
     configurationService.getConfiguration() ??
@@ -109,6 +108,7 @@ function ConfigurationScreen() {
         })
       )
       .then(() => {
+        navigationService.goBack();
         snackBarService.showConfigurationSavedInfo();
       })
       .catch((e) => {
