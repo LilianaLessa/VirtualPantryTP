@@ -115,4 +115,15 @@ export default class SnackBarService {
       `${quantity} units of '${name}' were ${verb}.`
     );
   }
+
+  showInvalidUserCredentialsError() {
+    this.stateActions?.showErrorSnack("Invalid user credentials.");
+  }
+
+  showAccountCreationError(message: string | string[]) {
+    const msg = Array.isArray(message) ? message.join(";") : message;
+    this.stateActions?.showErrorSnack(
+      `It wasn't possible to create a new account: ${msg}`
+    );
+  }
 }

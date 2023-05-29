@@ -1,9 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { RouteProp, useNavigation } from "@react-navigation/native";
+import { FirebaseError } from "firebase/auth";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 import { HomeScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 export type AccountCreateScreenParams = {
   AccountCreate: {
@@ -14,6 +16,8 @@ export type AccountCreateScreenParams = {
 type Props = RouteProp<AccountCreateScreenParams, "AccountCreate">;
 
 function AccountCreateScreen({ route }: { route: Props }) {
+  const { snackBarService } = useContext(DependencyInjectionContext);
+
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState(route.params.email ?? "");
   const [emailConfirmation, setEmailConfirmation] = useState("");
@@ -25,9 +29,18 @@ function AccountCreateScreen({ route }: { route: Props }) {
 
   const navigation = useNavigation();
 
+  useEffect(() => {
+    if (errors.length > 0) {
+      snackBarService.showAccountCreationError(errors);
+    }
+  }, [errors]);
+
   const handleAccountCreate = () => {
-    setErrors([]);
-    const currentErrors = Array<string>();
+    const currentErrors: string[] = [];
+
+    if (email.length < 5) {
+      currentErrors.push("Inserted email too short.");
+    }
 
     if (email !== emailConfirmation) {
       currentErrors.push("Email and Email confirmation does not match.");
@@ -47,9 +60,20 @@ function AccountCreateScreen({ route }: { route: Props }) {
         () => {
           navigation.navigate(HomeScreenRouteName as never);
         },
-        (e) => {
-          console.log(e.toString());
-          setErrors([...errors, e.toString()]);
+        (e: FirebaseError) => {
+          let message = "Error on creating account.";
+          switch (e.code) {
+            case "auth/weak-password":
+              message = "Please use a stronger password: minimum 6 characters.";
+              break;
+            case "auth/email-already-in-use":
+              message =
+                "It was not possible to create a new account with this e-mail. Please choose another one.";
+              break;
+            default:
+              console.log(e);
+          }
+          setErrors([...currentErrors, message]);
         }
       );
     }
@@ -119,15 +143,6 @@ function AccountCreateScreen({ route }: { route: Props }) {
       <TouchableOpacity onPress={handleAccountCreate}>
         <Button mode="contained">Sign Up</Button>
       </TouchableOpacity>
-      {errors && (
-        <View>
-          <FlatList
-            data={errors}
-            renderItem={({ item }: { item: string }) => <Text>{item}</Text>}
-            keyExtractor={(i) => `key_${i}`}
-          />
-        </View>
-      )}
     </View>
   );
 }

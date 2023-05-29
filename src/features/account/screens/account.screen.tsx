@@ -4,10 +4,12 @@ import { Button, HelperText, TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 import { CreateAccountScreenRouteName } from "../../../infrastructure/navigation/route-names";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 
 function AccountScreen() {
   const navigation = useNavigation();
   const { onLogin, onLogout, user, error } = useContext(AuthenticationContext);
+  const { snackBarService } = useContext(DependencyInjectionContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,6 +25,12 @@ function AccountScreen() {
       onLogin(email, password);
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      snackBarService.showInvalidUserCredentialsError();
+    }
+  }, [error]);
 
   const handleSignOut = () => {
     console.log("Sign out");
@@ -83,7 +91,6 @@ function AccountScreen() {
           <TouchableOpacity onPress={handleSignUp}>
             <Button mode="contained-tonal">Sign Up</Button>
           </TouchableOpacity>
-          {error && <Text>{`Error: ${error}`}</Text>}
         </View>
       )}
     </View>
