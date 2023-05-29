@@ -155,33 +155,56 @@ export function FirestoreContextProvider({
     }
     console.log(`Firebase syncing collection '${collectionType.name}'`);
 
+    // todo investigate why we're getting duplicated items here.
+    let reducedLocalCollection = localCollection.reduce(
+      (m: Map<string, string>, p) => m.set(p.uuid, p),
+      new Map<string, string>()
+    );
+    reducedLocalCollection = Array.from(reducedLocalCollection.values());
     const localCollectionUuidChunks = sliceIntoChunks(
-      localCollection.map((o) => o.uuid),
+      reducedLocalCollection.map((o) => o.uuid),
       30
+    );
+
+    const deletedItemPromises = localCollectionUuidChunks.map((uuidsChunk) =>
+      getDocs(
+        query(
+          collection(
+            firestore,
+            collectionType.getFirestoreDeletedCollectionName()
+          ),
+          where("uuid", "in", uuidsChunk)
+        )
+      )
     );
 
     const getDeletedObjects =
       localCollection.length > 0
-        ? getDocs(
-            query(
-              collection(
-                firestore,
-                collectionType.getFirestoreDeletedCollectionName()
-              ),
-              or(
-                ...localCollectionUuidChunks.map((uuidsChunk) =>
-                  where("uuid", "in", uuidsChunk)
-                )
-              )
-            )
-          ).catch((e) => {
-            console.log(
-              "failed to fetch data from firestore",
-              e,
-              collectionType.name
-            );
-          })
-        : Promise.resolve({ docs: [] });
+        ? Promise.all(deletedItemPromises)
+            .then((results) => {
+              const deletedObjectsUuids: string[] = [];
+
+              results.forEach((deletedObjectsSnapshot) => {
+                deletedObjectsSnapshot.docs.forEach((d) => {
+                  deletedObjectsUuids.push(d.data().uuid);
+                });
+              });
+
+              return deletedObjectsUuids;
+            })
+            .catch((e) => {
+              console.log(
+                "failed to fetch data from firestore",
+                e,
+                collectionType.name
+              );
+              console.log(
+                localCollection.length,
+                reducedLocalCollection.length,
+                reducedLocalCollection.map((p) => p.uuid)
+              );
+            })
+        : Promise.resolve([]);
 
     return Promise.all([
       getDocs(
@@ -192,14 +215,10 @@ export function FirestoreContextProvider({
       ),
       getDeletedObjects,
     ]).then((result) => {
-      const [currentObjectsSnapshot, deletedObjectsSnapshot] = result;
+      const [currentObjectsSnapshot, deletedObjectsUuids] = result;
       const saved: IFirestoreObject[] = [];
       const deleted: IFirestoreObject[] = [];
       const toSync: Promise<any>[] = [];
-
-      const deletedObjectsUuids = deletedObjectsSnapshot.docs.map(
-        (d) => d.data().uuid
-      );
 
       const localCollectionMappedByUuid = localCollection.reduce(
         (m: Map<string, IFirestoreObject>, localObject: IFirestoreObject) => {
