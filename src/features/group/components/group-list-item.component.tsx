@@ -37,9 +37,9 @@ function GroupListItem({ group }: { group: Group }) {
   const { showModal, hideModal } = useContext(DialogModalContext);
 
   const handleEdit = () => {
-    if (groupService.isGroupOwnedByLoggedUser(group)) {
-      navigationService.showGroupEditScreen(group);
-    }
+    // if (groupService.isGroupOwnedByLoggedUser(group)) {
+    navigationService.showGroupEditScreen(group);
+    // }
   };
 
   const handleSelfDelete = () => {

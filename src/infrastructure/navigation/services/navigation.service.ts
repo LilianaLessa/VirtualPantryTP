@@ -128,6 +128,6 @@ export default class NavigationService {
   }
 
   public goBack(): void {
-    this.navigation?.goBack();
+    this.navigation?.canGoBack() && this.navigation?.goBack();
   }
 }

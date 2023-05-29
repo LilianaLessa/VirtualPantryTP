@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { Button, HelperText, TextInput } from "react-native-paper";
@@ -32,6 +32,14 @@ export default function EditGroupScreen({
   );
   const [updatedGroup, setUpdateGroup] = useState(group.clone());
 
+  const [groupPermission, setGroupPermission] = useState(
+    groupService.getCurrentUserPermissions(group)
+  );
+
+  useEffect(() => {
+    setGroupPermission(groupService.getCurrentUserPermissions(group));
+  }, [group]);
+
   const handleSave = () => {
     groupService.saveGroup(
       group,
@@ -62,6 +70,7 @@ export default function EditGroupScreen({
   return (
     <View>
       <TextInput
+        disabled={!groupPermission.isAdmin}
         mode="outlined"
         label="Group name"
         placeholder="Ex.: My Group"
@@ -74,36 +83,38 @@ export default function EditGroupScreen({
       <HelperText visible type="info" padding="none">
         Type a name for your group
       </HelperText>
-
-      <AddUserInput
-        addUserCallback={(newUserEmail) => {
-          // console.log("add user callback", groupService, updatedGroup);
-          groupService.setUser(
-            updatedGroup,
-            newUserEmail,
-            false,
-            false,
-            UseInGroupAcceptanceState.PENDING
-          );
-          setUpdateGroup(updatedGroup.clone());
-        }}
-      />
+      {groupPermission.isInviter && (
+        <AddUserInput
+          addUserCallback={(newUserEmail) => {
+            // console.log("add user callback", groupService, updatedGroup);
+            groupService.setUser(
+              updatedGroup,
+              newUserEmail,
+              false,
+              false,
+              UseInGroupAcceptanceState.PENDING
+            );
+            setUpdateGroup(updatedGroup.clone());
+          }}
+        />
+      )}
 
       <FlatList
-        data={updatedGroup.users.filter(
-          (uig) => !groupService.isLoggedUser(uig)
-        )}
+        data={updatedGroup.users}
         renderItem={({ item }) => (
           <UserListItem
+            group={group}
             userInGroup={item}
             deleteUserInGroupCallback={handleUserDeletion}
           />
         )}
         keyExtractor={(u) => u.getKey()}
       />
-      <TouchableOpacity onPress={handleSave}>
-        <Button mode="contained">Save</Button>
-      </TouchableOpacity>
+      {groupPermission.isInviter && (
+        <TouchableOpacity onPress={handleSave}>
+          <Button mode="contained">Save</Button>
+        </TouchableOpacity>
+      )}
 
       <Text>{`Owner UID: ${group.ownerUid}`}</Text>
       <Text>{`Firestore DocID: ${group.firestoreId}`}</Text>

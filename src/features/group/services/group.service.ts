@@ -51,6 +51,12 @@ type FirestoreActions = {
   ) => Promise<any>;
 };
 
+type UserInGroupPermission = {
+  isOwner: boolean;
+  isAdmin: boolean;
+  isInviter: boolean;
+};
+
 export default class GroupService {
   notificationService: NotificationService | null;
 
@@ -112,10 +118,6 @@ export default class GroupService {
     this.unsubscribeUserFromGroupInvites();
     this.unsubscribeUserFromGroupUpdates();
     this.groupMemberListenerUnsubscribers.forEach((f) => f());
-  }
-
-  private getGroupByUuid(uuid: string): Group | undefined {
-    return this.groups.get(uuid);
   }
 
   private subscribeUserToGroupInvites(email: string) {
@@ -555,11 +557,11 @@ export default class GroupService {
     successCallback?: () => any,
     errorCallback?: () => any
   ): void {
-    if (!this.isGroupOwnedByLoggedUser(group)) {
-      if (errorCallback) {
-        return errorCallback();
-      }
-    }
+    // if (!this.isGroupOwnedByLoggedUser(group)) {
+    //   if (errorCallback) {
+    //     return errorCallback();
+    //   }
+    // }
     // todo check if the group is owned by the current user
 
     this.stateActions.showLoadingActivityIndicator();
@@ -707,6 +709,41 @@ export default class GroupService {
         )
       );
     }
+  }
+
+  getCurrentUserPermissions(group?: Group): UserInGroupPermission {
+    return this.authGuardService.guard(
+      () => {
+        const userInGroup = group?.users.find(
+          (uig) => uig.answererUid === this.authGuardService.getAuthUserUid()
+        );
+
+        const isOwner = group && this.isGroupOwnedByLoggedUser(group);
+
+        // console.log(this.authGuardService.getAuthUserUid(), userInGroup, group);
+        if (!userInGroup) {
+          return {
+            isOwner,
+            isAdmin: isOwner,
+            isInviter: isOwner,
+          };
+        }
+
+        const isAdmin = userInGroup.isAdmin || isOwner;
+        const isInviter = userInGroup.isInviter || isAdmin;
+
+        return {
+          isOwner,
+          isAdmin,
+          isInviter,
+        };
+      },
+      () => ({
+        isOwner: false,
+        isAdmin: false,
+        isInviter: false,
+      })
+    );
   }
 
   dropDb() {

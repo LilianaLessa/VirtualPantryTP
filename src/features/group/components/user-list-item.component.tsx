@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { Switch } from "react-native-paper";
 import UserInGroup from "../classes/user-in-group.class";
+import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import Group from "../classes/group.class";
 
 const styles = StyleSheet.create({
   container: {
@@ -56,12 +58,24 @@ const styles = StyleSheet.create({
 });
 
 export default function UserListItem({
+  group,
   userInGroup,
   deleteUserInGroupCallback,
 }: {
+  group: Group;
   userInGroup: UserInGroup;
   deleteUserInGroupCallback: (userInGroupToDelete: UserInGroup) => void;
 }) {
+  const { groupService } = useContext(DependencyInjectionContext);
+
+  const [groupPermission, setGroupPermission] = useState(
+    groupService.getCurrentUserPermissions(group)
+  );
+
+  useEffect(() => {
+    setGroupPermission(groupService.getCurrentUserPermissions(group));
+  }, [groupService, group]);
+
   const [isAdmin, setIsAdmin] = useState(userInGroup.isAdmin);
   const [isInviter, setIsInviter] = useState(userInGroup.isInviter);
   // const { groupService } = useContext(DependencyInjectionContext);
@@ -75,6 +89,20 @@ export default function UserListItem({
     deleteUserInGroupCallback(userInGroup);
   };
 
+  let editablePermissions = false;
+  if (
+    (groupPermission.isAdmin &&
+      typeof userInGroup.answererUid === "undefined") ||
+    (groupPermission.isOwner && userInGroup.answererUid !== group.ownerUid) ||
+    (groupPermission.isAdmin &&
+      userInGroup.answererUid &&
+      userInGroup.answererUid !== group.ownerUid)
+  ) {
+    editablePermissions = true;
+  }
+
+  // console.log(userInGroup.email, editablePermissions, groupPermission);
+
   return (
     <View style={styles.container}>
       <View style={styles.labelContainer}>
@@ -85,18 +113,21 @@ export default function UserListItem({
           color="black"
         />
         <Text style={styles.label}>{userInGroup.email}</Text>
-        <TouchableOpacity onPress={handleSelfDelete}>
-          <MaterialCommunityIcons
-            style={styles.icon}
-            name="trash-can"
-            size={24}
-            color="black"
-          />
-        </TouchableOpacity>
+        {editablePermissions && (
+          <TouchableOpacity onPress={handleSelfDelete}>
+            <MaterialCommunityIcons
+              style={styles.icon}
+              name="trash-can"
+              size={24}
+              color="black"
+            />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.switchesContainer}>
         <View style={styles.switchContainer}>
           <Switch
+            disabled={!editablePermissions}
             style={styles.switch}
             value={isAdmin}
             onValueChange={() => setIsAdmin(!isAdmin)}
@@ -105,6 +136,7 @@ export default function UserListItem({
         </View>
         <View style={styles.switchContainer}>
           <Switch
+            disabled={!editablePermissions}
             style={styles.switch}
             value={isInviter}
             onValueChange={() => setIsInviter(!isInviter)}

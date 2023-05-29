@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { HeaderBackButton } from "@react-navigation/elements";
 import { ConfigurationsScreenRouteName } from "../route-names";
 
@@ -21,7 +21,7 @@ function HeaderLeftActions() {
       {navigation.canGoBack() && (
         <HeaderBackButton
           onPress={() => {
-            navigation.goBack();
+            navigation.canGoBack() && navigation.goBack();
           }}
         />
       )}
