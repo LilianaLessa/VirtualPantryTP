@@ -6,6 +6,7 @@ import { FirebaseError } from "firebase/auth";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 import { HomeScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
+import { useActions } from "../../../hooks/useActions";
 
 export type AccountCreateScreenParams = {
   AccountCreate: {
@@ -17,6 +18,8 @@ type Props = RouteProp<AccountCreateScreenParams, "AccountCreate">;
 
 function AccountCreateScreen({ route }: { route: Props }) {
   const { snackBarService } = useContext(DependencyInjectionContext);
+  const { showLoadingActivityIndicator, hideLoadingActivityIndicator } =
+    useActions();
 
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState(route.params.email ?? "");
@@ -36,6 +39,7 @@ function AccountCreateScreen({ route }: { route: Props }) {
   }, [errors]);
 
   const handleAccountCreate = () => {
+    showLoadingActivityIndicator();
     const currentErrors: string[] = [];
 
     if (email.length < 5) {
@@ -58,9 +62,11 @@ function AccountCreateScreen({ route }: { route: Props }) {
         password,
         displayName,
         () => {
+          hideLoadingActivityIndicator();
           navigation.navigate(HomeScreenRouteName as never);
         },
         (e: FirebaseError) => {
+          hideLoadingActivityIndicator();
           let message = "Error on creating account.";
           switch (e.code) {
             case "auth/weak-password":
@@ -76,6 +82,8 @@ function AccountCreateScreen({ route }: { route: Props }) {
           setErrors([...currentErrors, message]);
         }
       );
+    } else {
+      hideLoadingActivityIndicator();
     }
   };
 

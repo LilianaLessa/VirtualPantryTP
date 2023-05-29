@@ -14,6 +14,7 @@ import {
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FirebaseContext } from "./firebase.context";
+import { useActions } from "../../hooks/useActions";
 
 type AuthenticationContextType = {
   user: User | null;
@@ -40,6 +41,9 @@ export function AuthenticationContextProvider({
 }: {
   children: React.ReactNode[] | React.ReactNode;
 }) {
+  const { showLoadingActivityIndicator, hideLoadingActivityIndicator } =
+    useActions();
+
   const { firebaseApp } = useContext(FirebaseContext);
 
   const [user, setUser] = useState<User | null>();
@@ -88,14 +92,16 @@ export function AuthenticationContextProvider({
 
   function onLogin(email: string, password: string): void {
     setError(null);
-
+    showLoadingActivityIndicator();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential: UserCredential) => {
+        hideLoadingActivityIndicator();
         setIsAuthenticated(true);
         // setUser(userCredential.user);
         // return userCredential;
       })
       .catch((e) => {
+        hideLoadingActivityIndicator();
         setIsAuthenticated(false);
         setUser(null);
         setError(e);
