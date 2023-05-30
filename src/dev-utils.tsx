@@ -25,8 +25,8 @@ export function getStackTraceAsString(error: Error): string {
   return "";
 }
 
-export const createMockProduct = (): Product =>
-  new Product(uuidv4(), "", faker.commerce.productName());
+export const createMockProduct = (name?: string): Product =>
+  new Product(uuidv4(), "", name ?? faker.commerce.productName());
 
 export const createMockShoppingLists = (): ShoppingList =>
   new ShoppingList(uuidv4(), faker.word.verb());
