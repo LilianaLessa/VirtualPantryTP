@@ -3,24 +3,47 @@ import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import { Text, View } from "react-native";
 import React from "react";
-import { IProduct } from "./features/products/interfaces/product.interface";
 import Product from "./features/products/classes/product.class";
 import Pantry from "./features/pantries/classes/pantry.class";
-import { IPantry } from "./features/pantries/interfaces/pantry.interface";
-import { INotification } from "./features/notification/interfaces/notification.interface";
-import IShoppingList from "./features/shoppingList/interfaces/shopping-list.interface";
 import ShoppingList from "./features/shoppingList/classes/shopping-list.class";
+import Group from "./features/group/classes/group.class";
+import UserInGroup, {
+  UseInGroupAcceptanceState,
+} from "./features/group/classes/user-in-group.class";
+import Notification from "./features/notification/classes/notification.class";
+import StoredProduct from "./features/products/classes/stored.product";
+import ShoppingListItem from "./features/shoppingList/classes/shopping-list-item.class";
 
-export const createMockProduct = (): IProduct =>
-  new Product(uuidv4(), "", faker.commerce.productName());
+export function getStackTraceAsString(error: Error): string {
+  if (error.stack) {
+    return error.stack
+      .split("\n")
+      .slice(2)
+      .map((line) => line.replace(/\s+at\s+/, ""))
+      .join("\n");
+  }
 
-export const createMockShoppingLists = (): IShoppingList =>
+  return "";
+}
+
+export function createMockShoppingListItem(): ShoppingListItem {
+  return new ShoppingListItem(uuidv4(), "");
+}
+
+export function createMockShoppingList(): ShoppingList {
+  return new ShoppingList(uuidv4());
+}
+
+export const createMockProduct = (name?: string): Product =>
+  new Product(uuidv4(), "", name ?? faker.commerce.productName());
+
+export const createMockShoppingLists = (): ShoppingList =>
   new ShoppingList(uuidv4(), faker.word.verb());
 
-export const createMockPantry = (): IPantry =>
-  new Pantry(uuidv4(), faker.name.firstName());
+export const createMockPantry = (name?: string): Pantry =>
+  new Pantry(uuidv4(), name ?? faker.name.firstName());
 
-export function ScreenPlaceHolder({ route }) {
+export function ScreenPlaceHolder({ route }: { route: { params: any } }) {
   const { screenName } = route.params;
   return (
     <View>
@@ -29,12 +52,33 @@ export function ScreenPlaceHolder({ route }) {
   );
 }
 
-export function getStackTraceAsString(e?: Error): string {
-  const error = e ?? new Error();
-  // console.log(stack);
-  return error.stack
-    .split("\n")
-    .slice(2)
-    .map((line) => line.replace(/\s+at\s+/, ""))
-    .join("\n");
+export function createMockStoredProduct(): StoredProduct {
+  return new StoredProduct(uuidv4(), "");
+}
+
+export function createMockGroup(): Group {
+  return new Group(uuidv4(), "mock group", "ownerUid");
+}
+
+export function createMockUserInGroup(group: Group): UserInGroup {
+  return new UserInGroup(
+    uuidv4(),
+    "",
+    group.uuid,
+    "",
+    false,
+    false,
+    UseInGroupAcceptanceState.PENDING
+  );
+}
+
+export function createMockNotification(): Notification {
+  return new Notification(
+    "UUID",
+    undefined,
+    undefined,
+    false,
+    new Date().toLocaleDateString(),
+    ""
+  );
 }

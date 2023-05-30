@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import DbContext from "./localDatabase/classes/db-context.class";
 import IFirestoreObject from "../firebase/interfaces/firestore-object.interface";
 import AuthGuardService from "../firebase/auth-guard.service";

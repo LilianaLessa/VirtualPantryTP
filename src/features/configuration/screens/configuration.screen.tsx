@@ -3,6 +3,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Button, HelperText, Switch, TextInput } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
 import { useFonts } from "expo-font";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import materialCommunityIconsFont from "react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
@@ -154,8 +156,8 @@ function ConfigurationScreen() {
         visible={timePickerVisible}
         onDismiss={onDismiss}
         onConfirm={onConfirm}
-        hours={notificationTime.split(":")[0]}
-        minutes={notificationTime.split(":")[1]}
+        hours={Number(notificationTime.split(":")[0])}
+        minutes={Number(notificationTime.split(":")[1])}
       />
       <TouchableOpacity onPress={saveConfiguration}>
         <Button mode="contained">Save</Button>

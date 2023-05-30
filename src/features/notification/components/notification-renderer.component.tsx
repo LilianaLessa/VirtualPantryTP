@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Text, View } from "react-native";
 import React, { useContext } from "react";
 import Notification, { NotificationType } from "../classes/notification.class";

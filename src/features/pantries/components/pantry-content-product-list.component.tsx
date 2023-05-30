@@ -1,9 +1,9 @@
 import { FlatList, View } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { IStoredProduct } from "../../products/interfaces/stored-product.interface";
 import PantryContentProductListItem from "./pantry-content-product-list-item.component";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
 import Pantry from "../classes/pantry.class";
+import StoredProduct from "../../products/classes/stored.product";
 
 function PantryContentProductList({ pantry }: { pantry: Pantry }) {
   const { pantryService } = useContext(DependencyInjectionContext);
@@ -16,7 +16,7 @@ function PantryContentProductList({ pantry }: { pantry: Pantry }) {
     setStoredProducts(pantryService.getPantryContent(pantry));
   }, [pantry, pantryService]);
 
-  const renderItem = ({ item }: { item: IStoredProduct }) => (
+  const renderItem = ({ item }: { item: StoredProduct }) => (
     <PantryContentProductListItem storedProduct={item} />
   );
 

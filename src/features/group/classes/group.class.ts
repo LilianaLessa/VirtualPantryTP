@@ -1,12 +1,11 @@
 import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
-import firebase from "firebase/compat";
+import { DocumentData } from "firebase/firestore";
 import {
   LocalTable,
   TableNames,
 } from "../../../services/applicationData/localDatabase/tables";
 import UserInGroup from "./user-in-group.class";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
-import DocumentData = firebase.firestore.DocumentData;
 
 export default class Group
   extends IBaseModule<TableNames>
@@ -127,5 +126,17 @@ export default class Group
       ...data
     } = this;
     return data;
+  }
+
+  buildFromFirestoreData(doc: DocumentData): any {
+    return Group.buildFromFirestoreData(doc);
+  }
+
+  getFirestoreCollectionName(): string {
+    return Group.getFirestoreCollectionName();
+  }
+
+  getFirestoreDeletedCollectionName(): string {
+    return Group.getFirestoreDeletedCollectionName();
   }
 }

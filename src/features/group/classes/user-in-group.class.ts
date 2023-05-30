@@ -38,13 +38,13 @@ export default class UserInGroup
 
   acceptanceState: UseInGroupAcceptanceState;
 
-  answererUid: string;
+  answererUid?: string;
 
   updatedAt?: string;
 
   ownerUid: string;
 
-  firestoreId: string;
+  firestoreId?: string;
 
   constructor(
     uuid: string,
@@ -159,5 +159,17 @@ export default class UserInGroup
       doc.id,
       doc.data().updatedAt
     );
+  }
+
+  buildFromFirestoreData(doc: DocumentData): any {
+    return UserInGroup.buildFromFirestoreData(doc);
+  }
+
+  getFirestoreCollectionName(): string {
+    return UserInGroup.getFirestoreCollectionName();
+  }
+
+  getFirestoreDeletedCollectionName(): string {
+    return UserInGroup.getFirestoreDeletedCollectionName();
   }
 }

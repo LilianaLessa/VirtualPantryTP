@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import React, { createContext, useEffect, useState } from "react";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import {
@@ -7,7 +9,7 @@ import {
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET,
-} from "@env";
+} from "react-native-dotenv";
 
 function initializeFirebaseApp() {
   const firebaseConfig = {

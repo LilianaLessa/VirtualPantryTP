@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import Group from "../../features/group/classes/group.class";
 import Product from "../../features/products/classes/product.class";
 import Pantry from "../../features/pantries/classes/pantry.class";

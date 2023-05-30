@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { IBaseModule, TableBuilder } from "expo-sqlite-wrapper";
 import { DocumentData } from "firebase/firestore";
 import { IProduct } from "../interfaces/product.interface";

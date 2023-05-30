@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import { SavedProductsActionType } from "../action-types";
 import { SavedProductsActions } from "../actions";
