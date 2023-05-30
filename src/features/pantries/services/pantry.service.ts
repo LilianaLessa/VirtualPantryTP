@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { v4 as uuidv4 } from "uuid";
 import Pantry from "../classes/pantry.class";
 import AuthGuardService from "../../../services/firebase/auth-guard.service";

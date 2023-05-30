@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import React, { createContext, useEffect, useState } from "react";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import {

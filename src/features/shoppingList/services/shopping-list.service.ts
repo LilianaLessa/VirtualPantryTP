@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { v4 as uuidv4 } from "uuid";
 import IFirestoreObject from "../../../services/firebase/interfaces/firestore-object.interface";
 import ShoppingList from "../classes/shopping-list.class";

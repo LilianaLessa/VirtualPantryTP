@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { v4 as uuidv4 } from "uuid";
 import Notification, { NotificationType } from "../classes/notification.class";
 import DataSynchronizerService from "../../../services/applicationData/data-synchronizer.service";

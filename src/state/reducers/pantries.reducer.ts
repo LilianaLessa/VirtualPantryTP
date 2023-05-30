@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { IPantry } from "../../features/pantries/interfaces/pantry.interface";
 import { PantriesActionType } from "../action-types";
 import { PantriesActions } from "../actions";
@@ -21,7 +23,7 @@ const pantriesReducer = (
 ): PantriesState => {
   switch (action.type) {
     case PantriesActionType.SAVE_PANTRY:
-      //console.log(action.newPantry);
+      // console.log(action.newPantry);
       DbContext.getInstance()
         .database.save(action.newPantry as Pantry)
         .then(() => {

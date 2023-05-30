@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { RouteProp } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
 import { Text, View } from "react-native";

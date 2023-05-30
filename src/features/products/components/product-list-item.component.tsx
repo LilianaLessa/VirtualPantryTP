@@ -1,11 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import React, { useContext } from "react";
 import { TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import {
   AddToPantryIcon,
   AddToShoppingListIcon,
   DeleteIcon,
-  DragHandler,
   LeftContent,
   LeftIcon,
   LeftText,

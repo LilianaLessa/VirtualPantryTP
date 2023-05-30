@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

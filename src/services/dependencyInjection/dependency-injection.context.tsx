@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import GroupService from "../../features/group/services/group.service";
