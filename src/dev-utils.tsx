@@ -10,6 +10,19 @@ import Group from "./features/group/classes/group.class";
 import UserInGroup, {
   UseInGroupAcceptanceState,
 } from "./features/group/classes/user-in-group.class";
+import Notification from "./features/notification/classes/notification.class";
+
+export function getStackTraceAsString(error: Error): string {
+  if (error.stack) {
+    return error.stack
+      .split("\n")
+      .slice(2)
+      .map((line) => line.replace(/\s+at\s+/, ""))
+      .join("\n");
+  }
+
+  return "";
+}
 
 export const createMockProduct = (): Product =>
   new Product(uuidv4(), "", faker.commerce.productName());
@@ -45,14 +58,13 @@ export function createMockUserInGroup(group: Group): UserInGroup {
   );
 }
 
-export function getStackTraceAsString(error: Error): string {
-  if (error.stack) {
-    return error.stack
-      .split("\n")
-      .slice(2)
-      .map((line) => line.replace(/\s+at\s+/, ""))
-      .join("\n");
-  }
-
-  return "";
+export function createMockNotification(): Notification {
+  return new Notification(
+    "UUID",
+    undefined,
+    undefined,
+    false,
+    new Date().toLocaleDateString(),
+    ""
+  );
 }
