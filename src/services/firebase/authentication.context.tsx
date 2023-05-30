@@ -14,7 +14,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AsyncStorage } from "react-native";
 import { FirebaseContext } from "./firebase.context";
 import { useActions } from "../../hooks/useActions";
 

@@ -6,6 +6,10 @@ import React from "react";
 import Product from "./features/products/classes/product.class";
 import Pantry from "./features/pantries/classes/pantry.class";
 import ShoppingList from "./features/shoppingList/classes/shopping-list.class";
+import Group from "./features/group/classes/group.class";
+import UserInGroup, {
+  UseInGroupAcceptanceState,
+} from "./features/group/classes/user-in-group.class";
 
 export const createMockProduct = (): Product =>
   new Product(uuidv4(), "", faker.commerce.productName());
@@ -22,6 +26,22 @@ export function ScreenPlaceHolder({ route }: { route: { params: any } }) {
     <View>
       <Text>{screenName} Screen Placeholder</Text>
     </View>
+  );
+}
+
+export function createMockGroup(): Group {
+  return new Group(uuidv4(), "mock group", "ownerUid");
+}
+
+export function createMockUserInGroup(group: Group): UserInGroup {
+  return new UserInGroup(
+    uuidv4(),
+    "",
+    group.uuid,
+    "",
+    false,
+    false,
+    UseInGroupAcceptanceState.PENDING
   );
 }
 

@@ -1,5 +1,4 @@
 import { Dispatch } from "redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IProduct } from "../../features/products/interfaces/product.interface";
 import {
   ApiActivityActionType,
@@ -41,21 +40,6 @@ export const saveProduct =
     dispatch({
       type: SavedProductsActionType.SAVE_PRODUCT,
       newProduct: product,
-    });
-  };
-
-export const saveProductInSilent =
-  (product: IProduct) => (dispatch: Dispatch<SavedProductsActions>) => {
-    AsyncStorage.getItem("@loggedUser").then((result) => {
-      const storedUser = result ? JSON.parse(result) : null;
-      // console.log(storedUser?.uid, product.ownerUid);
-      if (storedUser !== null && typeof product.ownerUid === "undefined") {
-        product.ownerUid = storedUser.uid;
-      }
-      dispatch({
-        type: SavedProductsActionType.SAVE_PRODUCT,
-        newProduct: product,
-      });
     });
   };
 

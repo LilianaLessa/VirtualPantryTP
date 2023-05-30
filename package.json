@@ -97,6 +97,7 @@
           "jsx": "react"
         }
       }
-    }
+    },
+    "resolver": "./tests/jest.resolver.js"
   }
 }
