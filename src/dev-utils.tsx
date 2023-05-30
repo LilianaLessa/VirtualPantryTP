@@ -12,6 +12,7 @@ import UserInGroup, {
 } from "./features/group/classes/user-in-group.class";
 import Notification from "./features/notification/classes/notification.class";
 import StoredProduct from "./features/products/classes/stored.product";
+import ShoppingListItem from "./features/shoppingList/classes/shopping-list-item.class";
 
 export function getStackTraceAsString(error: Error): string {
   if (error.stack) {
@@ -23,6 +24,14 @@ export function getStackTraceAsString(error: Error): string {
   }
 
   return "";
+}
+
+export function createMockShoppingListItem(): ShoppingListItem {
+  return new ShoppingListItem(uuidv4(), "");
+}
+
+export function createMockShoppingList(): ShoppingList {
+  return new ShoppingList(uuidv4());
 }
 
 export const createMockProduct = (name?: string): Product =>

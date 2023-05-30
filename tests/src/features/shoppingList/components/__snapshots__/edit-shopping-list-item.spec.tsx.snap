@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App snapshot test 1`] = `
+<View
+  style={
+    {
+      "alignSelf": "stretch",
+      "backgroundColor": "#E6E6E6",
+      "flexDirection": "row",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "transparent",
+        "borderBottomWidth": 1,
+        "borderColor": "#D9D5DC",
+        "flexDirection": "row",
+      }
+    }
+  >
+    <TextInput
+      keyboardType="numeric"
+      onChangeText={[Function]}
+      placeholder="1"
+      style={
+        {
+          "alignSelf": "stretch",
+          "color": "#000",
+          "fontSize": 16,
+          "width": 30,
+        }
+      }
+      value="0"
+    />
+  </View>
+  <Text
+    style={
+      {
+        "color": "#121212",
+        "margin": 0,
+        "marginRight": 5,
+      }
+    }
+  >
+    x
+  </Text>
+  <View
+    style={
+      {
+        "backgroundColor": "transparent",
+        "borderBottomWidth": 1,
+        "borderColor": "#D9D5DC",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+      }
+    }
+  >
+    <TextInput
+      onChangeText={[Function]}
+      placeholder="Label"
+      style={
+        {
+          "color": "#000",
+          "fontSize": 16,
+          "lineHeight": 16,
+          "width": 150,
+        }
+      }
+      value=""
+    />
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "opacity": 1,
+        }
+      }
+    >
+      <Text />
+    </View>
+  </View>
+</View>
+`;
