@@ -11,6 +11,7 @@ import UserInGroup, {
   UseInGroupAcceptanceState,
 } from "./features/group/classes/user-in-group.class";
 import Notification from "./features/notification/classes/notification.class";
+import StoredProduct from "./features/products/classes/stored.product";
 
 export function getStackTraceAsString(error: Error): string {
   if (error.stack) {
@@ -30,8 +31,8 @@ export const createMockProduct = (): Product =>
 export const createMockShoppingLists = (): ShoppingList =>
   new ShoppingList(uuidv4(), faker.word.verb());
 
-export const createMockPantry = (): Pantry =>
-  new Pantry(uuidv4(), faker.name.firstName());
+export const createMockPantry = (name?: string): Pantry =>
+  new Pantry(uuidv4(), name ?? faker.name.firstName());
 
 export function ScreenPlaceHolder({ route }: { route: { params: any } }) {
   const { screenName } = route.params;
@@ -40,6 +41,10 @@ export function ScreenPlaceHolder({ route }: { route: { params: any } }) {
       <Text>{screenName} Screen Placeholder</Text>
     </View>
   );
+}
+
+export function createMockStoredProduct(): StoredProduct {
+  return new StoredProduct(uuidv4(), "");
 }
 
 export function createMockGroup(): Group {
