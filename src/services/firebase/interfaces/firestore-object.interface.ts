@@ -2,7 +2,7 @@ import { DocumentData } from "firebase/firestore";
 
 export default interface IFirestoreObject {
   uuid: string;
-  ownerUid: string;
+  ownerUid?: string;
   firestoreCollectionName: string;
   firestoreDeletedCollectionName: string;
   firestoreId?: string;

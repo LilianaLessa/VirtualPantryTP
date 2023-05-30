@@ -5,7 +5,6 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 import { CreateAccountScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";
-import { useActions } from "../../../hooks/useActions";
 
 function AccountScreen() {
   const navigation = useNavigation();

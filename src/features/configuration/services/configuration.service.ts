@@ -36,8 +36,10 @@ export default class ConfigurationService {
       },
     };
 
-    return this.dataSynchronizerService.attachOwnerUuid(
-      new Configuration(uuidv4(), dataToSave)
+    return <Configuration>(
+      this.dataSynchronizerService.attachOwnerUuid(
+        new Configuration(uuidv4(), dataToSave)
+      )
     );
   }
 

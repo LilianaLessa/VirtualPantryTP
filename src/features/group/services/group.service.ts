@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { v4 as uuidv4 } from "uuid";
 import { QueryConstraint } from "@firebase/firestore";
 import { and, where } from "firebase/firestore";
@@ -84,17 +86,12 @@ export default class GroupService {
     this.notificationService = notificationService;
     this.authGuardService = authGuardService;
     this.groups = groups ?? new Map<string, Group>();
-    this.stateActions = stateActions ?? {
-      saveGroup: (group: Group) => {},
-      deleteGroup: (group: Group) => {},
-      showLoadingActivityIndicator: () => {},
-      hideLoadingActivityIndicator: () => {},
-    };
-    this.firestoreActions = firestoreActions ?? {
-      saveObject: (firestoreObject: IFirestoreObject) => Promise.resolve(null),
-      deleteObject: (firestoreObject: IFirestoreObject) =>
-        Promise.resolve(null),
-    };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.stateActions = stateActions;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.firestoreActions = firestoreActions;
 
     this.authGuardService.guard(() => {
       console.log(

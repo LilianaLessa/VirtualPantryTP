@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { FirebaseError } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 import { AuthenticationContext } from "../../../services/firebase/authentication.context";
 import { HomeScreenRouteName } from "../../../infrastructure/navigation/route-names";
 import { DependencyInjectionContext } from "../../../services/dependencyInjection/dependency-injection.context";

@@ -25,7 +25,7 @@ export default class Configuration
 
   data: ConfigurationData;
 
-  ownerUid: string;
+  ownerUid?: string;
 
   firestoreCollectionName = Configuration.getFirestoreCollectionName();
 
@@ -50,7 +50,7 @@ export default class Configuration
     this.uuid = uuid;
     this.data = data;
 
-    this.serialized = this.data;
+    this._serialized = JSON.stringify(this.data);
 
     if (typeof ownerUid !== "undefined") {
       this.ownerUid = ownerUid;
@@ -138,5 +138,17 @@ export default class Configuration
       ...sendToFirestoreData
     } = this;
     return sendToFirestoreData;
+  }
+
+  buildFromFirestoreData(doc: DocumentData): any {
+    return Configuration.buildFromFirestoreData(doc);
+  }
+
+  getFirestoreCollectionName(): string {
+    return Configuration.getFirestoreCollectionName();
+  }
+
+  getFirestoreDeletedCollectionName(): string {
+    return Configuration.getFirestoreDeletedCollectionName();
   }
 }
